@@ -1,0 +1,391 @@
+---
+import '../styles/global.css';
+import { ClientRouter } from 'astro:transitions';
+---
+
+<html lang="fr">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="icon" type="image/png" href="/logo.png" />
+        <title>Mes Commandes | CD Motor Shop</title>
+        <style>
+            html { scroll-behavior: smooth; }
+
+            .account-dropdown { display: none; pointer-events: none; }
+            .account-dropdown.is-open { display: block; pointer-events: auto; }
+
+            .cart-dropdown {
+                display: none;
+                pointer-events: none;
+                width: min(18rem, calc(100vw - 2rem));
+            }
+            .cart-dropdown.is-open {
+                display: block;
+                pointer-events: auto;
+            }
+
+            #toast {
+                position: fixed;
+                bottom: 2rem; left: 50%;
+                transform: translateX(-50%) translateY(80px);
+                background: #16a34a; color: white;
+                font-weight: 900; font-size: 0.75rem;
+                text-transform: uppercase; letter-spacing: 0.08em;
+                padding: 0.7rem 1.6rem; border-radius: 99px;
+                z-index: 9999; opacity: 0;
+                transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1), opacity 0.3s ease;
+                pointer-events: none; white-space: nowrap;
+            }
+            #toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+            @keyframes fadeUp {
+                from { opacity: 0; transform: translateY(20px); }
+                to   { opacity: 1; transform: translateY(0); }
+            }
+            .order-card {
+                animation: fadeUp 0.5s ease-out both;
+            }
+
+            .status-badge {
+                display: inline-flex;
+                align-items: center;
+                gap: 0.3rem;
+                font-size: 0.65rem;
+                font-weight: 900;
+                text-transform: uppercase;
+                letter-spacing: 0.08em;
+                padding: 0.25rem 0.75rem;
+                border-radius: 99px;
+            }
+            .status-en-cours  { background: rgba(234,179,8,0.12);  color: #eab308; border: 1px solid rgba(234,179,8,0.3); }
+            .status-expedie   { background: rgba(59,130,246,0.12); color: #60a5fa; border: 1px solid rgba(59,130,246,0.3); }
+            .status-livre     { background: rgba(34,197,94,0.12);  color: #22c55e; border: 1px solid rgba(34,197,94,0.3); }
+            .status-annule    { background: rgba(239,68,68,0.12);  color: #ef4444; border: 1px solid rgba(239,68,68,0.3); }
+
+            #skeleton { display: flex; flex-direction: column; gap: 1rem; }
+            .skel-card {
+                background: #18181b;
+                border: 1px solid rgba(255,255,255,0.05);
+                border-radius: 1.5rem;
+                padding: 1.5rem;
+                height: 110px;
+                animation: pulse 1.5s ease-in-out infinite;
+            }
+            @keyframes pulse {
+                0%, 100% { opacity: 0.6; }
+                50%       { opacity: 1; }
+            }
+        </style>
+        <ClientRouter/>
+    </head>
+    <body class="bg-black text-white font-sans min-h-screen flex flex-col">
+
+        <div id="toast" role="status" aria-live="polite"></div>
+
+        <!-- NAVIGATION -->
+        <nav class="fixed w-full z-50 bg-black/80 backdrop-blur-md border-b border-white/10 p-5 px-5 md:px-10 flex justify-between items-center">
+            <a href="/" class="text-xl font-black italic tracking-tighter hover:text-green-500 transition">
+                <span class="text-green-600">←</span> CD MOTOR SHOP
+            </a>
+            <div class="flex items-center gap-2">
+
+                <!-- ── BONHOMME COMPTE ─────────────────────────────── -->
+                <div class="relative">
+                    <button id="account-btn" aria-label="Mon compte" aria-expanded="false" aria-controls="account-dropdown"
+                        class="relative p-2 flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zM19 20a7 7 0 10-14 0"/>
+                        </svg>
+                    </button>
+                    <div id="account-dropdown" role="dialog" aria-label="Mon compte"
+                        class="account-dropdown absolute right-0 mt-2 bg-zinc-900 border border-white/10 rounded-2xl shadow-2xl p-4 w-56 overflow-hidden">
+                        <p class="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1">Connecté en tant que</p>
+                        <p id="account-email" class="text-xs text-white font-black truncate mb-3">—</p>
+                        <div class="flex flex-col gap-1 mb-3 border-b border-white/10 pb-3">
+                            <a href="/account"
+                                class="flex items-center gap-2 text-xs text-gray-300 hover:text-white hover:bg-white/5 font-bold px-2 py-2 rounded-lg transition uppercase tracking-widest">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-green-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                                </svg>
+                                Mon compte
+                            </a>
+                            <a href="/orders"
+                                class="flex items-center gap-2 text-xs text-green-400 bg-green-500/10 font-bold px-2 py-2 rounded-lg uppercase tracking-widest">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-green-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                                </svg>
+                                Mes commandes
+                            </a>
+                        </div>
+                        <button id="logout-btn"
+                            class="w-full bg-zinc-800 hover:bg-red-900/40 border border-white/10 hover:border-red-500/30 text-red-400 hover:text-red-300 text-xs font-black py-2.5 rounded-xl transition uppercase tracking-widest">
+                            Se déconnecter
+                        </button>
+                    </div>
+                </div>
+
+                <!-- ── PANIER ──────────────────────────────────────── -->
+                <div class="relative">
+                    <button id="cart-toggle" aria-label="Ouvrir le panier" aria-expanded="false" aria-controls="cart-dropdown" class="relative p-2 hover:text-green-500 transition">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                        </svg>
+                        <span id="cart-count" aria-live="polite" class="absolute -top-1 -right-1 bg-green-600 text-white text-[10px] font-bold h-5 w-5 flex items-center justify-center rounded-full">0</span>
+                    </button>
+                    <div id="cart-dropdown" role="dialog" aria-label="Panier" class="cart-dropdown absolute right-0 mt-2 bg-zinc-900 border border-white/10 rounded-2xl shadow-2xl p-4 overflow-hidden">
+                        <h4 class="text-sm font-black uppercase mb-4 italic text-green-500">Mon Panier</h4>
+                        <div id="cart-items" class="space-y-4 max-h-60 overflow-y-auto" aria-live="polite">
+                            <p class="text-gray-500 text-xs italic">Votre panier est vide.</p>
+                        </div>
+                        <div class="border-t border-white/10 mt-4 pt-4">
+                            <div class="flex justify-between font-bold text-sm">
+                                <span>TOTAL :</span>
+                                <span id="cart-total">0.00€</span>
+                            </div>
+                            <button id="checkout-btn" class="w-full bg-white text-black text-xs font-black py-3 mt-4 rounded-xl hover:bg-green-500 hover:text-white transition uppercase">
+                                Commander
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- MAIN -->
+        <main class="flex-1 pb-20 px-5 md:px-10 max-w-4xl mx-auto w-full" style="padding-top: 6rem;">
+
+            <!-- En-tête -->
+            <div class="mb-10">
+                <span class="text-green-500 font-bold tracking-widest uppercase text-xs">Historique</span>
+                <h1 class="text-4xl md:text-5xl font-black uppercase italic mt-2">Mes Commandes</h1>
+                <p id="orders-subtitle" class="text-gray-500 text-sm mt-3">Chargement…</p>
+            </div>
+
+            <!-- Skeleton loading -->
+            <div id="skeleton">
+                <div class="skel-card"></div>
+                <div class="skel-card" style="animation-delay:0.15s"></div>
+                <div class="skel-card" style="animation-delay:0.3s"></div>
+            </div>
+
+            <!-- Contenu réel -->
+            <div id="orders-list" class="space-y-4" style="display:none"></div>
+
+            <!-- État vide -->
+            <div id="orders-empty" style="display:none"
+                class="flex flex-col items-center justify-center text-center py-24 gap-5">
+                <div class="h-20 w-20 rounded-full bg-zinc-900 border border-white/10 flex items-center justify-center mb-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-9 w-9 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                    </svg>
+                </div>
+                <p class="text-white font-black text-xl uppercase italic">Aucune commande</p>
+                <p class="text-gray-500 text-sm">Tu n'as pas encore passé de commande.</p>
+                <a href="/" class="mt-2 bg-green-600 hover:bg-green-700 text-white font-black py-3 px-8 rounded-2xl transition uppercase text-xs tracking-widest shadow-lg shadow-green-900/20">
+                    Découvrir les produits
+                </a>
+            </div>
+
+            <!-- Non connecté -->
+            <div id="orders-auth" style="display:none"
+                class="flex flex-col items-center justify-center text-center py-24 gap-5">
+                <div class="h-20 w-20 rounded-full bg-zinc-900 border border-white/10 flex items-center justify-center mb-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-9 w-9 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                    </svg>
+                </div>
+                <p class="text-white font-black text-xl uppercase italic">Connexion requise</p>
+                <p class="text-gray-500 text-sm">Connecte-toi pour voir tes commandes.</p>
+                <a href="/login" class="mt-2 bg-green-600 hover:bg-green-700 text-white font-black py-3 px-8 rounded-2xl transition uppercase text-xs tracking-widest shadow-lg shadow-green-900/20">
+                    Se connecter
+                </a>
+            </div>
+        </main>
+
+        <script>
+            import { supabase } from '../lib/supabase.js';
+            import { initAuthNav } from '../scripts/auth-nav.js';
+            import { initCart } from '../scripts/cart.js';
+
+            document.addEventListener('astro:page-load', async () => {
+                initAuthNav();
+                initCart({ id: 'deep-matte-01', nom: 'Deep Matte', prix: 29.90 });
+
+                const skeleton   = document.getElementById('skeleton');
+                const listEl     = document.getElementById('orders-list');
+                const emptyEl    = document.getElementById('orders-empty');
+                const authEl     = document.getElementById('orders-auth');
+                const subtitleEl = document.getElementById('orders-subtitle');
+
+                const hideSkeleton = () => { if (skeleton) skeleton.style.display = 'none'; };
+
+                // ── Vérification auth ────────────────────────────────────────
+                const { data: { user } } = await supabase.auth.getUser();
+
+                if (!user) {
+                    hideSkeleton();
+                    if (authEl) authEl.style.display = 'flex';
+                    if (subtitleEl) subtitleEl.textContent = '';
+                    return;
+                }
+
+                // ── Récupération commandes ───────────────────────────────────
+                const { data: orders, error } = await supabase
+                    .from('orders')
+                    .select('*')
+                    .eq('user_id', user.id)
+                    .order('created_at', { ascending: false });
+
+                hideSkeleton();
+
+                if (error || !orders || orders.length === 0) {
+                    if (emptyEl) emptyEl.style.display = 'flex';
+                    if (subtitleEl) subtitleEl.textContent = '0 commande';
+                    return;
+                }
+
+                if (subtitleEl) subtitleEl.textContent = `${orders.length} commande${orders.length > 1 ? 's' : ''}`;
+                if (listEl) { listEl.style.display = 'flex'; listEl.style.flexDirection = 'column'; }
+
+                // ── Rendu ────────────────────────────────────────────────────
+                const statusLabel = {
+                    'en cours': { cls: 'status-en-cours',  dot: '●', label: 'En cours' },
+                    'expédié':  { cls: 'status-expedie',   dot: '●', label: 'Expédié'  },
+                    'livré':    { cls: 'status-livre',     dot: '●', label: 'Livré'    },
+                    'annulé':   { cls: 'status-annule',    dot: '●', label: 'Annulé'   },
+                };
+
+                const formatDate = (iso) => {
+                    const d = new Date(iso);
+                    return d.toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' });
+                };
+
+                // Étapes de suivi
+                const trackingSteps = ['Commande reçue', 'En préparation', 'Expédié', 'Livré'];
+                const trackingIndex = { 'en cours': 1, 'expédié': 2, 'livré': 3, 'annulé': -1 };
+
+                orders.forEach((order, i) => {
+                    const items    = Array.isArray(order.items) ? order.items : [];
+                    const status   = statusLabel[order.status] ?? statusLabel['en cours'];
+                    const ordNum   = String(order.id).slice(0, 8).toUpperCase();
+                    const stepIdx  = trackingIndex[order.status] ?? 1;
+                    const firstImg = items[0]?.img || '';
+                    const allNames = items.map(it => `${it.name} ×${it.qty}`).join(', ');
+
+                    const card = document.createElement('div');
+                    card.className = 'order-card';
+                    card.style.cssText = `
+                        background:#18181b;
+                        border:1px solid rgba(255,255,255,0.08);
+                        border-radius:1.5rem;
+                        overflow:hidden;
+                        animation:fadeUp 0.5s ease-out both;
+                        animation-delay:${i * 0.08}s;
+                        transition:border-color 0.3s;
+                        width:100%;
+                    `;
+
+                    // Barre de progression suivi
+                    const stepsHtml = trackingSteps.map((label, si) => {
+                        const done    = si <= stepIdx;
+                        const current = si === stepIdx;
+                        const color   = done ? '#22c55e' : 'rgba(255,255,255,0.15)';
+                        const textCol = current ? '#fff' : done ? '#22c55e' : '#6b7280';
+                        return `
+                            <div style="display:flex;flex-direction:column;align-items:center;gap:0.4rem;flex:1;position:relative;">
+                                ${si > 0 ? `<div style="position:absolute;top:10px;right:50%;width:100%;height:2px;background:${si <= stepIdx ? '#22c55e' : 'rgba(255,255,255,0.1)'};z-index:0;"></div>` : ''}
+                                <div style="width:20px;height:20px;border-radius:50%;background:${current ? '#22c55e' : done ? '#15803d' : 'rgba(255,255,255,0.08)'};border:2px solid ${color};z-index:1;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                                    ${done && !current ? `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>` : ''}
+                                </div>
+                                <span style="font-size:0.55rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:${textCol};text-align:center;line-height:1.3;">${label}</span>
+                            </div>`;
+                    }).join('');
+
+                    // Lignes produits
+                    const itemsHtml = items.map(item => `
+                        <div style="display:flex;align-items:center;justify-content:space-between;padding:0.5rem 0;border-bottom:1px solid rgba(255,255,255,0.05);">
+                            <div>
+                                <p style="font-size:0.75rem;font-weight:900;text-transform:uppercase;">${item.name}</p>
+                                <p style="font-size:0.65rem;color:#6b7280;margin-top:0.15rem;">Qté : ${item.qty} · ${item.price?.toFixed(2)}€ / unité</p>
+                            </div>
+                            <p style="font-size:0.875rem;font-weight:900;color:#4ade80;flex-shrink:0;margin-left:1rem;">${(item.price * item.qty).toFixed(2)}€</p>
+                        </div>
+                    `).join('');
+
+                    card.innerHTML = `
+                        <!-- CORPS : image gauche + infos droite -->
+                        <div style="display:flex;align-items:stretch;min-height:180px;">
+
+                            <!-- Image 20% -->
+                            <div style="width:20%;flex-shrink:0;background:#111;overflow:hidden;position:relative;">
+                                ${firstImg
+                                    ? `<img src="${firstImg}" style="width:100%;height:100%;object-fit:cover;opacity:0.85;" alt="produit" />`
+                                    : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:2rem;color:#3f3f46;">📦</div>`
+                                }
+                                ${items.length > 1 ? `<div style="position:absolute;bottom:0.5rem;right:0.5rem;background:rgba(0,0,0,0.7);border-radius:99px;padding:0.15rem 0.5rem;font-size:0.6rem;font-weight:900;color:white;">+${items.length - 1}</div>` : ''}
+                            </div>
+
+                            <!-- Infos 80% -->
+                            <div style="flex:1;padding:1.25rem 1.5rem;display:flex;flex-direction:column;gap:0.75rem;min-width:0;">
+
+                                <!-- Header -->
+                                <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;">
+                                    <div>
+                                        <p style="font-size:0.6rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#6b7280;margin-bottom:0.2rem;">Commande · ${formatDate(order.created_at)}</p>
+                                        <p style="font-weight:900;font-size:1rem;letter-spacing:0.06em;">#${ordNum}</p>
+                                        <p style="font-size:0.65rem;color:#9ca3af;margin-top:0.3rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:320px;">${allNames}</p>
+                                    </div>
+                                    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:0.4rem;flex-shrink:0;">
+                                        <span class="status-badge ${status.cls}">${status.dot} ${status.label}</span>
+                                        <p style="font-weight:900;font-size:1.25rem;">${Number(order.total).toFixed(2)}€</p>
+                                    </div>
+                                </div>
+
+                                <!-- Suivi -->
+                                <div style="display:flex;align-items:flex-start;gap:0;padding-top:0.5rem;">
+                                    ${stepsHtml}
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <!-- Détail produits (expandable) -->
+                        <details style="border-top:1px solid rgba(255,255,255,0.06);">
+                            <summary style="padding:0.75rem 1.5rem;font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#6b7280;cursor:pointer;list-style:none;display:flex;align-items:center;gap:0.4rem;">
+                                <svg xmlns="http://www.w3.org/2000/svg" style="height:12px;width:12px;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                                Voir le détail (${items.length} article${items.length > 1 ? 's' : ''})
+                            </summary>
+                            <div style="padding:0 1.5rem 1rem;">
+                                ${itemsHtml}
+                                <div style="display:flex;align-items:center;gap:0.4rem;font-size:0.65rem;color:#22c55e;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;margin-top:0.75rem;">
+                                    <svg xmlns="http://www.w3.org/2000/svg" style="height:13px;width:13px;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8l1 12h12L19 8M10 12h4"/></svg>
+                                    Livraison gratuite incluse
+                                </div>
+                            </div>
+                        </details>
+                    `;
+
+                    listEl.appendChild(card);
+                });
+            });
+        </script>
+        <!-- FOOTER -->
+        <footer class="py-16 bg-zinc-950 border-t border-white/10 px-5 md:px-10 text-center">
+            <div class="max-w-4xl mx-auto">
+                <div class="text-xl font-black italic mb-6 uppercase">À propos de <span class="text-green-600">CD</span> MOTOR SHOP</div>
+                <p class="text-gray-500 text-sm leading-relaxed mb-10 italic">
+                    Passionnés de mécanique et de style, nous sélectionnons des accessoires de haute qualité pour transformer votre habitacle. Chaque pièce est choisie pour sa durabilité et son ergonomie.
+                </p>
+                <div class="flex flex-wrap justify-center gap-x-6 gap-y-2 mb-8">
+                    <a href="/mentions-legales" class="text-gray-500 hover:text-white text-xs uppercase tracking-widest transition">Mentions légales</a>
+                    <a href="/cgv" class="text-gray-500 hover:text-white text-xs uppercase tracking-widest transition">CGV</a>
+                    <a href="/politique-confidentialite" class="text-gray-500 hover:text-white text-xs uppercase tracking-widest transition">Politique de confidentialité</a>
+                    <a href="/contact" class="text-gray-500 hover:text-white text-xs uppercase tracking-widest transition">Contact</a>
+                </div>
+                <p class="text-gray-600 text-xs uppercase tracking-widest font-bold">© 2026 CD MOTOR SHOP. Tous droits réservés.</p>
+            </div>
+        </footer>
+    </body>
+</html>

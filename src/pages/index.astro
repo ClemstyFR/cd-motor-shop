@@ -1,11 +1,360 @@
 ---
-import Welcome from '../components/Welcome.astro';
-import Layout from '../layouts/Layout.astro';
+import '../styles/global.css';
+import imageBlackMatte1 from '../assets/pommeau-deepmatte/image3.png';
+import imageBlackMatte2 from '../assets/pommeau-deepmatte/image2.png';
+import { ClientRouter } from 'astro:transitions';
 
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+const product = { 
+    id: "deep-matte-01",
+    nom: "Deep Matte", 
+    description: "Finition aluminium premium, prise en main parfaite pour une précision maximale.",
+    prix: 29.90,
+    image: imageBlackMatte1, 
+    link: "/deepmatte" 
+};
 ---
 
-<Layout>
-	<Welcome />
-</Layout>
+<html lang="fr">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="icon" type="image/png" href="/logo.png" />
+		<title>CD Motor Shop | Le détail qui change tout.</title>
+		<style>
+			html { scroll-behavior: smooth; }
+
+            .btn-gradient-animate { background-size: 200% auto; transition: 0.5s; }
+            .btn-gradient-animate:hover { background-position: right center; }
+
+            .product-card {
+                transform-style: preserve-3d;
+                transition: transform 0.1s ease-out, box-shadow 0.1s ease-out;
+                will-change: transform;
+            }
+            .product-card:hover {
+                box-shadow: 0 30px 80px rgba(0,0,0,0.6), 0 0 40px rgba(34,197,94,0.08);
+            }
+
+            .cart-dropdown {
+                display: none;
+                pointer-events: none;
+                width: min(18rem, calc(100vw - 2rem));
+            }
+            .cart-dropdown.is-open {
+                display: block;
+                pointer-events: auto;
+            }
+
+            .account-dropdown {
+                display: none;
+                pointer-events: none;
+            }
+            .account-dropdown.is-open {
+                display: block;
+                pointer-events: auto;
+            }
+
+            @keyframes fadeUp {
+                from { opacity: 0; transform: translateY(28px); }
+                to   { opacity: 1; transform: translateY(0); }
+            }
+            .hero-title    { opacity: 0; animation: fadeUp 0.8s ease-out 0.2s forwards; }
+            .hero-subtitle { opacity: 0; animation: fadeUp 0.8s ease-out 0.5s forwards; }
+            .hero-cta      { opacity: 0; animation: fadeUp 0.8s ease-out 0.8s forwards; }
+
+            #toast {
+                position: fixed;
+                bottom: 2rem; left: 50%;
+                transform: translateX(-50%) translateY(80px);
+                background: #16a34a; color: white;
+                font-weight: 900; font-size: 0.75rem;
+                text-transform: uppercase; letter-spacing: 0.08em;
+                padding: 0.7rem 1.6rem; border-radius: 99px;
+                z-index: 9999; opacity: 0;
+                transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1), opacity 0.3s ease;
+                pointer-events: none; white-space: nowrap;
+            }
+            #toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+		</style>
+        <ClientRouter/>
+	</head>
+	<body class="bg-black text-white font-sans">
+
+		<div id="toast" role="status" aria-live="polite"></div>
+		
+		<nav class="fixed w-full z-50 bg-black/80 backdrop-blur-md border-b border-white/10 p-5 px-5 md:px-10 flex justify-between items-center">
+			<div class="text-2xl font-black italic tracking-tighter">
+				<span class="text-green-600">CD</span> MOTOR SHOP
+			</div>
+            <div class="flex items-center gap-2">
+
+            <!-- ── BONHOMME COMPTE ─────────────────────────────────── -->
+            <div class="relative">
+                <button id="account-btn" aria-label="Mon compte" aria-expanded="false" aria-controls="account-dropdown"
+                    class="relative p-2 flex items-center justify-center">
+                    <!-- Rendu dynamiquement par auth-nav.js -->
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zM19 20a7 7 0 10-14 0"/>
+                    </svg>
+                </button>
+                <div id="account-dropdown" role="dialog" aria-label="Mon compte"
+                    class="account-dropdown absolute right-0 mt-2 bg-zinc-900 border border-white/10 rounded-2xl shadow-2xl p-4 w-56 overflow-hidden">
+                    <p class="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1">Connecté en tant que</p>
+                    <p id="account-email" class="text-xs text-white font-black truncate mb-3">—</p>
+                    <div class="flex flex-col gap-1 mb-3 border-b border-white/10 pb-3">
+                        <a href="/account"
+                            class="flex items-center gap-2 text-xs text-gray-300 hover:text-white hover:bg-white/5 font-bold px-2 py-2 rounded-lg transition uppercase tracking-widest">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-green-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                            </svg>
+                            Mon compte
+                        </a>
+                        <a href="/orders"
+                            class="flex items-center gap-2 text-xs text-gray-300 hover:text-white hover:bg-white/5 font-bold px-2 py-2 rounded-lg transition uppercase tracking-widest">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-green-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                            </svg>
+                            Mes commandes
+                        </a>
+                    </div>
+                    <button id="logout-btn"
+                        class="w-full bg-zinc-800 hover:bg-red-900/40 border border-white/10 hover:border-red-500/30 text-red-400 hover:text-red-300 text-xs font-black py-2.5 rounded-xl transition uppercase tracking-widest">
+                        Se déconnecter
+                    </button>
+                </div>
+            </div>
+
+            <!-- ── PANIER ──────────────────────────────────────────── -->
+            <div class="relative">
+                <button id="cart-toggle" aria-label="Ouvrir le panier" aria-expanded="false" aria-controls="cart-dropdown" class="relative p-2 hover:text-green-500 transition">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                    </svg>
+                    <span id="cart-count" aria-live="polite" class="absolute -top-1 -right-1 bg-green-600 text-white text-[10px] font-bold h-5 w-5 flex items-center justify-center rounded-full">0</span>
+                </button>
+                <div id="cart-dropdown" role="dialog" aria-label="Panier" class="cart-dropdown absolute right-0 mt-2 bg-zinc-900 border border-white/10 rounded-2xl shadow-2xl p-4 overflow-hidden">
+                    <h4 class="text-sm font-black uppercase mb-4 italic text-green-500">Mon Panier</h4>
+                    <div id="cart-items" class="space-y-4 max-h-60 overflow-y-auto" aria-live="polite">
+                        <p class="text-gray-500 text-xs italic">Votre panier est vide.</p>
+                    </div>
+                    <div class="border-t border-white/10 mt-4 pt-4">
+                        <div class="flex justify-between font-bold text-sm">
+                            <span>TOTAL :</span>
+                            <span id="cart-total">0.00€</span>
+                        </div>
+                        <button id="checkout-btn" class="w-full bg-white text-black text-xs font-black py-3 mt-4 rounded-xl hover:bg-green-500 hover:text-white transition uppercase">
+                            Commander
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- fin flex items-center gap-2 -->
+        </div>
+		</nav>
+
+		<section class="relative h-screen flex items-center justify-center overflow-hidden">
+			<div class="absolute inset-0 z-0">
+				<img src={imageBlackMatte2.src} class="w-full h-full object-cover opacity-40" alt="" role="presentation" />
+				<div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
+			</div>
+			<div class="relative z-10 text-center px-6">
+				<h1 class="hero-title text-5xl md:text-6xl font-black italic uppercase leading-none">
+					Le détail qui change <span class="text-green-600">tout.</span>
+				</h1>
+				<p class="hero-subtitle mt-6 text-xl text-gray-300 max-w-2xl mx-auto font-light">
+					Équipez votre véhicule avec les meilleures pièces et accessoires de performance.
+				</p>
+				<div class="hero-cta mt-10">
+					<a href="#produit-unique" class="btn-gradient-animate bg-gradient-to-r from-green-600 via-green-400 to-green-600 text-white font-black py-5 px-12 rounded-full text-xl inline-block uppercase tracking-wider shadow-xl shadow-green-900/20">
+						Découvrez Deep Matte
+					</a>
+				</div>
+			</div>
+		</section>
+
+		<section id="produit-unique" class="py-24 px-5 md:px-10 max-w-5xl mx-auto">
+			<div id="product-card" class="product-card bg-zinc-900 rounded-[40px] border border-white/5 flex flex-col md:flex-row items-center gap-10 p-8 md:p-12">
+				<div class="w-full md:w-1/2 overflow-hidden rounded-3xl">
+					<img src={product.image.src} id="prod-img" class="w-full h-auto object-cover hover:scale-105 transition duration-500" alt={`Photo du produit ${product.nom}`} />
+				</div>
+				<div class="w-full md:w-1/2">
+                    <span class="text-green-500 font-bold tracking-widest uppercase text-xs">Édition Premium</span>
+					<h2 class="text-4xl font-black uppercase italic mt-2">{product.nom}</h2>
+					<p class="text-2xl text-white font-black mt-2">{product.prix.toFixed(2)}€</p>
+					<div class="flex items-center gap-2 mt-3" aria-label="Note : 4.7 sur 5">
+						<span class="text-yellow-400 text-lg">★★★★★</span>
+						<span class="text-white font-black text-sm">4.7</span>
+						<span class="text-gray-500 text-xs">(24 avis)</span>
+					</div>
+					<p class="text-gray-400 mt-6 italic font-light leading-relaxed">"{product.description}"</p>
+					<div class="mt-10 flex flex-col gap-4">
+                        <a href="/deepmatte" class="w-full bg-green-600 hover:bg-green-700 text-white text-center font-black py-5 rounded-2xl transition-all active:scale-95 uppercase text-lg shadow-lg shadow-green-900/20">
+                            Détails techniques →
+                        </a>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<section class="py-16 px-5 md:px-10 max-w-5xl mx-auto">
+			<div class="text-center mb-12">
+				<span class="text-green-500 font-bold tracking-widest uppercase text-xs">Ils ont testé</span>
+				<h2 class="text-3xl font-black uppercase italic mt-2">Ce que disent nos clients</h2>
+				<div class="flex items-center justify-center gap-3 mt-4">
+					<span class="text-yellow-400 text-2xl" aria-label="Note globale : 4.7 sur 5">★★★★★</span>
+					<span class="text-white font-black text-xl">4.7</span>
+					<span class="text-gray-500 text-sm">(24 avis)</span>
+				</div>
+			</div>
+			<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+				<div class="bg-zinc-900 border border-white/5 rounded-3xl p-6 flex flex-col gap-4 hover:border-green-600/30 transition duration-300">
+					<span class="text-yellow-400" aria-label="5 étoiles sur 5">★★★★★</span>
+					<p class="text-gray-300 text-sm italic leading-relaxed flex-1">"Qualité vraiment premium, ça change tout dans l'habitacle. Le toucher est parfait et le montage s'est fait en 5 minutes."</p>
+					<div class="flex items-center gap-3 mt-2">
+						<div class="h-9 w-9 rounded-full bg-green-600/20 border border-green-600/40 flex items-center justify-center text-green-500 font-black text-sm">T</div>
+						<div><p class="text-white text-xs font-black uppercase">Thomas M.</p><p class="text-gray-600 text-[10px]">Acheté il y a 2 semaines</p></div>
+					</div>
+				</div>
+				<div class="bg-zinc-900 border border-white/5 rounded-3xl p-6 flex flex-col gap-4 hover:border-green-600/30 transition duration-300">
+					<span class="text-yellow-400" aria-label="5 étoiles sur 5">★★★★★</span>
+					<p class="text-gray-300 text-sm italic leading-relaxed flex-1">"Rendu incroyable sur ma Golf 8. La finition aluminium mat est exactement comme sur les photos, voire mieux en vrai. Je recommande."</p>
+					<div class="flex items-center gap-3 mt-2">
+						<div class="h-9 w-9 rounded-full bg-green-600/20 border border-green-600/40 flex items-center justify-center text-green-500 font-black text-sm">L</div>
+						<div><p class="text-white text-xs font-black uppercase">Lucas R.</p><p class="text-gray-600 text-[10px]">Acheté il y a 1 mois</p></div>
+					</div>
+				</div>
+				<div class="bg-zinc-900 border border-white/5 rounded-3xl p-6 flex flex-col gap-4 hover:border-green-600/30 transition duration-300">
+					<span class="text-yellow-400" aria-label="4 étoiles sur 5">★★★★<span class="text-gray-600">★</span></span>
+					<p class="text-gray-300 text-sm italic leading-relaxed flex-1">"Très bonne prise en main, solide et bien fini. Livraison rapide. J'enlève une étoile car le filetage est un peu serré mais une fois en place c'est nickel."</p>
+					<div class="flex items-center gap-3 mt-2">
+						<div class="h-9 w-9 rounded-full bg-green-600/20 border border-green-600/40 flex items-center justify-center text-green-500 font-black text-sm">S</div>
+						<div><p class="text-white text-xs font-black uppercase">Samir K.</p><p class="text-gray-600 text-[10px]">Acheté il y a 3 semaines</p></div>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<section class="bg-green-600 py-10">
+			<div class="max-w-7xl mx-auto px-5 md:px-10 grid grid-cols-1 md:grid-cols-2 gap-8 text-center">
+				<div class="flex flex-col items-center gap-2">
+					<svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 opacity-90" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8l1 12h12L19 8M10 12h4" />
+					</svg>
+					<p class="font-black text-xl italic uppercase">Livraison Gratuite</p>
+					<p class="text-sm opacity-80 italic">Sans minimum d'achat</p>
+				</div>
+				<div class="flex flex-col items-center gap-2">
+					<svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 opacity-90" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+					</svg>
+					<p class="font-black text-xl italic uppercase">Qualité Premium</p>
+					<p class="text-sm opacity-80 italic">Produits sélectionnés pour leur qualité</p>
+				</div>
+			</div>
+		</section>
+
+		<footer class="py-16 bg-zinc-950 border-t border-white/10 px-5 md:px-10 text-center">
+            <div class="max-w-4xl mx-auto">
+                <div class="text-xl font-black italic mb-6 uppercase">À propos de <span class="text-green-600">CD</span> MOTOR SHOP</div>
+                <p class="text-gray-500 text-sm leading-relaxed mb-10 italic">
+                    Passionnés de mécanique et de style, nous sélectionnons des accessoires de haute qualité pour transformer votre habitacle. Chaque pièce est choisie pour sa durabilité et son ergonomie.
+                </p>
+                <div class="flex flex-wrap justify-center gap-x-6 gap-y-2 mb-8">
+                    <a href="/mentions-legales" class="text-gray-500 hover:text-white text-xs uppercase tracking-widest transition">Mentions légales</a>
+                    <a href="/cgv" class="text-gray-500 hover:text-white text-xs uppercase tracking-widest transition">CGV</a>
+                    <a href="/politique-confidentialite" class="text-gray-500 hover:text-white text-xs uppercase tracking-widest transition">Politique de confidentialité</a>
+                    <a href="/contact" class="text-gray-500 hover:text-white text-xs uppercase tracking-widest transition">Contact</a>
+                </div>
+                <p class="text-gray-600 text-xs uppercase tracking-widest font-bold">© 2026 CD MOTOR SHOP. Tous droits réservés.</p>
+            </div>
+		</footer>
+
+        <!-- Effet 3D tilt -->
+        <script>
+            document.addEventListener('astro:page-load', () => {
+                const card = document.getElementById('product-card');
+                if (!card || !window.matchMedia('(hover: hover)').matches) return;
+                const INTENSITY = 5;
+                card.addEventListener('mousemove', (e) => {
+                    const rect = card.getBoundingClientRect();
+                    const x = (e.clientX - rect.left) / rect.width  - 0.5;
+                    const y = (e.clientY - rect.top)  / rect.height - 0.5;
+                    card.style.transform = `perspective(1000px) rotateX(${(-y * INTENSITY).toFixed(2)}deg) rotateY(${(x * INTENSITY).toFixed(2)}deg) scale(1.01)`;
+                });
+                card.addEventListener('mouseleave', () => {
+                    card.style.transition = 'transform 0.5s ease-out, box-shadow 0.5s ease-out';
+                    card.style.transform  = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale(1)';
+                    setTimeout(() => { card.style.transition = 'transform 0.1s ease-out, box-shadow 0.1s ease-out'; }, 500);
+                });
+            });
+        </script>
+
+        <!-- Initialisation Auth Navbar -->
+        <script>
+            import { initAuthNav } from '../scripts/auth-nav.js';
+            document.addEventListener('astro:page-load', () => initAuthNav());
+        </script>
+
+        <!-- Initialisation Panier (Navigation) -->
+        <script>
+            import { initCart } from '../scripts/cart.js';
+            document.addEventListener('astro:page-load', () => {
+                const product = {
+                    id:   "deep-matte-01",
+                    nom:  "Deep Matte",
+                    prix: 29.90
+                };
+                initCart(product);
+            });
+        </script>
+
+        <script>
+            document.addEventListener('astro:page-load', () => {
+                const container = document.getElementById('reviews-container');
+                const prevBtn = document.getElementById('rev-prev');
+                const nextBtn = document.getElementById('rev-next');
+                
+                if (!container || !prevBtn || !nextBtn) return;
+
+                let index = 0;
+
+                const updateSlider = () => {
+                    const cardWidth = container.firstElementChild.offsetWidth + 24; // Largeur + gap
+                    container.style.transform = `translateX(-${index * cardWidth}px)`;
+                    
+                    // Désactiver les boutons aux extrémités (optionnel)
+                    prevBtn.style.opacity = index === 0 ? "0.3" : "1";
+                    prevBtn.style.pointerEvents = index === 0 ? "none" : "auto";
+                };
+
+                nextBtn.addEventListener('click', () => {
+                    // Sur mobile on défile 1 par 1, sur desktop on s'arrête avant le vide
+                    const maxIndex = window.innerWidth < 768 
+                        ? container.children.length - 1 
+                        : container.children.length - 2;
+                    
+                    if (index < maxIndex) {
+                        index++;
+                        updateSlider();
+                    } else {
+                        // Effet de rebond ou retour au début
+                        index = 0;
+                        updateSlider();
+                    }
+                });
+
+                prevBtn.addEventListener('click', () => {
+                    if (index > 0) {
+                        index--;
+                        updateSlider();
+                    }
+                });
+
+                // Responsive : réinitialiser la position si on redimensionne la fenêtre
+                window.addEventListener('resize', updateSlider);
+            });
+        </script>
+	</body>
+</html>

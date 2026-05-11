@@ -1,0 +1,646 @@
+---
+import '../styles/global.css';
+import { ClientRouter } from 'astro:transitions';
+---
+
+<html lang="fr">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="icon" type="image/png" href="/logo.png" />
+        <title>Mon Compte | CD Motor Shop</title>
+        <style>
+            html { scroll-behavior: smooth; }
+
+            .account-dropdown { display: none; pointer-events: none; }
+            .account-dropdown.is-open { display: block; pointer-events: auto; }
+
+            .cart-dropdown {
+                display: none; pointer-events: none;
+                width: min(18rem, calc(100vw - 2rem));
+            }
+            .cart-dropdown.is-open { display: block; pointer-events: auto; }
+
+            #toast {
+                position: fixed; bottom: 2rem; left: 50%;
+                transform: translateX(-50%) translateY(80px);
+                background: #16a34a; color: white;
+                font-weight: 900; font-size: 0.75rem;
+                text-transform: uppercase; letter-spacing: 0.08em;
+                padding: 0.7rem 1.6rem; border-radius: 99px;
+                z-index: 9999; opacity: 0;
+                transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1), opacity 0.3s ease;
+                pointer-events: none; white-space: nowrap;
+            }
+            #toast.show  { transform: translateX(-50%) translateY(0); opacity: 1; }
+            #toast.error { background: #dc2626; }
+
+            @keyframes fadeUp {
+                from { opacity: 0; transform: translateY(16px); }
+                to   { opacity: 1; transform: translateY(0); }
+            }
+            .section-card {
+                background: #18181b;
+                border: 1px solid rgba(255,255,255,0.08);
+                border-radius: 1.5rem;
+                padding: 1.75rem;
+                animation: fadeUp 0.5s ease-out both;
+            }
+
+            .field-label {
+                display: block;
+                font-size: 0.65rem;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: 0.1em;
+                color: #6b7280;
+                margin-bottom: 0.5rem;
+            }
+            .field-input {
+                width: 100%;
+                background: #09090b;
+                border: 1px solid rgba(255,255,255,0.1);
+                border-radius: 0.75rem;
+                padding: 0.75rem 1rem;
+                font-size: 0.875rem;
+                color: white;
+                outline: none;
+                transition: border-color 0.2s;
+                box-sizing: border-box;
+            }
+            .field-input:focus { border-color: #22c55e; }
+            .field-input:disabled { opacity: 0.5; cursor: not-allowed; }
+
+            /* Select styling */
+            select.field-input {
+                appearance: none;
+                background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+                background-repeat: no-repeat;
+                background-position: right 0.75rem center;
+                background-size: 1rem;
+                padding-right: 2.5rem;
+                cursor: pointer;
+            }
+            select.field-input option { background: #18181b; }
+
+            .btn-primary {
+                background: #16a34a;
+                color: white;
+                font-weight: 900;
+                font-size: 0.75rem;
+                text-transform: uppercase;
+                letter-spacing: 0.08em;
+                padding: 0.75rem 1.75rem;
+                border-radius: 99px;
+                border: none;
+                cursor: pointer;
+                transition: background 0.2s, transform 0.1s;
+            }
+            .btn-primary:hover   { background: #15803d; }
+            .btn-primary:active  { transform: scale(0.97); }
+            .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+            .btn-danger {
+                background: transparent;
+                color: #ef4444;
+                font-weight: 900;
+                font-size: 0.75rem;
+                text-transform: uppercase;
+                letter-spacing: 0.08em;
+                padding: 0.75rem 1.75rem;
+                border-radius: 99px;
+                border: 1px solid rgba(239,68,68,0.3);
+                cursor: pointer;
+                transition: background 0.2s, border-color 0.2s;
+            }
+            .btn-danger:hover { background: rgba(239,68,68,0.08); border-color: rgba(239,68,68,0.6); }
+
+            /* Skeleton loader pour l'adresse */
+            .skeleton {
+                background: linear-gradient(90deg, #27272a 25%, #3f3f46 50%, #27272a 75%);
+                background-size: 200% 100%;
+                animation: shimmer 1.4s infinite;
+                border-radius: 0.75rem;
+                height: 2.75rem;
+            }
+            @keyframes shimmer {
+                0%   { background-position: 200% 0; }
+                100% { background-position: -200% 0; }
+            }
+
+            /* Modal suppression */
+            #delete-modal {
+                display: none;
+                position: fixed; inset: 0;
+                background: rgba(0,0,0,0.85);
+                z-index: 9998;
+                align-items: center;
+                justify-content: center;
+                padding: 1rem;
+            }
+            #delete-modal.open { display: flex; }
+        </style>
+        <ClientRouter/>
+    </head>
+    <body class="bg-black text-white font-sans min-h-screen flex flex-col">
+
+        <div id="toast" role="status" aria-live="polite"></div>
+
+        <!-- NAVIGATION -->
+        <nav class="fixed w-full z-50 bg-black/80 backdrop-blur-md border-b border-white/10 p-5 px-5 md:px-10 flex justify-between items-center">
+            <a href="/" class="text-xl font-black italic tracking-tighter hover:text-green-500 transition">
+                <span class="text-green-600">←</span> CD MOTOR SHOP
+            </a>
+            <div class="flex items-center gap-2">
+
+                <!-- ── BONHOMME COMPTE ─────────────────────────────── -->
+                <div class="relative">
+                    <button id="account-btn" aria-label="Mon compte" aria-expanded="false" aria-controls="account-dropdown"
+                        class="relative p-2 flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zM19 20a7 7 0 10-14 0"/>
+                        </svg>
+                    </button>
+                    <div id="account-dropdown" role="dialog" aria-label="Mon compte"
+                        class="account-dropdown absolute right-0 mt-2 bg-zinc-900 border border-white/10 rounded-2xl shadow-2xl p-4 w-56 overflow-hidden">
+                        <p class="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1">Connecté en tant que</p>
+                        <p id="account-email" class="text-xs text-white font-black truncate mb-3">—</p>
+                        <div class="flex flex-col gap-1 mb-3 border-b border-white/10 pb-3">
+                            <a href="/account"
+                                class="flex items-center gap-2 text-xs text-green-400 bg-green-500/10 font-bold px-2 py-2 rounded-lg uppercase tracking-widest">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-green-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                                </svg>
+                                Mon compte
+                            </a>
+                            <a href="/orders"
+                                class="flex items-center gap-2 text-xs text-gray-300 hover:text-white hover:bg-white/5 font-bold px-2 py-2 rounded-lg transition uppercase tracking-widest">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-green-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                                </svg>
+                                Mes commandes
+                            </a>
+                        </div>
+                        <button id="logout-btn"
+                            class="w-full bg-zinc-800 hover:bg-red-900/40 border border-white/10 hover:border-red-500/30 text-red-400 hover:text-red-300 text-xs font-black py-2.5 rounded-xl transition uppercase tracking-widest">
+                            Se déconnecter
+                        </button>
+                    </div>
+                </div>
+
+                <!-- ── PANIER ──────────────────────────────────────── -->
+                <div class="relative">
+                    <button id="cart-toggle" aria-label="Ouvrir le panier" aria-expanded="false" aria-controls="cart-dropdown" class="relative p-2 hover:text-green-500 transition">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                        </svg>
+                        <span id="cart-count" class="absolute -top-1 -right-1 bg-green-600 text-white text-[10px] font-bold h-5 w-5 flex items-center justify-center rounded-full">0</span>
+                    </button>
+                    <div id="cart-dropdown" role="dialog" aria-label="Panier" class="cart-dropdown absolute right-0 mt-2 bg-zinc-900 border border-white/10 rounded-2xl shadow-2xl p-4 overflow-hidden">
+                        <h4 class="text-sm font-black uppercase mb-4 italic text-green-500">Mon Panier</h4>
+                        <div id="cart-items" class="space-y-4 max-h-60 overflow-y-auto">
+                            <p class="text-gray-500 text-xs italic">Votre panier est vide.</p>
+                        </div>
+                        <div class="border-t border-white/10 mt-4 pt-4">
+                            <div class="flex justify-between font-bold text-sm">
+                                <span>TOTAL :</span>
+                                <span id="cart-total">0.00€</span>
+                            </div>
+                            <button id="checkout-btn" class="w-full bg-white text-black text-xs font-black py-3 mt-4 rounded-xl hover:bg-green-500 hover:text-white transition uppercase">
+                                Commander
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- MAIN -->
+        <main class="flex-1 pb-20 px-5 md:px-10 w-full" style="padding-top:6rem; max-width:680px; margin:0 auto;">
+
+            <!-- En-tête -->
+            <div class="mb-8">
+                <span class="text-green-500 font-bold tracking-widest uppercase text-xs">Profil</span>
+                <h1 class="text-4xl md:text-5xl font-black uppercase italic mt-2">Mon Compte</h1>
+            </div>
+
+            <!-- État non connecté -->
+            <div id="auth-wall" style="display:none; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:5rem 0; gap:1.25rem;">
+                <div style="height:5rem;width:5rem;border-radius:50%;background:#18181b;border:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:center;">
+                    <svg xmlns="http://www.w3.org/2000/svg" style="height:2rem;width:2rem;color:#4b5563;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                    </svg>
+                </div>
+                <p class="text-white font-black text-xl uppercase italic">Connexion requise</p>
+                <a href="/login" class="bg-green-600 hover:bg-green-700 text-white font-black py-3 px-8 rounded-2xl transition uppercase text-xs tracking-widest">Se connecter</a>
+            </div>
+
+            <!-- Contenu compte -->
+            <div id="account-content" style="display:none; flex-direction:column; gap:1.25rem;">
+
+                <!-- ── Infos personnelles ───────────────────────────── -->
+                <div class="section-card" style="animation-delay:0s;">
+                    <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1.5rem;">
+                        <div style="height:2rem;width:2rem;background:rgba(34,197,94,0.12);border:1px solid rgba(34,197,94,0.25);border-radius:0.5rem;display:flex;align-items:center;justify-content:center;">
+                            <svg xmlns="http://www.w3.org/2000/svg" style="height:1rem;width:1rem;color:#22c55e;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                            </svg>
+                        </div>
+                        <h2 style="font-weight:900;font-size:0.9rem;text-transform:uppercase;letter-spacing:0.05em;">Informations personnelles</h2>
+                    </div>
+
+                    <div style="display:flex;flex-direction:column;gap:1rem;">
+                        <div>
+                            <label class="field-label">Email</label>
+                            <input id="field-email" type="email" class="field-input" disabled placeholder="—" />
+                            <p style="font-size:0.6rem;color:#6b7280;margin-top:0.35rem;">L'email ne peut pas être modifié.</p>
+                        </div>
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
+                            <div>
+                                <label class="field-label">Prénom</label>
+                                <input id="field-firstname" type="text" class="field-input" placeholder="Ton prénom" />
+                            </div>
+                            <div>
+                                <label class="field-label">Nom</label>
+                                <input id="field-lastname" type="text" class="field-input" placeholder="Ton nom" />
+                            </div>
+                        </div>
+                        <div>
+                            <label class="field-label">Téléphone</label>
+                            <input id="field-phone" type="tel" class="field-input" placeholder="+33 6 00 00 00 00" />
+                        </div>
+                        <div style="display:flex;justify-content:flex-end;margin-top:0.25rem;">
+                            <button id="save-profile-btn" class="btn-primary">Enregistrer</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ── Adresse de livraison ──────────────────────────── -->
+                <div class="section-card" style="animation-delay:0.08s;">
+                    <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1.5rem;">
+                        <div style="height:2rem;width:2rem;background:rgba(34,197,94,0.12);border:1px solid rgba(34,197,94,0.25);border-radius:0.5rem;display:flex;align-items:center;justify-content:center;">
+                            <svg xmlns="http://www.w3.org/2000/svg" style="height:1rem;width:1rem;color:#22c55e;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h2 style="font-weight:900;font-size:0.9rem;text-transform:uppercase;letter-spacing:0.05em;">Adresse de livraison</h2>
+                            <p style="font-size:0.65rem;color:#6b7280;margin-top:0.15rem;">Pré-remplie automatiquement lors du checkout</p>
+                        </div>
+                    </div>
+
+                    <!-- Skeleton affiché pendant le chargement -->
+                    <div id="address-skeleton" style="display:flex;flex-direction:column;gap:1rem;">
+                        <div class="skeleton"></div>
+                        <div class="skeleton"></div>
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
+                            <div class="skeleton"></div>
+                            <div class="skeleton"></div>
+                        </div>
+                        <div class="skeleton"></div>
+                    </div>
+
+                    <!-- Formulaire adresse (masqué pendant chargement) -->
+                    <div id="address-form" style="display:none;flex-direction:column;gap:1rem;">
+
+                        <!-- Ligne 1 -->
+                        <div>
+                            <label class="field-label">Adresse ligne 1 <span style="color:#ef4444;">*</span></label>
+                            <input id="addr-line1" type="text" class="field-input" placeholder="15 rue de la Paix" autocomplete="address-line1" />
+                        </div>
+
+                        <!-- Ligne 2 -->
+                        <div>
+                            <label class="field-label">Adresse ligne 2 <span style="color:#6b7280;font-weight:400;">(optionnel)</span></label>
+                            <input id="addr-line2" type="text" class="field-input" placeholder="Bât. B, appartement 42" autocomplete="address-line2" />
+                        </div>
+
+                        <!-- Code postal + Ville -->
+                        <div style="display:grid;grid-template-columns:140px 1fr;gap:0.75rem;">
+                            <div>
+                                <label class="field-label">Code postal <span style="color:#ef4444;">*</span></label>
+                                <input id="addr-zip" type="text" class="field-input" placeholder="75001" maxlength="10" autocomplete="postal-code" />
+                            </div>
+                            <div>
+                                <label class="field-label">Ville <span style="color:#ef4444;">*</span></label>
+                                <input id="addr-city" type="text" class="field-input" placeholder="Paris" autocomplete="address-level2" />
+                            </div>
+                        </div>
+
+                        <!-- Pays -->
+                        <div>
+                            <label class="field-label">Pays <span style="color:#ef4444;">*</span></label>
+                            <select id="addr-country" class="field-input" autocomplete="country">
+                                <option value="FR">🇫🇷 France</option>
+                                <option value="BE">🇧🇪 Belgique</option>
+                                <option value="CH">🇨🇭 Suisse</option>
+                                <option value="LU">🇱🇺 Luxembourg</option>
+                                <option value="DE">🇩🇪 Allemagne</option>
+                                <option value="ES">🇪🇸 Espagne</option>
+                                <option value="IT">🇮🇹 Italie</option>
+                                <option value="NL">🇳🇱 Pays-Bas</option>
+                                <option value="PT">🇵🇹 Portugal</option>
+                                <option value="GB">🇬🇧 Royaume-Uni</option>
+                            </select>
+                        </div>
+
+                        <!-- Résumé adresse complète (affiché si remplie) -->
+                        <div id="addr-preview" style="display:none;background:#09090b;border:1px solid rgba(34,197,94,0.2);border-radius:0.75rem;padding:0.875rem 1rem;">
+                            <p style="font-size:0.6rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#22c55e;margin-bottom:0.35rem;">Adresse enregistrée</p>
+                            <p id="addr-preview-text" style="font-size:0.8rem;color:#d1d5db;line-height:1.6;"></p>
+                        </div>
+
+                        <div style="display:flex;justify-content:flex-end;margin-top:0.25rem;">
+                            <button id="save-address-btn" class="btn-primary">Enregistrer l'adresse</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ── Mot de passe ──────────────────────────────────── -->
+                <div class="section-card" style="animation-delay:0.16s;">
+                    <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1.5rem;">
+                        <div style="height:2rem;width:2rem;background:rgba(34,197,94,0.12);border:1px solid rgba(34,197,94,0.25);border-radius:0.5rem;display:flex;align-items:center;justify-content:center;">
+                            <svg xmlns="http://www.w3.org/2000/svg" style="height:1rem;width:1rem;color:#22c55e;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/>
+                            </svg>
+                        </div>
+                        <h2 style="font-weight:900;font-size:0.9rem;text-transform:uppercase;letter-spacing:0.05em;">Mot de passe</h2>
+                    </div>
+
+                    <div style="display:flex;flex-direction:column;gap:1rem;">
+                        <div>
+                            <label class="field-label">Nouveau mot de passe</label>
+                            <input id="field-password" type="password" class="field-input" placeholder="••••••••" />
+                        </div>
+                        <div>
+                            <label class="field-label">Confirmer le mot de passe</label>
+                            <input id="field-password-confirm" type="password" class="field-input" placeholder="••••••••" />
+                        </div>
+                        <div style="display:flex;justify-content:flex-end;margin-top:0.25rem;">
+                            <button id="save-password-btn" class="btn-primary">Modifier</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ── Mes commandes ─────────────────────────────────── -->
+                <a href="/orders" style="display:flex;align-items:center;justify-content:space-between;padding:1.25rem 1.75rem;background:#18181b;border:1px solid rgba(255,255,255,0.08);border-radius:1.5rem;text-decoration:none;transition:border-color 0.2s;animation:fadeUp 0.5s ease-out 0.24s both;"
+                    onmouseover="this.style.borderColor='rgba(34,197,94,0.3)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.08)'">
+                    <div style="display:flex;align-items:center;gap:0.75rem;">
+                        <div style="height:2rem;width:2rem;background:rgba(34,197,94,0.12);border:1px solid rgba(34,197,94,0.25);border-radius:0.5rem;display:flex;align-items:center;justify-content:center;">
+                            <svg xmlns="http://www.w3.org/2000/svg" style="height:1rem;width:1rem;color:#22c55e;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <p style="font-weight:900;font-size:0.85rem;text-transform:uppercase;letter-spacing:0.05em;color:white;">Mes commandes</p>
+                            <p style="font-size:0.65rem;color:#6b7280;margin-top:0.15rem;">Voir l'historique et le suivi</p>
+                        </div>
+                    </div>
+                    <svg xmlns="http://www.w3.org/2000/svg" style="height:1.1rem;width:1.1rem;color:#6b7280;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                    </svg>
+                </a>
+
+                <!-- ── Zone danger ────────────────────────────────────── -->
+                <div class="section-card" style="animation-delay:0.32s;border-color:rgba(239,68,68,0.15);">
+                    <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
+                        <div style="height:2rem;width:2rem;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);border-radius:0.5rem;display:flex;align-items:center;justify-content:center;">
+                            <svg xmlns="http://www.w3.org/2000/svg" style="height:1rem;width:1rem;color:#ef4444;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+                            </svg>
+                        </div>
+                        <h2 style="font-weight:900;font-size:0.9rem;text-transform:uppercase;letter-spacing:0.05em;color:#ef4444;">Zone de danger</h2>
+                    </div>
+                    <p style="font-size:0.75rem;color:#6b7280;margin-bottom:1.25rem;line-height:1.6;">La suppression de ton compte est définitive. Toutes tes données et commandes seront effacées.</p>
+                    <button id="delete-account-btn" class="btn-danger">Supprimer mon compte</button>
+                </div>
+
+            </div>
+        </main>
+
+        <!-- ── Modal confirmation suppression ──────────────────────────────── -->
+        <div id="delete-modal">
+            <div style="background:#18181b;border:1px solid rgba(239,68,68,0.25);border-radius:2rem;padding:2.5rem;max-width:400px;width:100%;text-align:center;">
+                <div style="font-size:2.5rem;margin-bottom:1rem;">⚠️</div>
+                <h2 style="font-weight:900;font-size:1.2rem;text-transform:uppercase;font-style:italic;margin-bottom:0.5rem;color:white;">Supprimer le compte ?</h2>
+                <p style="color:#6b7280;font-size:0.8rem;margin-bottom:2rem;line-height:1.6;">Cette action est irréversible.<br>Toutes tes commandes seront perdues.</p>
+                <div style="display:flex;gap:0.75rem;justify-content:center;">
+                    <button id="cancel-delete-btn" style="background:#27272a;color:white;font-weight:900;font-size:0.75rem;text-transform:uppercase;padding:0.75rem 1.5rem;border-radius:99px;border:1px solid rgba(255,255,255,0.1);cursor:pointer;letter-spacing:0.05em;">Annuler</button>
+                    <button id="confirm-delete-btn" style="background:#dc2626;color:white;font-weight:900;font-size:0.75rem;text-transform:uppercase;padding:0.75rem 1.5rem;border-radius:99px;border:none;cursor:pointer;letter-spacing:0.05em;">Oui, supprimer</button>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            import { supabase } from '../lib/supabase.js';
+            import { initAuthNav } from '../scripts/auth-nav.js';
+            import { initCart } from '../scripts/cart.js';
+
+            document.addEventListener('astro:page-load', async () => {
+                initAuthNav();
+                initCart({ id: 'deep-matte-01', nom: 'Deep Matte', prix: 29.90 });
+
+                // ── Toast ────────────────────────────────────────────────────
+                let toastTimer = null;
+                const showToast = (msg, isError = false) => {
+                    const t = document.getElementById('toast');
+                    if (!t) return;
+                    t.textContent = (isError ? '✕ ' : '✓ ') + msg;
+                    t.className = isError ? 'error show' : 'show';
+                    clearTimeout(toastTimer);
+                    toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
+                };
+
+                // ── Auth check ───────────────────────────────────────────────
+                const { data: { user } } = await supabase.auth.getUser();
+                const authWall = document.getElementById('auth-wall');
+                const content  = document.getElementById('account-content');
+
+                if (!user) {
+                    if (authWall) authWall.style.display = 'flex';
+                    return;
+                }
+                if (content) content.style.display = 'flex';
+
+                // ── Pré-remplissage profil ────────────────────────────────────
+                const meta = user.user_metadata ?? {};
+                const emailEl     = document.getElementById('field-email');
+                const firstnameEl = document.getElementById('field-firstname');
+                const lastnameEl  = document.getElementById('field-lastname');
+                const phoneEl     = document.getElementById('field-phone');
+
+                if (emailEl)     emailEl.value     = user.email ?? '';
+                if (firstnameEl) firstnameEl.value = meta.first_name ?? '';
+                if (lastnameEl)  lastnameEl.value  = meta.last_name  ?? '';
+                if (phoneEl)     phoneEl.value     = meta.phone      ?? '';
+
+                // ── Sauvegarder le profil ─────────────────────────────────────
+                document.getElementById('save-profile-btn')?.addEventListener('click', async () => {
+                    const btn = document.getElementById('save-profile-btn');
+                    btn.disabled = true;
+                    btn.textContent = 'Enregistrement…';
+
+                    const { error } = await supabase.auth.updateUser({
+                        data: {
+                            first_name: firstnameEl?.value.trim() ?? '',
+                            last_name:  lastnameEl?.value.trim()  ?? '',
+                            phone:      phoneEl?.value.trim()     ?? '',
+                        }
+                    });
+
+                    btn.disabled = false;
+                    btn.textContent = 'Enregistrer';
+                    if (error) showToast('Erreur lors de la sauvegarde', true);
+                    else       showToast('Profil mis à jour !');
+                });
+
+                // ── Adresse de livraison ──────────────────────────────────────
+                const skeleton    = document.getElementById('address-skeleton');
+                const addrForm    = document.getElementById('address-form');
+                const addrPreview = document.getElementById('addr-preview');
+                const addrPreviewText = document.getElementById('addr-preview-text');
+
+                const line1El   = document.getElementById('addr-line1');
+                const line2El   = document.getElementById('addr-line2');
+                const zipEl     = document.getElementById('addr-zip');
+                const cityEl    = document.getElementById('addr-city');
+                const countryEl = document.getElementById('addr-country');
+
+                // Charge l'adresse depuis la table "profiles"
+                const { data: profile } = await supabase
+                    .from('profiles')
+                    .select('address_line1, address_line2, address_zip, address_city, address_country')
+                    .eq('id', user.id)
+                    .single();
+
+                // Cache le skeleton, affiche le formulaire
+                if (skeleton) skeleton.style.display = 'none';
+                if (addrForm) addrForm.style.display = 'flex';
+
+                if (profile) {
+                    if (line1El)   line1El.value   = profile.address_line1   ?? '';
+                    if (line2El)   line2El.value   = profile.address_line2   ?? '';
+                    if (zipEl)     zipEl.value     = profile.address_zip     ?? '';
+                    if (cityEl)    cityEl.value    = profile.address_city    ?? '';
+                    if (countryEl && profile.address_country) countryEl.value = profile.address_country;
+
+                    updatePreview();
+                }
+
+                // Met à jour le résumé de l'adresse en temps réel
+                function updatePreview() {
+                    const line1   = line1El?.value.trim();
+                    const line2   = line2El?.value.trim();
+                    const zip     = zipEl?.value.trim();
+                    const city    = cityEl?.value.trim();
+                    const country = countryEl?.options[countryEl.selectedIndex]?.text ?? '';
+
+                    if (line1 && zip && city) {
+                        const parts = [line1, line2, `${zip} ${city}`, country].filter(Boolean);
+                        if (addrPreviewText) addrPreviewText.textContent = parts.join(', ');
+                        if (addrPreview) addrPreview.style.display = 'block';
+                    } else {
+                        if (addrPreview) addrPreview.style.display = 'none';
+                    }
+                }
+
+                [line1El, line2El, zipEl, cityEl, countryEl].forEach(el => {
+                    el?.addEventListener('input', updatePreview);
+                    el?.addEventListener('change', updatePreview);
+                });
+
+                // Sauvegarde de l'adresse
+                document.getElementById('save-address-btn')?.addEventListener('click', async () => {
+                    const line1 = line1El?.value.trim();
+                    const zip   = zipEl?.value.trim();
+                    const city  = cityEl?.value.trim();
+
+                    if (!line1 || !zip || !city) {
+                        showToast('Adresse, code postal et ville requis', true);
+                        return;
+                    }
+
+                    const btn = document.getElementById('save-address-btn');
+                    btn.disabled = true;
+                    btn.textContent = 'Enregistrement…';
+
+                    // Upsert dans la table "profiles"
+                    const { error } = await supabase
+                        .from('profiles')
+                        .upsert({
+                            id:               user.id,
+                            address_line1:    line1,
+                            address_line2:    line2El?.value.trim() ?? '',
+                            address_zip:      zip,
+                            address_city:     city,
+                            address_country:  countryEl?.value ?? 'FR',
+                            updated_at:       new Date().toISOString(),
+                        }, { onConflict: 'id' });
+
+                    btn.disabled = false;
+                    btn.textContent = 'Enregistrer l\'adresse';
+
+                    if (error) showToast('Erreur : ' + error.message, true);
+                    else {
+                        showToast('Adresse enregistrée !');
+                        updatePreview();
+                    }
+                });
+
+                // ── Changer le mot de passe ───────────────────────────────────
+                document.getElementById('save-password-btn')?.addEventListener('click', async () => {
+                    const pw  = document.getElementById('field-password')?.value;
+                    const pw2 = document.getElementById('field-password-confirm')?.value;
+
+                    if (!pw || pw.length < 6) { showToast('Minimum 6 caractères', true); return; }
+                    if (pw !== pw2)            { showToast('Les mots de passe ne correspondent pas', true); return; }
+
+                    const btn = document.getElementById('save-password-btn');
+                    btn.disabled = true;
+                    btn.textContent = 'Modification…';
+
+                    const { error } = await supabase.auth.updateUser({ password: pw });
+
+                    btn.disabled = false;
+                    btn.textContent = 'Modifier';
+
+                    if (error) showToast('Erreur : ' + error.message, true);
+                    else {
+                        showToast('Mot de passe modifié !');
+                        document.getElementById('field-password').value = '';
+                        document.getElementById('field-password-confirm').value = '';
+                    }
+                });
+
+                // ── Suppression du compte ─────────────────────────────────────
+                const modal      = document.getElementById('delete-modal');
+                const deleteBtn  = document.getElementById('delete-account-btn');
+                const cancelBtn  = document.getElementById('cancel-delete-btn');
+                const confirmBtn = document.getElementById('confirm-delete-btn');
+
+                deleteBtn?.addEventListener('click',  () => modal?.classList.add('open'));
+                cancelBtn?.addEventListener('click',  () => modal?.classList.remove('open'));
+                modal?.addEventListener('click', (e) => { if (e.target === modal) modal.classList.remove('open'); });
+
+                confirmBtn?.addEventListener('click', async () => {
+                    confirmBtn.disabled = true;
+                    confirmBtn.textContent = 'Suppression…';
+
+                    const { error } = await supabase.rpc('delete_user');
+
+                    if (error) {
+                        showToast('Erreur lors de la suppression', true);
+                        confirmBtn.disabled = false;
+                        confirmBtn.textContent = 'Oui, supprimer';
+                        modal?.classList.remove('open');
+                    } else {
+                        await supabase.auth.signOut();
+                        window.location.href = '/?deleted=1';
+                    }
+                });
+            });
+        </script>
+    </body>
+</html>

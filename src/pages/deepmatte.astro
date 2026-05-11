@@ -1,0 +1,988 @@
+---
+import '../styles/global.css';
+import imageBlackMatte1 from '../assets/pommeau-deepmatte/image3.png';
+import imageBlackMatte2 from '../assets/pommeau-deepmatte/image2.png';
+import imageBlackMatte3 from '../assets/pommeau-deepmatte/image4.png';
+import { ClientRouter } from 'astro:transitions';
+
+const product = { 
+    id: "deep-matte-01",
+    nom: "Deep Matte", 
+    description: "Finition aluminium premium, prise en main parfaite pour une précision maximale.",
+    prix: 29.90,
+    enStock: true, // Variable de contrôle
+};
+
+const images = [imageBlackMatte1.src, imageBlackMatte2.src, imageBlackMatte3.src];
+---
+
+<html lang="fr">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="icon" type="image/png" href="/logo.png" />
+        <title>{product.nom} | Détails Techniques</title>
+        <style>
+            html { scroll-behavior: smooth; }
+
+            .cart-dropdown {
+                display: none;
+                pointer-events: none;
+                width: min(18rem, calc(100vw - 2rem));
+            }
+            .cart-dropdown.is-open {
+                display: block;
+                pointer-events: auto;
+            }
+
+            .account-dropdown {
+                display: none;
+                pointer-events: none;
+            }
+            .account-dropdown.is-open {
+                display: block;
+                pointer-events: auto;
+            }
+
+            #toast {
+                position: fixed;
+                bottom: 2rem; left: 50%;
+                transform: translateX(-50%) translateY(80px);
+                background: #16a34a; color: white;
+                font-weight: 900; font-size: 0.75rem;
+                text-transform: uppercase; letter-spacing: 0.08em;
+                padding: 0.7rem 1.6rem; border-radius: 99px;
+                z-index: 9999; opacity: 0;
+                transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1), opacity 0.3s ease;
+                pointer-events: none; white-space: nowrap;
+            }
+            #toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+            /* ── Galerie ── */
+            #gallery-main {
+                transition: opacity 0.25s ease;
+            }
+            #gallery-main.fade {
+                opacity: 0;
+            }
+            .thumb {
+                transition: opacity 0.2s, transform 0.2s, border-color 0.2s;
+                cursor: pointer;
+                opacity: 0.5;
+            }
+            .thumb:hover { opacity: 0.85; transform: scale(1.05); }
+            .thumb.active {
+                opacity: 1;
+                border-color: #16a34a !important;
+                transform: scale(1.05);
+            }
+
+            /* Flèches galerie */
+            .gallery-arrow {
+                position: absolute;
+                top: 50%; transform: translateY(-50%);
+                background: rgba(0,0,0,0.5);
+                border: 1px solid rgba(255,255,255,0.15);
+                color: white;
+                width: 2.25rem; height: 2.25rem;
+                border-radius: 50%;
+                display: flex; align-items: center; justify-content: center;
+                cursor: pointer;
+                transition: background 0.2s, border-color 0.2s;
+                z-index: 10;
+            }
+            .gallery-arrow:hover {
+                background: #16a34a;
+                border-color: #16a34a;
+            }
+            .gallery-arrow.prev { left: 0.6rem; }
+            .gallery-arrow.next { right: 0.6rem; }
+
+            /* ── Slider avis ── */
+            .review-card {
+                width: 100%;
+            }
+            @keyframes skel-pulse {
+                0%, 100% { opacity: 0.4; }
+                50%       { opacity: 0.8; }
+            }
+            @media (min-width: 768px) {
+                #reviews-track {
+                    /* conteneur de référence pour les 50% */
+                }
+                #reviews-container {
+                    /* les cartes s'appuient sur la largeur du track via JS */
+                }
+                .review-card {
+                    /* La largeur sera fixée en JS via offsetWidth du track */
+                }
+            }
+        </style>
+        <ClientRouter/>
+    </head>
+    <body class="bg-black text-white font-sans">
+
+        <div id="toast" role="status" aria-live="polite"></div>
+
+        <!-- NAVIGATION -->
+        <nav class="fixed w-full z-50 bg-black/80 backdrop-blur-md border-b border-white/10 p-5 px-5 md:px-10 flex justify-between items-center">
+            <a href="/" class="text-xl font-black italic tracking-tighter hover:text-green-500 transition">
+                <span class="text-green-600">←</span> RETOUR
+            </a>
+            <div class="flex items-center gap-2">
+
+                <!-- ── BONHOMME COMPTE ─────────────────────────────── -->
+                <div class="relative">
+                    <button id="account-btn" aria-label="Mon compte" aria-expanded="false" aria-controls="account-dropdown"
+                        class="relative p-2 flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zM19 20a7 7 0 10-14 0"/>
+                        </svg>
+                    </button>
+                    <div id="account-dropdown" role="dialog" aria-label="Mon compte"
+                        class="account-dropdown absolute right-0 mt-2 bg-zinc-900 border border-white/10 rounded-2xl shadow-2xl p-4 w-56 overflow-hidden">
+                        <p class="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1">Connecté en tant que</p>
+                        <p id="account-email" class="text-xs text-white font-black truncate mb-3">—</p>
+                        <div class="flex flex-col gap-1 mb-3 border-b border-white/10 pb-3">
+                            <a href="/account"
+                                class="flex items-center gap-2 text-xs text-gray-300 hover:text-white hover:bg-white/5 font-bold px-2 py-2 rounded-lg transition uppercase tracking-widest">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-green-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                                </svg>
+                                Mon compte
+                            </a>
+                            <a href="/orders"
+                                class="flex items-center gap-2 text-xs text-gray-300 hover:text-white hover:bg-white/5 font-bold px-2 py-2 rounded-lg transition uppercase tracking-widest">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-green-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                                </svg>
+                                Mes commandes
+                            </a>
+                        </div>
+                        <button id="logout-btn"
+                            class="w-full bg-zinc-800 hover:bg-red-900/40 border border-white/10 hover:border-red-500/30 text-red-400 hover:text-red-300 text-xs font-black py-2.5 rounded-xl transition uppercase tracking-widest">
+                            Se déconnecter
+                        </button>
+                    </div>
+                </div>
+
+                <!-- ── PANIER ──────────────────────────────────────── -->
+                <div class="relative">
+                <button id="cart-toggle" aria-label="Ouvrir le panier" aria-expanded="false" aria-controls="cart-dropdown" class="relative p-2 hover:text-green-500 transition">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                    </svg>
+                    <span id="cart-count" aria-live="polite" class="absolute -top-1 -right-1 bg-green-600 text-white text-[10px] font-bold h-5 w-5 flex items-center justify-center rounded-full">0</span>
+                </button>
+                <div id="cart-dropdown" role="dialog" aria-label="Panier" class="cart-dropdown absolute right-0 mt-2 bg-zinc-900 border border-white/10 rounded-2xl shadow-2xl p-4 overflow-hidden">
+                    <h4 class="text-sm font-black uppercase mb-4 italic text-green-500">Mon Panier</h4>
+                    <div id="cart-items" class="space-y-4 max-h-60 overflow-y-auto" aria-live="polite">
+                        <p class="text-gray-500 text-xs italic">Votre panier est vide.</p>
+                    </div>
+                    <div class="border-t border-white/10 mt-4 pt-4">
+                        <div class="flex justify-between font-bold text-sm">
+                            <span>TOTAL :</span>
+                            <span id="cart-total">0.00€</span>
+                        </div>
+                        <button id="checkout-btn" class="w-full bg-white text-black text-xs font-black py-3 mt-4 rounded-xl hover:bg-green-500 hover:text-white transition uppercase">
+                            Commander
+                        </button>
+                    </div>
+                </div>
+                </div>
+
+                <!-- fin flex items-center gap-2 -->
+            </div>
+        </nav>
+
+        <!-- SECTION PRODUIT -->
+        <section class="pt-32 pb-16 px-5 md:px-10 max-w-6xl mx-auto">
+            <div class="flex flex-col md:flex-row gap-12 items-start">
+
+                <!-- GALERIE -->
+                <div class="w-full md:w-1/2 flex flex-col gap-4">
+
+                    <!-- Image principale avec flèches -->
+                    <div class="relative bg-zinc-900 rounded-[40px] border border-white/5 p-4">
+                        <img
+                            id="prod-img"
+                            src={images[0]}
+                            class="w-full h-auto rounded-3xl object-cover"
+                            alt={product.nom}
+                        />
+                        <button class="gallery-arrow prev" id="gallery-prev" aria-label="Image précédente">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7" />
+                            </svg>
+                        </button>
+                        <button class="gallery-arrow next" id="gallery-next" aria-label="Image suivante">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
+                            </svg>
+                        </button>
+                    </div>
+
+                    <!-- Miniatures -->
+                    <div class="flex gap-3 justify-center">
+                        {images.map((src, i) => (
+                            <button
+                                class={`thumb w-20 h-20 rounded-2xl overflow-hidden border-2 border-white/10 bg-zinc-900 ${i === 0 ? 'active' : ''}`}
+                                data-index={i}
+                                aria-label={`Voir l'image ${i + 1}`}
+                            >
+                                <img src={src} class="w-full h-full object-cover" alt={`${product.nom} vue ${i + 1}`} />
+                            </button>
+                        ))}
+                    </div>
+                </div>
+
+                <!-- INFOS PRODUIT -->
+                <div class="w-full md:w-1/2">
+                    <span class="text-green-500 font-bold tracking-widest uppercase text-xs">Fiche Produit</span>
+                    <h1 class="text-5xl font-black uppercase italic mt-2">{product.nom}</h1>
+                    
+                    <div class="flex items-center gap-4 mt-4">
+                        <p class="text-3xl text-white font-black">{product.prix.toFixed(2)}€</p>
+                        {!product.enStock && (
+                            <span class="bg-red-600/10 border border-red-600 text-red-500 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter">
+                                Rupture de stock
+                            </span>
+                        )}
+                    </div>
+
+                    <a href="#avis-clients" class="flex items-center gap-2 mt-4 hover:opacity-80 transition group">
+                        <div class="flex text-yellow-400 text-lg">★★★★★</div>
+                        <span class="text-white font-black text-sm">4.7</span>
+                        <span class="text-gray-500 text-xs underline decoration-gray-700 group-hover:text-green-500">(24 avis clients)</span>
+                    </a>
+
+                    <p class="text-gray-400 mt-8 text-lg italic leading-relaxed">"{product.description}"</p>
+
+                    <div class="mt-10 flex flex-col gap-4">
+
+                        {product.enStock ? (
+                            <>
+                                <!-- Sélecteur de quantité -->
+                                <div style="display:flex;align-items:center;gap:0.75rem;">
+                                    <span style="font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#6b7280;">Quantité</span>
+                                    <div style="display:flex;align-items:center;background:#18181b;border:1px solid rgba(255,255,255,0.1);border-radius:0.75rem;overflow:hidden;">
+                                        <button id="qty-minus" aria-label="Diminuer la quantité"
+                                            style="width:2.5rem;height:2.5rem;display:flex;align-items:center;justify-content:center;color:#22c55e;font-size:1.2rem;font-weight:900;background:none;border:none;cursor:pointer;transition:background 0.15s;"
+                                            onmouseover="this.style.background='rgba(34,197,94,0.1)'"
+                                            onmouseout="this.style.background='none'">−</button>
+                                        <span id="qty-value" style="min-width:2rem;text-align:center;font-weight:900;font-size:0.95rem;">1</span>
+                                        <button id="qty-plus" aria-label="Augmenter la quantité"
+                                            style="width:2.5rem;height:2.5rem;display:flex;align-items:center;justify-content:center;color:#22c55e;font-size:1.2rem;font-weight:900;background:none;border:none;cursor:pointer;transition:background 0.15s;"
+                                            onmouseover="this.style.background='rgba(34,197,94,0.1)'"
+                                            onmouseout="this.style.background='none'">+</button>
+                                    </div>
+                                    <span id="qty-total" style="font-size:0.8rem;color:#6b7280;font-style:italic;">{product.prix.toFixed(2)}€</span>
+                                </div>
+
+                                <button id="add-to-cart" class="w-full bg-green-600 hover:bg-green-700 text-white font-black py-5 rounded-2xl transition-all active:scale-95 uppercase text-xl shadow-lg shadow-green-900/20">
+                                    Ajouter au panier
+                                </button>
+                            </>
+                        ) : (
+                            <button disabled class="w-full bg-zinc-800 text-zinc-500 cursor-not-allowed font-black py-5 rounded-2xl uppercase text-xl border border-white/5">
+                                Rupture de stock
+                            </button>
+                        )}
+                        
+                        <a href="/" class="w-full border border-white/20 hover:border-green-500/50 hover:text-green-400 text-white text-center font-bold py-3 rounded-2xl transition-all uppercase text-sm tracking-widest">
+                            ← Retour à la boutique
+                        </a>
+                    </div>
+
+                    <!-- Specs -->
+                    <div class="mt-12 space-y-4 border-t border-white/10 pt-8 text-sm">
+                        <div class="flex justify-between"><span class="text-gray-500 italic">Matériau</span><span class="font-bold">Aluminium</span></div>
+                        <div class="flex justify-between"><span class="text-gray-500 italic">Poids</span><span class="font-bold">245g</span></div>
+                        <div class="flex justify-between"><span class="text-gray-500 italic">Compatibilité</span><span class="font-bold">Universelle (Bagues M8, M10 et M12 incluses)</span></div>
+                        <div class="flex justify-between"><span class="text-gray-500 italic">Fabrication</span><span class="font-bold">USA</span></div>
+                    </div>
+
+                    <!-- Livraison & Retours -->
+                    <div style="margin-top:1.75rem;border-top:1px solid rgba(255,255,255,0.08);padding-top:1.5rem;">
+
+                        <!-- Accordion item -->
+                        <details class="accordion-item" style="border-bottom:1px solid rgba(255,255,255,0.06);">
+                            <summary style="display:flex;align-items:center;justify-content:space-between;padding:1rem 0;cursor:pointer;list-style:none;gap:0.5rem;">
+                                <div style="display:flex;align-items:center;gap:0.75rem;">
+                                    <svg xmlns="http://www.w3.org/2000/svg" style="height:1rem;width:1rem;color:#22c55e;flex-shrink:0;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8l1 12h12L19 8M10 12h4"/></svg>
+                                    <span style="font-size:0.8rem;font-weight:900;text-transform:uppercase;letter-spacing:0.06em;">Livraison</span>
+                                </div>
+                                <svg class="chevron" xmlns="http://www.w3.org/2000/svg" style="height:0.9rem;width:0.9rem;color:#6b7280;flex-shrink:0;transition:transform 0.25s;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                            </summary>
+                            <div style="padding:0 0 1.25rem;display:flex;flex-direction:column;gap:0.75rem;">
+                                <div style="display:flex;align-items:flex-start;gap:0.6rem;">
+                                    <span style="color:#22c55e;font-size:0.9rem;flex-shrink:0;margin-top:0.05rem;">✓</span>
+                                    <div>
+                                        <p style="font-size:0.8rem;font-weight:700;color:white;">Livraison gratuite</p>
+                                        <p style="font-size:0.72rem;color:#6b7280;margin-top:0.15rem;line-height:1.5;">Sans minimum d'achat, partout en France métropolitaine.</p>
+                                    </div>
+                                </div>
+                                <div style="display:flex;align-items:flex-start;gap:0.6rem;">
+                                    <span style="color:#22c55e;font-size:0.9rem;flex-shrink:0;margin-top:0.05rem;">✓</span>
+                                    <div>
+                                        <p style="font-size:0.8rem;font-weight:700;color:white;">Provenance USA</p>
+                                    </div>
+                                </div>
+                                <div style="display:flex;align-items:flex-start;gap:0.6rem;">
+                                    <span style="color:#22c55e;font-size:0.9rem;flex-shrink:0;margin-top:0.05rem;">✓</span>
+                                    <div>
+                                        <p style="font-size:0.8rem;font-weight:700;color:white;">Livraison estimée : 12–18 jours ouvrés</p>
+                                        <p style="font-size:0.72rem;color:#6b7280;margin-top:0.15rem;line-height:1.5;">Suivi de colis disponible dans "Mes commandes"</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </details>
+
+                        <details class="accordion-item" style="border-bottom:1px solid rgba(255,255,255,0.06);">
+                            <summary style="display:flex;align-items:center;justify-content:space-between;padding:1rem 0;cursor:pointer;list-style:none;gap:0.5rem;">
+                                <div style="display:flex;align-items:center;gap:0.75rem;">
+                                    <svg xmlns="http://www.w3.org/2000/svg" style="height:1rem;width:1rem;color:#22c55e;flex-shrink:0;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                                    <span style="font-size:0.8rem;font-weight:900;text-transform:uppercase;letter-spacing:0.06em;">Retours & remboursements</span>
+                                </div>
+                                <svg class="chevron" xmlns="http://www.w3.org/2000/svg" style="height:0.9rem;width:0.9rem;color:#6b7280;flex-shrink:0;transition:transform 0.25s;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                            </summary>
+                            <div style="padding:0 0 1.25rem;display:flex;flex-direction:column;gap:0.75rem;">
+                                <div style="display:flex;align-items:flex-start;gap:0.6rem;">
+                                    <span style="color:#22c55e;font-size:0.9rem;flex-shrink:0;margin-top:0.05rem;">✓</span>
+                                    <div>
+                                        <p style="font-size:0.8rem;font-weight:700;color:white;">30 jours pour changer d'avis</p>
+                                        <p style="font-size:0.72rem;color:#6b7280;margin-top:0.15rem;line-height:1.5;">Retour gratuit si le produit est dans son état d'origine et son emballage.</p>
+                                    </div>
+                                </div>
+                                <div style="display:flex;align-items:flex-start;gap:0.6rem;">
+                                    <span style="color:#22c55e;font-size:0.9rem;flex-shrink:0;margin-top:0.05rem;">✓</span>
+                                    <div>
+                                        <p style="font-size:0.8rem;font-weight:700;color:white;">Remboursement intégral</p>
+                                        <p style="font-size:0.72rem;color:#6b7280;margin-top:0.15rem;line-height:1.5;">Traité sous 5 à 7 jours ouvrés après réception du retour.</p>
+                                    </div>
+                                </div>
+                                <a href="/contact" style="font-size:0.7rem;font-weight:700;color:#22c55e;text-decoration:none;display:inline-flex;align-items:center;gap:0.3rem;margin-top:0.25rem;">
+                                    Contacter le support →
+                                </a>
+                            </div>
+                        </details>
+
+                        <details class="accordion-item">
+                            <summary style="display:flex;align-items:center;justify-content:space-between;padding:1rem 0;cursor:pointer;list-style:none;gap:0.5rem;">
+                                <div style="display:flex;align-items:center;gap:0.75rem;">
+                                    <svg xmlns="http://www.w3.org/2000/svg" style="height:1rem;width:1rem;color:#22c55e;flex-shrink:0;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                                    <span style="font-size:0.8rem;font-weight:900;text-transform:uppercase;letter-spacing:0.06em;">Garantie</span>
+                                </div>
+                                <svg class="chevron" xmlns="http://www.w3.org/2000/svg" style="height:0.9rem;width:0.9rem;color:#6b7280;flex-shrink:0;transition:transform 0.25s;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                            </summary>
+                            <div style="padding:0 0 1.25rem;display:flex;flex-direction:column;gap:0.75rem;">
+                                <div style="display:flex;align-items:flex-start;gap:0.6rem;">
+                                    <span style="color:#22c55e;font-size:0.9rem;flex-shrink:0;margin-top:0.05rem;">✓</span>
+                                    <div>
+                                        <p style="font-size:0.8rem;font-weight:700;color:white;">Garantie 2 ans</p>
+                                        <p style="font-size:0.72rem;color:#6b7280;margin-top:0.15rem;line-height:1.5;">Couvre les défauts de fabrication. Ne couvre pas l'usure normale ou les dommages accidentels.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </details>
+
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- AVIS CLIENTS -->
+        <!-- ── TUTO MONTAGE ──────────────────────────────────────────────────── -->
+        <section class="py-24 bg-black border-t border-white/5">
+            <div class="max-w-6xl mx-auto px-5 md:px-10">
+
+                <!-- Titre -->
+                <div class="mb-14">
+                    <span class="text-green-500 font-bold tracking-widest uppercase text-xs">Installation</span>
+                    <h2 class="text-4xl md:text-5xl font-black uppercase italic mt-2">Monter ton pommeau</h2>
+                    <p class="text-gray-500 text-sm mt-3">3 étapes · environ 5 minutes</p>
+                </div>
+
+                <!-- Étapes -->
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:2rem;position:relative;">
+
+                    <!-- Ligne de connexion (desktop) -->
+                    <div style="position:absolute;top:2rem;left:calc(16.66% + 1rem);right:calc(16.66% + 1rem);height:1px;background:linear-gradient(to right,rgba(34,197,94,0.6),rgba(34,197,94,0.2));display:none;" class="md-connector"></div>
+
+                    <!-- Étape 1 -->
+                    <div style="display:flex;flex-direction:column;gap:1.25rem;">
+                        <div style="position:relative;">
+                            <div style="width:4rem;height:4rem;border-radius:50%;background:rgba(34,197,94,0.12);border:1px solid rgba(34,197,94,0.3);display:flex;align-items:center;justify-content:center;">
+                                <svg xmlns="http://www.w3.org/2000/svg" style="height:1.75rem;width:1.75rem;color:#22c55e;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/>
+                                </svg>
+                            </div>
+                            <div style="position:absolute;top:-0.4rem;left:2.8rem;background:#22c55e;color:black;font-weight:900;font-size:0.6rem;border-radius:99px;padding:0.15rem 0.5rem;letter-spacing:0.06em;">ÉTAPE 1</div>
+                        </div>
+                        <div>
+                            <h3 style="font-weight:900;font-size:1.1rem;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:0.6rem;">Retire l'ancien pommeau</h3>
+                            <p style="font-size:0.85rem;color:#9ca3af;line-height:1.7;">Dévisse l'ancien pommeau dans le sens antihoraire. Sur certains modèles il suffit de tirer vers le haut — vérifie ton manuel. Place un chiffon autour du levier pour éviter les rayures.</p>
+                        </div>
+                        <div style="background:#18181b;border:1px solid rgba(255,255,255,0.06);border-radius:1rem;padding:1rem;display:flex;align-items:flex-start;gap:0.6rem;">
+                            <span style="color:#22c55e;font-size:0.75rem;flex-shrink:0;margin-top:0.1rem;">💡</span>
+                            <p style="font-size:0.72rem;color:#6b7280;line-height:1.6;">Si le pommeau résiste, utilise une pince enveloppée d'un chiffon pour le dévisser sans abîmer la surface.</p>
+                        </div>
+                    </div>
+
+                    <!-- Étape 2 -->
+                    <div style="display:flex;flex-direction:column;gap:1.25rem;">
+                        <div style="position:relative;">
+                            <div style="width:4rem;height:4rem;border-radius:50%;background:rgba(34,197,94,0.12);border:1px solid rgba(34,197,94,0.3);display:flex;align-items:center;justify-content:center;">
+                                <svg xmlns="http://www.w3.org/2000/svg" style="height:1.75rem;width:1.75rem;color:#22c55e;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 6h16M4 12h8m-8 6h16"/>
+                                </svg>
+                            </div>
+                            <div style="position:absolute;top:-0.4rem;left:2.8rem;background:#22c55e;color:black;font-weight:900;font-size:0.6rem;border-radius:99px;padding:0.15rem 0.5rem;letter-spacing:0.06em;">ÉTAPE 2</div>
+                        </div>
+                        <div>
+                            <h3 style="font-weight:900;font-size:1.1rem;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:0.6rem;">Choisis la bague adaptateur</h3>
+                            <p style="font-size:0.85rem;color:#9ca3af;line-height:1.7;">Le Deep Matte inclut 3 bagues de diamètres différents (M8, M10, M12). Identifie le filetage de ton levier et glisse la bague correspondante dans le pommeau avant de visser.</p>
+                        </div>
+                        <div style="background:#18181b;border:1px solid rgba(255,255,255,0.06);border-radius:1rem;padding:1rem;display:flex;align-items:flex-start;gap:0.6rem;">
+                            <span style="font-size:0.75rem;flex-shrink:0;margin-top:0.1rem;">💡</span>
+                            <p style="font-size:0.72rem;color:#6b7280;line-height:1.6;">Les bagues sont estampillées M8 / M10 / M12 sur le côté. La majorité des voitures européennes utilisent du M12.</p>
+                        </div>
+                    </div>
+
+                    <!-- Étape 3 -->
+                    <div style="display:flex;flex-direction:column;gap:1.25rem;">
+                        <div style="position:relative;">
+                            <div style="width:4rem;height:4rem;border-radius:50%;background:rgba(34,197,94,0.12);border:1px solid rgba(34,197,94,0.3);display:flex;align-items:center;justify-content:center;">
+                                <svg xmlns="http://www.w3.org/2000/svg" style="height:1.75rem;width:1.75rem;color:#22c55e;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                            </div>
+                            <div style="position:absolute;top:-0.4rem;left:2.8rem;background:#22c55e;color:black;font-weight:900;font-size:0.6rem;border-radius:99px;padding:0.15rem 0.5rem;letter-spacing:0.06em;">ÉTAPE 3</div>
+                        </div>
+                        <div>
+                            <h3 style="font-weight:900;font-size:1.1rem;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:0.6rem;">Visse et sécurise</h3>
+                            <p style="font-size:0.85rem;color:#9ca3af;line-height:1.7;">Visse le Deep Matte dans le sens horaire jusqu'à ce qu'il soit bien serré. Oriente-le à ta convenance avant le dernier tour. Pas besoin d'outil — la main suffit.</p>
+                        </div>
+                        <div style="background:#18181b;border:1px solid rgba(255,255,255,0.06);border-radius:1rem;padding:1rem;display:flex;align-items:flex-start;gap:0.6rem;">
+                            <span style="font-size:0.75rem;flex-shrink:0;margin-top:0.1rem;">⚠️</span>
+                            <p style="font-size:0.72rem;color:#6b7280;line-height:1.6;">Ne serre pas trop fort — l'aluminium peut se rayer sur certains filetages. Ferme-assez = bien maintenu sans forcer.</p>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Badge résultat -->
+                <div style="margin-top:3rem;padding:1.25rem 1.75rem;background:linear-gradient(135deg,rgba(34,197,94,0.08),rgba(34,197,94,0.03));border:1px solid rgba(34,197,94,0.2);border-radius:1.25rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
+                    <div style="height:2.5rem;width:2.5rem;border-radius:50%;background:rgba(34,197,94,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                        <svg xmlns="http://www.w3.org/2000/svg" style="height:1.2rem;width:1.2rem;color:#22c55e;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <p style="font-weight:900;font-size:0.85rem;text-transform:uppercase;letter-spacing:0.05em;">C'est prêt !</p>
+                        <p style="font-size:0.75rem;color:#6b7280;margin-top:0.15rem;">Ton habitacle a un nouveau look en moins de 5 minutes, sans outil, sans mécano.</p>
+                    </div>
+                    <a href="#" onclick="document.getElementById('add-to-cart')?.click();return false;"
+                        style="margin-left:auto;background:#22c55e;color:black;font-weight:900;font-size:0.72rem;text-transform:uppercase;letter-spacing:0.08em;padding:0.65rem 1.5rem;border-radius:99px;text-decoration:none;white-space:nowrap;transition:background 0.2s;"
+                        onmouseover="this.style.background='#16a34a';this.style.color='white'"
+                        onmouseout="this.style.background='#22c55e';this.style.color='black'">
+                        Commander maintenant
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <section id="avis-clients" class="py-24 bg-zinc-950 border-t border-white/5 overflow-hidden">
+            <div class="max-w-5xl mx-auto px-5">
+
+                <!-- En-tête + résumé de notation -->
+                <div class="flex flex-col md:flex-row items-center justify-between gap-10 mb-16">
+                    <div>
+                        <span class="text-green-500 font-bold tracking-widest uppercase text-xs">Ils ont testé</span>
+                        <h2 class="text-3xl font-black uppercase italic mt-2">Retours de la communauté</h2>
+                    </div>
+
+                    <!-- Score global -->
+                    <div class="flex items-center gap-8 bg-zinc-900 border border-white/5 rounded-3xl px-8 py-6 shrink-0">
+                        <div class="text-center">
+                            <p class="text-6xl font-black text-white">4.7</p>
+                            <div class="flex text-yellow-400 text-xl mt-1 justify-center">★★★★★</div>
+                            <p class="text-gray-500 text-xs mt-1">24 avis vérifiés</p>
+                        </div>
+                        <div class="flex flex-col gap-1.5 min-w-[120px]">
+                            <div class="flex items-center gap-2 text-xs">
+                                <span class="text-gray-400 w-3">5</span>
+                                <div class="flex-1 h-1.5 bg-zinc-700 rounded-full overflow-hidden"><div class="h-full bg-yellow-400 rounded-full" style="width:79%"></div></div>
+                                <span class="text-gray-500 w-4">79%</span>
+                            </div>
+                            <div class="flex items-center gap-2 text-xs">
+                                <span class="text-gray-400 w-3">4</span>
+                                <div class="flex-1 h-1.5 bg-zinc-700 rounded-full overflow-hidden"><div class="h-full bg-yellow-400 rounded-full" style="width:13%"></div></div>
+                                <span class="text-gray-500 w-4">13%</span>
+                            </div>
+                            <div class="flex items-center gap-2 text-xs">
+                                <span class="text-gray-400 w-3">3</span>
+                                <div class="flex-1 h-1.5 bg-zinc-700 rounded-full overflow-hidden"><div class="h-full bg-yellow-400 rounded-full" style="width:8%"></div></div>
+                                <span class="text-gray-500 w-4">8%</span>
+                            </div>
+                            <div class="flex items-center gap-2 text-xs">
+                                <span class="text-gray-400 w-3">2</span>
+                                <div class="flex-1 h-1.5 bg-zinc-700 rounded-full overflow-hidden"><div class="h-full bg-yellow-400 rounded-full" style="width:0%"></div></div>
+                                <span class="text-gray-500 w-4">0%</span>
+                            </div>
+                            <div class="flex items-center gap-2 text-xs">
+                                <span class="text-gray-400 w-3">1</span>
+                                <div class="flex-1 h-1.5 bg-zinc-700 rounded-full overflow-hidden"><div class="h-full bg-yellow-400 rounded-full" style="width:0%"></div></div>
+                                <span class="text-gray-500 w-4">0%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Skeleton chargement -->
+                <div id="reviews-skeleton" style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-top:0.5rem;">
+                    <div style="background:#18181b;border-radius:1.5rem;height:200px;animation:skel-pulse 1.5s ease-in-out infinite;"></div>
+                    <div style="background:#18181b;border-radius:1.5rem;height:200px;animation:skel-pulse 1.5s ease-in-out infinite;animation-delay:0.15s;"></div>
+                </div>
+
+                <!-- Slider avis -->
+                <div id="reviews-slider" style="display:none;margin-top:0.5rem;">
+                    <!-- Track -->
+                    <div style="overflow:hidden;">
+                        <div id="reviews-track" style="display:flex;gap:1.25rem;transition:transform 0.45s cubic-bezier(0.4,0,0.2,1);"></div>
+                    </div>
+                    <!-- Navigation -->
+                    <div style="display:flex;align-items:center;justify-content:center;gap:1.5rem;margin-top:1.5rem;">
+                        <button id="rev-prev" aria-label="Avis précédents"
+                            style="height:2.75rem;width:2.75rem;border-radius:50%;border:1px solid rgba(255,255,255,0.12);background:transparent;color:white;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background 0.2s,border-color 0.2s;flex-shrink:0;"
+                            onmouseover="this.style.background='#16a34a';this.style.borderColor='#16a34a'"
+                            onmouseout="this.style.background='transparent';this.style.borderColor='rgba(255,255,255,0.12)'">
+                            <svg xmlns="http://www.w3.org/2000/svg" style="height:1.1rem;width:1.1rem;transform:rotate(180deg);" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                        </button>
+                        <div id="rev-dots" style="display:flex;gap:0.4rem;"></div>
+                        <button id="rev-next" aria-label="Avis suivants"
+                            style="height:2.75rem;width:2.75rem;border-radius:50%;border:1px solid rgba(255,255,255,0.12);background:transparent;color:white;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background 0.2s,border-color 0.2s;flex-shrink:0;"
+                            onmouseover="this.style.background='#16a34a';this.style.borderColor='#16a34a'"
+                            onmouseout="this.style.background='transparent';this.style.borderColor='rgba(255,255,255,0.12)'">
+                            <svg xmlns="http://www.w3.org/2000/svg" style="height:1.1rem;width:1.1rem;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- État vide -->
+                <p id="reviews-empty" style="display:none;color:#6b7280;font-size:0.875rem;font-style:italic;margin-top:1.5rem;">Aucun avis pour l'instant. Sois le premier !</p>
+            </div>
+
+            <!-- ── FORMULAIRE DÉPÔT D'AVIS ──────────────────────────────────── -->
+            <div class="mt-16 max-w-7xl mx-auto px-5 md:px-10" id="review-form-section" data-product-id="deep-matte-01" data-product-en-stock="true">
+
+                <div style="display:flex;align-items:center;gap:1rem;margin-bottom:2rem;">
+                    <div style="height:2px;flex:1;background:linear-gradient(to right,rgba(34,197,94,0.4),transparent);"></div>
+                    <h3 style="font-size:0.75rem;font-weight:900;text-transform:uppercase;letter-spacing:0.12em;color:#22c55e;white-space:nowrap;">Laisser un avis</h3>
+                    <div style="height:2px;flex:1;background:linear-gradient(to left,rgba(34,197,94,0.4),transparent);"></div>
+                </div>
+
+                <!-- Non connecté -->
+                <div id="review-auth-wall" style="display:none;background:#18181b;border:1px solid rgba(255,255,255,0.08);border-radius:1.5rem;padding:2rem;text-align:center;">
+                    <p style="color:#9ca3af;font-size:0.875rem;margin-bottom:1rem;">Tu dois être connecté pour laisser un avis.</p>
+                    <a href="/login" style="display:inline-block;background:#16a34a;color:white;font-weight:900;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;padding:0.75rem 2rem;border-radius:99px;text-decoration:none;">Se connecter</a>
+                </div>
+
+                <!-- Déjà posté -->
+                <div id="review-already" style="display:none;background:#18181b;border:1px solid rgba(34,197,94,0.2);border-radius:1.5rem;padding:1.25rem 1.5rem;display:none;align-items:center;gap:1rem;">
+                    <div style="height:2.5rem;width:2.5rem;background:rgba(34,197,94,0.12);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                        <svg xmlns="http://www.w3.org/2000/svg" style="height:1.1rem;width:1.1rem;color:#22c55e;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                    </div>
+                    <div style="flex:1;">
+                        <p style="font-size:0.8rem;font-weight:900;text-transform:uppercase;">Avis déposé ✓</p>
+                        <p style="font-size:0.65rem;color:#6b7280;margin-top:0.2rem;">Tu as déjà laissé un avis pour ce produit.</p>
+                    </div>
+                    <button id="edit-review-btn" style="font-size:0.7rem;font-weight:900;color:#22c55e;background:none;border:none;cursor:pointer;text-transform:uppercase;letter-spacing:0.08em;flex-shrink:0;">Modifier</button>
+                </div>
+
+                <!-- Formulaire -->
+                <div id="review-form" style="display:none;background:#18181b;border:1px solid rgba(255,255,255,0.08);border-radius:1.5rem;padding:1.75rem;flex-direction:column;gap:1.25rem;">
+
+                    <!-- Étoiles -->
+                    <div>
+                        <p style="font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#6b7280;margin-bottom:0.6rem;">Note *</p>
+                        <div id="star-picker" style="display:flex;gap:0.3rem;">
+                            <button data-star="1" style="font-size:2rem;color:#3f3f46;background:none;border:none;cursor:pointer;padding:0;transition:color 0.12s,transform 0.12s;line-height:1;" aria-label="1 étoile">★</button>
+                            <button data-star="2" style="font-size:2rem;color:#3f3f46;background:none;border:none;cursor:pointer;padding:0;transition:color 0.12s,transform 0.12s;line-height:1;" aria-label="2 étoiles">★</button>
+                            <button data-star="3" style="font-size:2rem;color:#3f3f46;background:none;border:none;cursor:pointer;padding:0;transition:color 0.12s,transform 0.12s;line-height:1;" aria-label="3 étoiles">★</button>
+                            <button data-star="4" style="font-size:2rem;color:#3f3f46;background:none;border:none;cursor:pointer;padding:0;transition:color 0.12s,transform 0.12s;line-height:1;" aria-label="4 étoiles">★</button>
+                            <button data-star="5" style="font-size:2rem;color:#3f3f46;background:none;border:none;cursor:pointer;padding:0;transition:color 0.12s,transform 0.12s;line-height:1;" aria-label="5 étoiles">★</button>
+                        </div>
+                    </div>
+
+                    <!-- Commentaire -->
+                    <div>
+                        <p style="font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#6b7280;margin-bottom:0.6rem;">Commentaire</p>
+                        <textarea id="review-comment" rows="4" placeholder="Partage ton expérience avec le produit…"
+                            style="width:100%;background:#09090b;border:1px solid rgba(255,255,255,0.1);border-radius:0.75rem;padding:0.85rem 1rem;font-size:0.875rem;color:white;outline:none;resize:vertical;box-sizing:border-box;transition:border-color 0.2s;font-family:inherit;"></textarea>
+                    </div>
+
+                    <div style="display:flex;justify-content:flex-end;">
+                        <button id="submit-review-btn"
+                            style="background:#16a34a;color:white;font-weight:900;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;padding:0.75rem 2rem;border-radius:99px;border:none;cursor:pointer;transition:background 0.2s;">
+                            Publier l'avis
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- BANNIÈRE -->
+        <section class="bg-green-600 py-10">
+            <div class="max-w-7xl mx-auto px-5 md:px-10 grid grid-cols-1 md:grid-cols-2 gap-8 text-center">
+                <div class="flex flex-col items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 opacity-90" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8l1 12h12L19 8M10 12h4" />
+                    </svg>
+                    <p class="font-black text-xl italic uppercase">Livraison Gratuite</p>
+                    <p class="text-sm opacity-80 italic">Sans minimum d'achat</p>
+                </div>
+                <div class="flex flex-col items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 opacity-90" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138z" />
+                    </svg>
+                    <p class="font-black text-xl italic uppercase">Qualité Premium</p>
+                    <p class="text-sm opacity-80 italic">Produits sélectionnés pour leur qualité</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- FOOTER -->
+        <footer class="py-16 bg-zinc-950 border-t border-white/10 px-5 md:px-10 text-center">
+            <div class="max-w-4xl mx-auto">
+                <div class="text-xl font-black italic mb-6 uppercase">À propos de <span class="text-green-600">CD</span> MOTOR SHOP</div>
+                <p class="text-gray-500 text-sm leading-relaxed mb-10 italic">
+                    Passionnés de mécanique et de style, nous sélectionnons des accessoires de haute qualité pour transformer votre habitacle. Chaque pièce est choisie pour sa durabilité et son ergonomie.
+                </p>
+                <div class="flex flex-wrap justify-center gap-x-6 gap-y-2 mb-8">
+                    <a href="/mentions-legales" class="text-gray-500 hover:text-white text-xs uppercase tracking-widest transition">Mentions légales</a>
+                    <a href="/cgv" class="text-gray-500 hover:text-white text-xs uppercase tracking-widest transition">CGV</a>
+                    <a href="/politique-confidentialite" class="text-gray-500 hover:text-white text-xs uppercase tracking-widest transition">Politique de confidentialité</a>
+                    <a href="/contact" class="text-gray-500 hover:text-white text-xs uppercase tracking-widest transition">Contact</a>
+                </div>
+                <p class="text-gray-600 text-xs uppercase tracking-widest font-bold">© 2026 CD MOTOR SHOP. Tous droits réservés.</p>
+            </div>
+        </footer>
+
+        <script>
+            document.addEventListener('astro:page-load', () => {
+
+                // ─── GALERIE PRODUIT ─────────────────────────────────────────────────────
+                const mainImg   = document.getElementById('prod-img');
+                const thumbs    = document.querySelectorAll('.thumb');
+                const galleryPrev = document.getElementById('gallery-prev');
+                const galleryNext = document.getElementById('gallery-next');
+                const galleryMain = document.getElementById('gallery-main');
+
+                if (mainImg && thumbs.length > 0) {
+                    let currentImg = 0;
+
+                    const goToImage = (idx) => {
+                        currentImg = (idx + thumbs.length) % thumbs.length;
+
+                        // Fade transition
+                        galleryMain?.classList.add('fade');
+                        setTimeout(() => {
+                            mainImg.src = thumbs[currentImg].querySelector('img').src;
+                            galleryMain?.classList.remove('fade');
+                        }, 250);
+
+                        // Mettre à jour les miniatures actives
+                        thumbs.forEach((t, i) => t.classList.toggle('active', i === currentImg));
+                    };
+
+                    // Clic sur une miniature
+                    thumbs.forEach((thumb, i) => {
+                        thumb.addEventListener('click', () => goToImage(i));
+                    });
+
+                    // Flèches
+                    galleryPrev?.addEventListener('click', () => goToImage(currentImg - 1));
+                    galleryNext?.addEventListener('click', () => goToImage(currentImg + 1));
+                }
+
+            });
+        </script>
+
+        <!-- ── AVIS + FORMULAIRE ───────────────────────────────────────────────── -->
+        <script>
+            import { initCart }    from '../scripts/cart.js';
+            import { initAuthNav } from '../scripts/auth-nav.js';
+            import { supabase }    from '../lib/supabase.js';
+
+            document.addEventListener('astro:page-load', async () => {
+                // Lire les infos produit depuis le data-attribute HTML
+                const section    = document.getElementById('review-form-section');
+                const PRODUCT_ID = section?.dataset.productId ?? 'deep-matte-01';
+                const enStock    = section?.dataset.productEnStock !== 'false';
+
+                // ── Sélecteur de quantité ────────────────────────────────────────
+                const qtyMinus = document.getElementById('qty-minus');
+                const qtyPlus  = document.getElementById('qty-plus');
+                const qtyValue = document.getElementById('qty-value');
+                const qtyTotal = document.getElementById('qty-total');
+                const PRIX     = 29.90;
+                let qty = 1;
+
+                const updateQty = () => {
+                    if (qtyValue) qtyValue.textContent = qty;
+                    if (qtyTotal) qtyTotal.textContent = (qty * PRIX).toFixed(2) + '€';
+                    if (qtyMinus) qtyMinus.style.opacity = qty <= 1 ? '0.3' : '1';
+                };
+
+                qtyMinus?.addEventListener('click', () => {
+                    if (qty > 1) { qty--; updateQty(); }
+                });
+                qtyPlus?.addEventListener('click', () => {
+                    qty++;
+                    updateQty();
+                });
+
+                initAuthNav();
+                if (enStock) initCart({
+                    id: PRODUCT_ID,
+                    nom: 'Deep Matte',
+                    prix: 29.90,
+                    getQty: () => qty,
+                    resetQty: () => { qty = 1; updateQty(); },
+                });
+
+                // ── Toast ────────────────────────────────────────────────────────
+                let toastTimer = null;
+                const showToast = (msg, err = false) => {
+                    const t = document.getElementById('toast');
+                    if (!t) return;
+                    t.textContent = (err ? '✕ ' : '✓ ') + msg;
+                    t.style.background = err ? '#dc2626' : '#16a34a';
+                    t.classList.add('show');
+                    clearTimeout(toastTimer);
+                    toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
+                };
+
+                // ── Couleurs avatar par initiale ─────────────────────────────────
+                const COLORS = ['#16a34a','#2563eb','#9333ea','#ea580c','#db2777','#0891b2'];
+                const avatarColor = (str) => COLORS[str.charCodeAt(0) % COLORS.length];
+
+                // ── Étoiles en HTML ──────────────────────────────────────────────
+                const starsHtml = (n) => Array.from({length:5}, (_,i) =>
+                    `<span style="color:${i < n ? '#facc15' : '#3f3f46'}">★</span>`
+                ).join('');
+
+                // ── Formater la date ─────────────────────────────────────────────
+                const fmtDate = (iso) => new Date(iso).toLocaleDateString('fr-FR', {day:'2-digit',month:'long',year:'numeric'});
+
+                // ── Charger et afficher les avis ─────────────────────────────────
+                const reviewsEmpty  = document.getElementById('reviews-empty');
+                const reviewsSlider = document.getElementById('reviews-slider');
+                const reviewsTrack  = document.getElementById('reviews-track');
+                const dotsEl        = document.getElementById('rev-dots');
+                const prevBtn       = document.getElementById('rev-prev');
+                const nextBtn       = document.getElementById('rev-next');
+
+                // Carte d'avis HTML
+                const reviewCard = (r) => {
+                    const initial = r.user_id.slice(0,1).toUpperCase();
+                    const col = avatarColor(r.user_id);
+                    return `<div style="flex:0 0 calc(50% - 0.625rem);min-width:0;background:#18181b;border:1px solid rgba(255,255,255,0.06);border-radius:1.5rem;padding:1.5rem;display:flex;flex-direction:column;gap:1rem;box-sizing:border-box;">
+                        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:0.5rem;">
+                            <div style="font-size:1.1rem;">${starsHtml(r.rating)}</div>
+                            <span style="font-size:0.6rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#22c55e;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.2);padding:0.2rem 0.6rem;border-radius:99px;white-space:nowrap;flex-shrink:0;">✓ Vérifié</span>
+                        </div>
+                        <p style="font-size:0.825rem;color:#d1d5db;line-height:1.65;flex:1;">"${r.comment || ''}"</p>
+                        <div style="display:flex;align-items:center;gap:0.75rem;padding-top:0.5rem;border-top:1px solid rgba(255,255,255,0.05);">
+                            <div style="height:2.2rem;width:2.2rem;border-radius:50%;background:${col}22;border:1px solid ${col}66;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:0.8rem;color:${col};flex-shrink:0;">${initial}</div>
+                            <p style="font-size:0.65rem;color:#6b7280;text-transform:uppercase;letter-spacing:0.06em;">${fmtDate(r.created_at)}</p>
+                        </div>
+                    </div>`;
+                };
+
+                // Slider logic
+                let sliderIndex = 0;
+                let sliderData  = [];
+
+                const buildSlider = (data) => {
+                    sliderData = data;
+                    if (!reviewsTrack) return;
+
+                    reviewsTrack.innerHTML = data.map(r => reviewCard(r)).join('');
+
+                    // Dots — un par page de 2
+                    const pages = Math.ceil(data.length / 2);
+                    if (dotsEl) {
+                        dotsEl.innerHTML = Array.from({length: pages}, (_, i) => `
+                            <button data-page="${i}" aria-label="Page ${i+1}"
+                                style="height:8px;border-radius:99px;border:none;cursor:pointer;transition:width 0.3s,background 0.3s;background:${i===0?'#22c55e':'rgba(255,255,255,0.2)'};width:${i===0?'1.5rem':'0.5rem'};"></button>
+                        `).join('');
+                        dotsEl.querySelectorAll('button').forEach(btn => {
+                            btn.addEventListener('click', () => goTo(parseInt(btn.dataset.page)));
+                        });
+                    }
+
+                    sliderIndex = 0;
+                    updateSlider();
+                };
+
+                const goTo = (page) => {
+                    const pages = Math.ceil(sliderData.length / 2);
+                    sliderIndex = Math.max(0, Math.min(page, pages - 1));
+                    updateSlider();
+                };
+
+                const updateSlider = () => {
+                    if (!reviewsTrack) return;
+                    const GAP = 20;
+                    const cards = reviewsTrack.querySelectorAll('div');
+                    const cardW = cards[0]?.offsetWidth ?? 0;
+                    reviewsTrack.style.transform = `translateX(-${sliderIndex * (cardW * 2 + GAP * 2) / 2 * 2 + sliderIndex * GAP * 2 - sliderIndex * GAP}px)`;
+
+                    // Recalcul propre : offset = index * (2 cartes + gap entre elles + gap extérieur)
+                    const trackW = reviewsTrack.parentElement?.offsetWidth ?? 0;
+                    const offset = sliderIndex * (trackW + GAP);
+                    reviewsTrack.style.transform = `translateX(-${offset}px)`;
+
+                    // Update dots
+                    const pages = Math.ceil(sliderData.length / 2);
+                    dotsEl?.querySelectorAll('button').forEach((btn, i) => {
+                        const active = i === sliderIndex;
+                        btn.style.background = active ? '#22c55e' : 'rgba(255,255,255,0.2)';
+                        btn.style.width = active ? '1.5rem' : '0.5rem';
+                    });
+
+                    // Update arrows opacity
+                    if (prevBtn) prevBtn.style.opacity = sliderIndex === 0 ? '0.3' : '1';
+                    if (nextBtn) nextBtn.style.opacity = sliderIndex >= pages - 1 ? '0.3' : '1';
+                };
+
+                prevBtn?.addEventListener('click', () => goTo(sliderIndex - 1));
+                nextBtn?.addEventListener('click', () => goTo(sliderIndex + 1));
+
+                const loadReviews = async () => {
+                    const skeleton = document.getElementById('reviews-skeleton');
+
+                    const { data: reviews, error } = await supabase
+                        .from('reviews')
+                        .select('id,rating,comment,created_at,user_id')
+                        .eq('product_id', PRODUCT_ID)
+                        .order('created_at', { ascending: false });
+
+                    if (skeleton) skeleton.style.display = 'none';
+                    if (error) console.error('Supabase reviews error:', error);
+
+                    const FAKE = [
+                        { user_id: 'julien', rating: 5, comment: "L'aspect mat est parfait, ne laisse vraiment aucune trace de doigts. Le toucher aluminium brossé est au-dessus de ce que j'attendais pour ce prix.", created_at: new Date(Date.now() - 30*86400000).toISOString() },
+                        { user_id: 'marc',   rating: 5, comment: "On sent vraiment la qualité rien qu'au poids du pommeau. La pose prend 5 minutes et les bagues d'adaptation sont déjà incluses. Je recommande sans hésiter.", created_at: new Date(Date.now() - 14*86400000).toISOString() },
+                        { user_id: 'sarah',  rating: 5, comment: "Livraison ultra rapide, le packaging est soigné — vraiment premium. Ça fait un très beau cadeau aussi, mon copain a adoré.", created_at: new Date(Date.now() - 3*86400000).toISOString() },
+                        { user_id: 'kevin',  rating: 4, comment: "Très bon rendu visuel dans mon habitacle tout noir. Je mets 4 étoiles car le délai de livraison était un peu long, mais la qualité est vraiment là.", created_at: new Date(Date.now() - 21*86400000).toISOString() },
+                    ];
+
+                    const data = (reviews && reviews.length > 0) ? reviews : FAKE;
+
+                    if (reviewsEmpty) reviewsEmpty.style.display = 'none';
+                    if (reviewsSlider) reviewsSlider.style.display = 'block';
+
+                    buildSlider(data);
+
+                    // Mise à jour score global si vrais avis
+                    if (reviews && reviews.length > 0) {
+                        const avg = (reviews.reduce((a,r) => a + r.rating, 0) / reviews.length).toFixed(1);
+                        const scoreEl = document.querySelector('.text-6xl.font-black.text-white');
+                        const countEl = document.querySelector('.text-gray-500.text-xs.mt-1');
+                        if (scoreEl) scoreEl.textContent = avg;
+                        if (countEl) countEl.textContent = reviews.length + ' avis';
+                    }
+
+                    return reviews ?? [];
+                };
+
+                const reviews = await loadReviews();
+
+                // ── Auth + état formulaire ───────────────────────────────────────
+                const { data: { user } } = await supabase.auth.getUser();
+
+                const authWall    = document.getElementById('review-auth-wall');
+                const alreadyDiv  = document.getElementById('review-already');
+                const formDiv     = document.getElementById('review-form');
+
+                if (!user) {
+                    if (authWall) authWall.style.display = 'block';
+                } else {
+                    const existing = reviews.find(r => r.user_id === user.id);
+                    if (existing) {
+                        if (alreadyDiv) alreadyDiv.style.display = 'flex';
+                    } else {
+                        if (formDiv) formDiv.style.display = 'flex';
+                    }
+                }
+
+                // Bouton "Modifier" → rouvre le formulaire
+                document.getElementById('edit-review-btn')?.addEventListener('click', () => {
+                    if (alreadyDiv) alreadyDiv.style.display = 'none';
+                    if (formDiv)    formDiv.style.display = 'flex';
+                    // Pré-remplir avec l'avis existant
+                    const existing = reviews.find(r => r.user_id === user?.id);
+                    if (existing) {
+                        selectedRating = existing.rating;
+                        renderStars();
+                        const ta = document.getElementById('review-comment');
+                        if (ta) ta.value = existing.comment ?? '';
+                    }
+                });
+
+                // ── Sélecteur d'étoiles ──────────────────────────────────────────
+                let selectedRating = 0;
+                const starBtns = document.querySelectorAll('#star-picker button');
+
+                const renderStars = () => {
+                    starBtns.forEach(btn => {
+                        const n = parseInt(btn.dataset.star);
+                        btn.style.color = n <= selectedRating ? '#facc15' : '#3f3f46';
+                    });
+                };
+
+                starBtns.forEach(btn => {
+                    const n = parseInt(btn.dataset.star);
+                    btn.addEventListener('mouseover', () => {
+                        starBtns.forEach(b => { b.style.color = parseInt(b.dataset.star) <= n ? '#facc15' : '#3f3f46'; });
+                    });
+                    btn.addEventListener('mouseout', renderStars);
+                    btn.addEventListener('click', () => { selectedRating = n; renderStars(); });
+                });
+
+                // ── Soumettre l'avis ─────────────────────────────────────────────
+                document.getElementById('submit-review-btn')?.addEventListener('click', async () => {
+                    if (!selectedRating) { showToast('Choisis une note !', true); return; }
+                    const comment = document.getElementById('review-comment')?.value.trim() ?? '';
+
+                    const submitBtn = document.getElementById('submit-review-btn');
+                    submitBtn.disabled = true;
+                    submitBtn.textContent = 'Publication…';
+
+                    const { error } = await supabase.from('reviews').upsert({
+                        user_id:    user.id,
+                        product_id: PRODUCT_ID,
+                        rating:     selectedRating,
+                        comment:    comment || null,
+                    }, { onConflict: 'user_id,product_id' });
+
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Publier l\'avis';
+
+                    if (error) { showToast('Erreur lors de la publication', true); return; }
+
+                    showToast('Avis publié ! Merci 🙏');
+                    if (formDiv)   formDiv.style.display = 'none';
+                    if (alreadyDiv) alreadyDiv.style.display = 'flex';
+                    await loadReviews();
+                });
+            });
+        </script>
+    </body>
+</html>
