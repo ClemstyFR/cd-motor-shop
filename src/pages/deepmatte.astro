@@ -398,7 +398,80 @@ const images = [imageBlackMatte1.src, imageBlackMatte2.src, imageBlackMatte3.src
             </div>
         </section>
 
-        <!-- AVIS CLIENTS -->
+        <!-- ── COMPATIBILITÉ ─────────────────────────────────────────────────── -->
+        <section id="compatibilite" class="py-24 bg-zinc-950 border-t border-white/5">
+            <div class="max-w-6xl mx-auto px-5 md:px-10">
+                <div class="grid grid-cols-1 lg:grid-cols-[0.9fr_1.35fr] gap-12 items-start">
+                    <div>
+                        <span class="text-green-500 font-bold tracking-widest uppercase text-xs">Compatibilité</span>
+                        <h2 class="text-4xl md:text-5xl font-black uppercase italic mt-2">M8, M10, M12 inclus</h2>
+                        <p class="text-gray-400 text-sm md:text-base leading-relaxed mt-5 max-w-xl">
+                            Le Deep Matte est livré avec 3 bagues adaptatrices pour couvrir la majorité des leviers filetés. L'objectif : éviter le doute au montage et choisir directement la bague adaptée à ton véhicule.
+                        </p>
+                        <div class="mt-8 rounded-2xl border border-yellow-400/20 bg-yellow-400/10 p-5">
+                            <p class="text-yellow-300 text-xs font-black uppercase tracking-widest">À vérifier avant achat</p>
+                            <p class="text-gray-300 text-sm leading-relaxed mt-3">
+                                Certains pommeaux d'origine sont clipsés, collés ou intégrés à une bague de marche arrière spécifique. Dans ce cas, vérifie le système de fixation de ton modèle avant commande.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        {['M8', 'M10', 'M12'].map((thread) => (
+                            <div class="bg-zinc-900 border border-white/10 rounded-2xl p-6">
+                                <p class="text-4xl font-black italic text-white">{thread}</p>
+                                <p class="text-gray-500 text-xs uppercase tracking-widest font-bold mt-2">Bague incluse</p>
+                                <p class="text-gray-400 text-sm leading-relaxed mt-5">
+                                    À tester sur le levier après retrait de l'ancien pommeau. La bonne bague se visse sans forcer.
+                                </p>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                <div class="mt-14 grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="bg-zinc-900 border border-white/10 rounded-2xl p-6 md:p-8">
+                        <div class="flex items-center gap-3 mb-6">
+                            <div class="h-10 w-10 rounded-xl bg-green-500/10 border border-green-500/20 flex items-center justify-center text-green-500 font-black">1</div>
+                            <h3 class="text-xl font-black uppercase italic">Comment vérifier ?</h3>
+                        </div>
+                        <div class="space-y-5">
+                            <div class="flex gap-4">
+                                <span class="text-green-500 font-black">01</span>
+                                <p class="text-gray-400 text-sm leading-relaxed">Retire l'ancien pommeau et regarde si le haut du levier est fileté.</p>
+                            </div>
+                            <div class="flex gap-4">
+                                <span class="text-green-500 font-black">02</span>
+                                <p class="text-gray-400 text-sm leading-relaxed">Teste les bagues sans forcer : M8, M10 puis M12. La bonne bague doit prendre le filet proprement.</p>
+                            </div>
+                            <div class="flex gap-4">
+                                <span class="text-green-500 font-black">03</span>
+                                <p class="text-gray-400 text-sm leading-relaxed">Visse le Deep Matte à la main et arrête dès qu'il est bien maintenu.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-zinc-900 border border-white/10 rounded-2xl p-6 md:p-8">
+                        <div class="flex items-center gap-3 mb-6">
+                            <div class="h-10 w-10 rounded-xl bg-cyan-400/10 border border-cyan-400/20 flex items-center justify-center text-cyan-300 font-black">?</div>
+                            <h3 class="text-xl font-black uppercase italic">Exemples fréquents</h3>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            {['Volkswagen Golf', 'Audi A3', 'BMW Série 1', 'Peugeot 208', 'Renault Clio', 'Ford Fiesta'].map((model) => (
+                                <div class="rounded-xl bg-black/25 border border-white/10 px-4 py-3">
+                                    <p class="text-white text-sm font-bold">{model}</p>
+                                    <p class="text-gray-500 text-[11px] mt-1">Vérification du filetage recommandée</p>
+                                </div>
+                            ))}
+                        </div>
+                        <a href="/contact" class="inline-flex mt-6 text-green-500 hover:text-white font-black uppercase tracking-widest text-xs transition">
+                            Un doute sur ton modèle ? Contacte-nous →
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <!-- ── TUTO MONTAGE ──────────────────────────────────────────────────── -->
         <section class="py-24 bg-black border-t border-white/5">
             <div class="max-w-6xl mx-auto px-5 md:px-10">
