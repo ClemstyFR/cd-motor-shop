@@ -1,0 +1,175 @@
+---
+import '../styles/global.css';
+import { ClientRouter } from 'astro:transitions';
+
+const lastUpdated = '12 mai 2026';
+const controller = {
+    name: 'CD Motor Shop',
+    legalName: 'À compléter',
+    email: 'À compléter',
+    address: 'À compléter',
+};
+
+const processing = [
+    ['Compte client', 'Email, identifiant utilisateur, informations de connexion', 'Création et gestion du compte', 'Exécution du contrat / intérêt légitime', 'Durée du compte puis archivage légal si nécessaire'],
+    ['Commandes', 'Produits commandés, prix, statut, identifiant client', 'Traitement, suivi et historique des commandes', 'Exécution du contrat', 'Durées légales comptables et commerciales applicables'],
+    ['Paiement', 'Informations de transaction, statut de paiement, identifiant Stripe', 'Encaissement et sécurisation du paiement', 'Exécution du contrat', 'Selon les durées appliquées par le prestataire de paiement'],
+    ['Contact', 'Nom, email, sujet, message, numéro de commande si fourni', 'Répondre aux demandes envoyées au support', 'Intérêt légitime / mesures précontractuelles', 'Durée nécessaire au traitement de la demande'],
+    ['Avis clients', 'Note, commentaire, identifiant utilisateur, date', 'Afficher et modérer les avis sur les produits', 'Intérêt légitime', 'Durée de publication de l\'avis ou demande de suppression'],
+];
+
+const providers = [
+    ['Supabase', 'Authentification, base de données et gestion des comptes'],
+    ['Stripe', 'Paiement sécurisé et traitement des transactions'],
+    ['Vercel', 'Hébergement et diffusion du site'],
+];
+---
+
+<html lang="fr">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="icon" type="image/png" href="/logo.png" />
+        <title>Politique de confidentialité | CD Motor Shop</title>
+        <style>
+            .privacy-hero { border-bottom: 1px solid rgba(255,255,255,0.08); }
+            .privacy-card {
+                background: linear-gradient(145deg, rgba(255,255,255,0.055), rgba(255,255,255,0.015));
+                border: 1px solid rgba(216,221,224,0.12);
+                box-shadow: 0 24px 80px rgba(0,0,0,0.35);
+            }
+            .privacy-table { overflow-x: auto; }
+            .privacy-table table { width: 100%; border-collapse: collapse; min-width: 780px; }
+            .privacy-table th {
+                color: #9aa4ad;
+                font-size: 0.68rem;
+                letter-spacing: 0.08em;
+                text-transform: uppercase;
+                text-align: left;
+                padding: 0 0.85rem 0.85rem 0;
+                border-bottom: 1px solid rgba(255,255,255,0.1);
+            }
+            .privacy-table td {
+                color: #d8dde0;
+                font-size: 0.82rem;
+                line-height: 1.55;
+                vertical-align: top;
+                padding: 1rem 0.85rem 1rem 0;
+                border-bottom: 1px solid rgba(255,255,255,0.07);
+            }
+            .todo { color: #facc15; }
+        </style>
+        <ClientRouter/>
+    </head>
+    <body class="bg-black text-white font-sans min-h-screen">
+        <nav class="fixed w-full z-50 bg-black/80 backdrop-blur-md border-b border-white/10 p-5 px-5 md:px-10 flex justify-between items-center">
+            <a href="/" class="text-xl font-black italic tracking-tighter hover:text-green-500 transition">
+                <span class="text-green-600">←</span> CD MOTOR SHOP
+            </a>
+            <a href="/contact" class="text-xs font-bold uppercase tracking-widest text-gray-400 hover:text-green-500 transition">Contact</a>
+        </nav>
+
+        <main>
+            <section class="privacy-hero pt-32 pb-20 px-5 md:px-10">
+                <div class="max-w-5xl mx-auto">
+                    <span class="text-green-500 font-bold tracking-widest uppercase text-xs">Données personnelles</span>
+                    <h1 class="text-4xl md:text-6xl font-black uppercase italic mt-4">Politique de confidentialité</h1>
+                    <p class="text-gray-400 text-base md:text-lg leading-relaxed max-w-2xl mt-6">
+                        Cette page explique quelles données sont collectées, pourquoi elles sont utilisées, avec qui elles peuvent être partagées et comment exercer tes droits.
+                    </p>
+                    <p class="text-gray-500 text-xs uppercase tracking-widest font-bold mt-8">Dernière mise à jour : {lastUpdated}</p>
+                </div>
+            </section>
+
+            <section class="py-16 px-5 md:px-10">
+                <div class="max-w-5xl mx-auto flex flex-col gap-8">
+                    <section class="privacy-card rounded-2xl p-6 md:p-8">
+                        <h2 class="text-2xl font-black uppercase italic">Responsable du traitement</h2>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6 text-sm">
+                            <p><span class="text-gray-500">Site :</span> {controller.name}</p>
+                            <p><span class="text-gray-500">Nom légal :</span> <span class="todo">{controller.legalName}</span></p>
+                            <p><span class="text-gray-500">Email :</span> <span class="todo">{controller.email}</span></p>
+                            <p><span class="text-gray-500">Adresse :</span> <span class="todo">{controller.address}</span></p>
+                        </div>
+                    </section>
+
+                    <section class="privacy-card rounded-2xl p-6 md:p-8">
+                        <h2 class="text-2xl font-black uppercase italic mb-6">Traitements réalisés</h2>
+                        <div class="privacy-table">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Usage</th>
+                                        <th>Données</th>
+                                        <th>Finalité</th>
+                                        <th>Base légale</th>
+                                        <th>Conservation</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {processing.map((row) => (
+                                        <tr>
+                                            {row.map((cell) => <td>{cell}</td>)}
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
+
+                    <section class="privacy-card rounded-2xl p-6 md:p-8">
+                        <h2 class="text-2xl font-black uppercase italic mb-5">Destinataires et prestataires</h2>
+                        <p class="text-gray-400 text-sm leading-relaxed">
+                            Les données sont accessibles uniquement aux personnes et prestataires qui en ont besoin pour faire fonctionner le site, traiter les commandes, sécuriser les paiements ou répondre aux demandes.
+                        </p>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+                            {providers.map(([name, role]) => (
+                                <div class="rounded-xl border border-white/10 bg-black/20 p-4">
+                                    <p class="font-black uppercase text-sm">{name}</p>
+                                    <p class="text-gray-500 text-xs leading-relaxed mt-2">{role}</p>
+                                </div>
+                            ))}
+                        </div>
+                    </section>
+
+                    <section class="privacy-card rounded-2xl p-6 md:p-8">
+                        <h2 class="text-2xl font-black uppercase italic mb-5">Cookies et stockage local</h2>
+                        <p class="text-gray-400 text-sm leading-relaxed">
+                            Le site peut utiliser des données de session, des cookies techniques ou du stockage local strictement nécessaires au fonctionnement de la boutique, notamment pour conserver le panier, gérer la connexion ou sécuriser le paiement. Aucun cookie publicitaire n'est prévu dans la version actuelle du site.
+                        </p>
+                    </section>
+
+                    <section class="privacy-card rounded-2xl p-6 md:p-8">
+                        <h2 class="text-2xl font-black uppercase italic mb-5">Transferts hors Union européenne</h2>
+                        <p class="text-gray-400 text-sm leading-relaxed">
+                            Certains prestataires techniques peuvent être situés hors de l'Union européenne ou traiter des données depuis des pays tiers. Dans ce cas, les garanties proposées par ces prestataires doivent être vérifiées et documentées avant publication définitive.
+                        </p>
+                    </section>
+
+                    <section class="privacy-card rounded-2xl p-6 md:p-8">
+                        <h2 class="text-2xl font-black uppercase italic mb-5">Tes droits</h2>
+                        <p class="text-gray-400 text-sm leading-relaxed">
+                            Tu peux demander l'accès, la rectification, l'effacement, la limitation ou l'opposition au traitement de tes données lorsque ces droits sont applicables. Tu peux aussi demander la portabilité des données fournies dans le cadre de ton compte ou de tes commandes.
+                        </p>
+                        <p class="text-gray-400 text-sm leading-relaxed mt-4">
+                            Pour exercer tes droits, contacte CD Motor Shop à l'adresse suivante : <span class="todo">{controller.email}</span>. Tu peux également introduire une réclamation auprès de la CNIL si tu estimes que tes droits ne sont pas respectés.
+                        </p>
+                    </section>
+                </div>
+            </section>
+        </main>
+
+        <footer class="py-16 bg-zinc-950 border-t border-white/10 px-5 md:px-10 text-center">
+            <div class="max-w-4xl mx-auto">
+                <div class="text-xl font-black italic mb-6 uppercase">À propos de <span class="text-green-600">CD</span> MOTOR SHOP</div>
+                <div class="flex flex-wrap justify-center gap-x-6 gap-y-2 mb-8">
+                    <a href="/mentions-legales" class="text-gray-500 hover:text-white text-xs uppercase tracking-widest transition">Mentions légales</a>
+                    <a href="/cgv" class="text-gray-500 hover:text-white text-xs uppercase tracking-widest transition">CGV</a>
+                    <a href="/politique-confidentialite" class="text-white text-xs uppercase tracking-widest transition">Politique de confidentialité</a>
+                    <a href="/contact" class="text-gray-500 hover:text-white text-xs uppercase tracking-widest transition">Contact</a>
+                </div>
+                <p class="text-gray-600 text-xs uppercase tracking-widest font-bold">© 2026 CD MOTOR SHOP. Tous droits réservés.</p>
+            </div>
+        </footer>
+    </body>
+</html>

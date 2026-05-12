@@ -1,0 +1,188 @@
+---
+import '../styles/global.css';
+import { ClientRouter } from 'astro:transitions';
+
+const lastUpdated = '12 mai 2026';
+const seller = {
+    name: 'CD Motor Shop',
+    legalName: 'À compléter',
+    address: 'À compléter',
+    email: 'À compléter',
+    registration: 'À compléter',
+};
+
+const sections = [
+    {
+        title: '1. Objet',
+        body: [
+            'Les présentes conditions générales de vente encadrent les ventes réalisées sur le site CD Motor Shop entre le vendeur et tout client consommateur achetant un produit proposé sur le site.',
+            'Toute commande implique l\'acceptation pleine et entière des présentes conditions générales de vente.'
+        ],
+    },
+    {
+        title: '2. Produits',
+        body: [
+            'Les produits proposés sont décrits sur les fiches produits avec leurs caractéristiques essentielles, leur prix, leur disponibilité et les informations utiles à leur utilisation.',
+            'Le client est invité à vérifier la compatibilité du produit avec son véhicule avant de valider sa commande.'
+        ],
+    },
+    {
+        title: '3. Prix',
+        body: [
+            'Les prix sont indiqués en euros toutes taxes comprises, sauf mention contraire. Le prix applicable est celui affiché au moment de la validation de la commande.',
+            'CD Motor Shop se réserve le droit de modifier ses prix à tout moment, sans effet sur les commandes déjà validées.'
+        ],
+    },
+    {
+        title: '4. Commande',
+        body: [
+            'Le client sélectionne les produits souhaités, vérifie le contenu de son panier, puis valide sa commande avec obligation de paiement.',
+            'Une confirmation de commande est envoyée au client après validation du paiement, sous réserve du bon fonctionnement des services de paiement et de messagerie.'
+        ],
+    },
+    {
+        title: '5. Paiement',
+        body: [
+            'Le paiement est effectué en ligne par carte bancaire ou tout autre moyen proposé lors du checkout. Les paiements sont traités par Stripe ou par un prestataire de paiement sécurisé équivalent.',
+            'CD Motor Shop ne conserve pas les données complètes de carte bancaire du client.'
+        ],
+    },
+    {
+        title: '6. Livraison',
+        body: [
+            'La livraison est proposée en France métropolitaine selon les conditions affichées sur le site. À titre indicatif, le délai estimé actuellement indiqué est de 12 à 18 jours ouvrés.',
+            'En cas de retard important ou d\'impossibilité de livraison, le client peut contacter CD Motor Shop afin de trouver une solution adaptée.'
+        ],
+    },
+    {
+        title: '7. Droit de rétractation',
+        body: [
+            'Conformément aux règles applicables à la vente à distance, le client consommateur dispose en principe d\'un délai de 14 jours calendaires pour exercer son droit de rétractation à compter de la réception du produit.',
+            'Le produit doit être retourné complet, non endommagé, dans un état permettant sa remise en vente. Les modalités pratiques de retour seront communiquées après contact du support.'
+        ],
+    },
+    {
+        title: '8. Retours et remboursements',
+        body: [
+            'CD Motor Shop peut proposer une politique commerciale de retour plus favorable que le droit légal de rétractation, notamment un délai de 30 jours lorsque cette information est affichée sur la fiche produit.',
+            'Le remboursement intervient après réception et vérification du produit retourné, via le moyen de paiement utilisé lors de la commande.'
+        ],
+    },
+    {
+        title: '9. Garanties légales',
+        body: [
+            'Le client bénéficie des garanties légales applicables, notamment la garantie légale de conformité et la garantie contre les vices cachés.',
+            'Ces garanties s\'appliquent indépendamment de toute garantie commerciale éventuellement proposée sur le site.'
+        ],
+    },
+    {
+        title: '10. Responsabilité',
+        body: [
+            'CD Motor Shop ne saurait être tenu responsable d\'une mauvaise installation, d\'une utilisation anormale du produit ou d\'un défaut de vérification de compatibilité par le client.',
+            'Les photographies et visuels du site sont présentés à titre illustratif et peuvent légèrement différer du rendu réel selon l\'écran ou l\'environnement d\'installation.'
+        ],
+    },
+    {
+        title: '11. Données personnelles',
+        body: [
+            'Les données personnelles collectées dans le cadre des commandes, comptes clients, paiements et demandes de contact sont traitées conformément à la politique de confidentialité du site.',
+            'Le client peut consulter cette politique à tout moment depuis le pied de page du site.'
+        ],
+    },
+    {
+        title: '12. Médiation et litiges',
+        body: [
+            'En cas de litige, le client est invité à contacter CD Motor Shop en priorité afin de rechercher une solution amiable.',
+            'Les coordonnées du médiateur de la consommation compétent doivent être ajoutées par l\'éditeur avant publication définitive des CGV.'
+        ],
+    },
+];
+---
+
+<html lang="fr">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="icon" type="image/png" href="/logo.png" />
+        <title>Conditions générales de vente | CD Motor Shop</title>
+        <style>
+            .legal-hero { border-bottom: 1px solid rgba(255,255,255,0.08); }
+            .legal-card {
+                background: linear-gradient(145deg, rgba(255,255,255,0.055), rgba(255,255,255,0.015));
+                border: 1px solid rgba(216,221,224,0.12);
+                box-shadow: 0 24px 80px rgba(0,0,0,0.35);
+            }
+            .legal-section + .legal-section { border-top: 1px solid rgba(255,255,255,0.08); }
+            .todo { color: #facc15; }
+        </style>
+        <ClientRouter/>
+    </head>
+    <body class="bg-black text-white font-sans min-h-screen">
+        <nav class="fixed w-full z-50 bg-black/80 backdrop-blur-md border-b border-white/10 p-5 px-5 md:px-10 flex justify-between items-center">
+            <a href="/" class="text-xl font-black italic tracking-tighter hover:text-green-500 transition">
+                <span class="text-green-600">←</span> CD MOTOR SHOP
+            </a>
+            <a href="/deepmatte" class="text-xs font-bold uppercase tracking-widest text-gray-400 hover:text-green-500 transition">Voir le produit</a>
+        </nav>
+
+        <main>
+            <section class="legal-hero pt-32 pb-20 px-5 md:px-10">
+                <div class="max-w-5xl mx-auto">
+                    <span class="text-green-500 font-bold tracking-widest uppercase text-xs">Contrat de vente</span>
+                    <h1 class="text-4xl md:text-6xl font-black uppercase italic mt-4">CGV</h1>
+                    <p class="text-gray-400 text-base md:text-lg leading-relaxed max-w-2xl mt-6">
+                        Ces conditions encadrent les commandes passées sur CD Motor Shop. Elles doivent être relues et complétées avec tes informations d'entreprise avant publication.
+                    </p>
+                    <p class="text-gray-500 text-xs uppercase tracking-widest font-bold mt-8">Dernière mise à jour : {lastUpdated}</p>
+                </div>
+            </section>
+
+            <section class="py-16 px-5 md:px-10">
+                <div class="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-[0.9fr_1.4fr] gap-8 items-start">
+                    <aside class="legal-card rounded-2xl p-6 lg:sticky lg:top-28">
+                        <p class="text-green-500 font-bold tracking-widest uppercase text-xs">Vendeur</p>
+                        <h2 class="text-2xl font-black uppercase italic mt-2">{seller.name}</h2>
+                        <div class="mt-5 space-y-3 text-sm">
+                            <p><span class="text-gray-500">Nom légal :</span> <span class="todo">{seller.legalName}</span></p>
+                            <p><span class="text-gray-500">Adresse :</span> <span class="todo">{seller.address}</span></p>
+                            <p><span class="text-gray-500">Email :</span> <span class="todo">{seller.email}</span></p>
+                            <p><span class="text-gray-500">Immatriculation :</span> <span class="todo">{seller.registration}</span></p>
+                        </div>
+                        <div class="mt-6 flex flex-col gap-3 text-sm text-gray-400">
+                            <a href="/mentions-legales" class="hover:text-green-500 transition">Mentions légales</a>
+                            <a href="/politique-confidentialite" class="hover:text-green-500 transition">Politique de confidentialité</a>
+                            <a href="/contact" class="hover:text-green-500 transition">Contact</a>
+                        </div>
+                    </aside>
+
+                    <article class="legal-card rounded-2xl p-6 md:p-8">
+                        {sections.map((section) => (
+                            <section class="legal-section py-7 first:pt-0 last:pb-0">
+                                <h2 class="text-2xl font-black uppercase italic">{section.title}</h2>
+                                <div class="mt-4 space-y-4">
+                                    {section.body.map((paragraph) => (
+                                        <p class="text-gray-400 text-sm leading-relaxed">{paragraph}</p>
+                                    ))}
+                                </div>
+                            </section>
+                        ))}
+                        <p class="todo text-sm font-bold mt-8">Médiateur de la consommation : À compléter</p>
+                    </article>
+                </div>
+            </section>
+        </main>
+
+        <footer class="py-16 bg-zinc-950 border-t border-white/10 px-5 md:px-10 text-center">
+            <div class="max-w-4xl mx-auto">
+                <div class="text-xl font-black italic mb-6 uppercase">À propos de <span class="text-green-600">CD</span> MOTOR SHOP</div>
+                <div class="flex flex-wrap justify-center gap-x-6 gap-y-2 mb-8">
+                    <a href="/mentions-legales" class="text-gray-500 hover:text-white text-xs uppercase tracking-widest transition">Mentions légales</a>
+                    <a href="/cgv" class="text-white text-xs uppercase tracking-widest transition">CGV</a>
+                    <a href="/politique-confidentialite" class="text-gray-500 hover:text-white text-xs uppercase tracking-widest transition">Politique de confidentialité</a>
+                    <a href="/contact" class="text-gray-500 hover:text-white text-xs uppercase tracking-widest transition">Contact</a>
+                </div>
+                <p class="text-gray-600 text-xs uppercase tracking-widest font-bold">© 2026 CD MOTOR SHOP. Tous droits réservés.</p>
+            </div>
+        </footer>
+    </body>
+</html>

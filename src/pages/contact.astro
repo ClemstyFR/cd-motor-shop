@@ -1,0 +1,218 @@
+---
+import '../styles/global.css';
+import { ClientRouter } from 'astro:transitions';
+
+const contactEmail = 'À compléter';
+const responseDelay = '24 à 48h ouvrées';
+---
+
+<html lang="fr">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="icon" type="image/png" href="/logo.png" />
+        <title>Contact | CD Motor Shop</title>
+        <style>
+            .contact-hero { border-bottom: 1px solid rgba(255,255,255,0.08); }
+            .contact-card {
+                background: linear-gradient(145deg, rgba(255,255,255,0.055), rgba(255,255,255,0.015));
+                border: 1px solid rgba(216,221,224,0.12);
+                box-shadow: 0 24px 80px rgba(0,0,0,0.35);
+            }
+            .field {
+                display: flex;
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            .field label {
+                color: #9aa4ad;
+                font-size: 0.7rem;
+                font-weight: 800;
+                letter-spacing: 0.08em;
+                text-transform: uppercase;
+            }
+            .field input,
+            .field select,
+            .field textarea {
+                width: 100%;
+                background: #050607;
+                border: 1px solid rgba(216,221,224,0.14);
+                border-radius: 0.85rem;
+                color: white;
+                font: inherit;
+                font-size: 0.92rem;
+                padding: 0.9rem 1rem;
+                outline: none;
+                transition: border-color 0.2s, box-shadow 0.2s;
+            }
+            .field textarea { min-height: 150px; resize: vertical; }
+            .field input:focus,
+            .field select:focus,
+            .field textarea:focus {
+                border-color: #67e8f9;
+                box-shadow: 0 0 0 3px rgba(103,232,249,0.08);
+            }
+            .todo { color: #facc15; }
+            #contact-toast {
+                display: none;
+                border-radius: 0.9rem;
+                padding: 0.9rem 1rem;
+                font-size: 0.82rem;
+                font-weight: 700;
+                line-height: 1.5;
+            }
+            #contact-toast.visible { display: block; }
+            #contact-toast.error {
+                background: rgba(220,38,38,0.12);
+                border: 1px solid rgba(248,113,113,0.25);
+                color: #fca5a5;
+            }
+            #contact-toast.success {
+                background: rgba(34,197,94,0.12);
+                border: 1px solid rgba(34,197,94,0.25);
+                color: #86efac;
+            }
+        </style>
+        <ClientRouter/>
+    </head>
+    <body class="bg-black text-white font-sans min-h-screen">
+        <nav class="fixed w-full z-50 bg-black/80 backdrop-blur-md border-b border-white/10 p-5 px-5 md:px-10 flex justify-between items-center">
+            <a href="/" class="text-xl font-black italic tracking-tighter hover:text-green-500 transition">
+                <span class="text-green-600">←</span> CD MOTOR SHOP
+            </a>
+            <a href="/deepmatte" class="text-xs font-bold uppercase tracking-widest text-gray-400 hover:text-green-500 transition">Voir le produit</a>
+        </nav>
+
+        <main>
+            <section class="contact-hero pt-32 pb-20 px-5 md:px-10">
+                <div class="max-w-5xl mx-auto">
+                    <span class="text-green-500 font-bold tracking-widest uppercase text-xs">Support</span>
+                    <h1 class="text-4xl md:text-6xl font-black uppercase italic mt-4">Contact</h1>
+                    <p class="text-gray-400 text-base md:text-lg leading-relaxed max-w-2xl mt-6">
+                        Une question sur une commande, la compatibilité du Deep Matte ou un retour ? Envoie ton message, on te répond dès que possible.
+                    </p>
+                </div>
+            </section>
+
+            <section class="py-16 px-5 md:px-10">
+                <div class="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-[0.85fr_1.35fr] gap-8 items-start">
+                    <aside class="contact-card rounded-2xl p-6 lg:sticky lg:top-28">
+                        <p class="text-green-500 font-bold tracking-widest uppercase text-xs">Infos utiles</p>
+                        <h2 class="text-2xl font-black uppercase italic mt-2">Nous écrire</h2>
+                        <div class="mt-6 space-y-5 text-sm">
+                            <div>
+                                <p class="text-gray-500 uppercase tracking-widest text-[10px] font-bold">Email</p>
+                                <p class={contactEmail === 'À compléter' ? 'todo font-bold mt-1' : 'text-white font-bold mt-1'}>{contactEmail}</p>
+                            </div>
+                            <div>
+                                <p class="text-gray-500 uppercase tracking-widest text-[10px] font-bold">Réponse estimée</p>
+                                <p class="text-white font-bold mt-1">{responseDelay}</p>
+                            </div>
+                            <div>
+                                <p class="text-gray-500 uppercase tracking-widest text-[10px] font-bold">Commande</p>
+                                <p class="text-gray-400 leading-relaxed mt-1">Ajoute ton numéro de commande si ta demande concerne un achat déjà passé.</p>
+                            </div>
+                        </div>
+                        <div class="mt-8 rounded-xl border border-white/10 bg-black/20 p-4">
+                            <p class="text-gray-400 text-xs leading-relaxed">
+                                Le formulaire prépare un email depuis ton application de messagerie. Pour un vrai envoi serveur, il faudra ensuite connecter une API ou un service de formulaire.
+                            </p>
+                        </div>
+                    </aside>
+
+                    <section class="contact-card rounded-2xl p-6 md:p-8">
+                        <form id="contact-form" class="flex flex-col gap-5">
+                            <div id="contact-toast" role="status" aria-live="polite"></div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                <div class="field">
+                                    <label for="name">Nom</label>
+                                    <input id="name" name="name" autocomplete="name" placeholder="Ton nom" required />
+                                </div>
+                                <div class="field">
+                                    <label for="email">Email</label>
+                                    <input id="email" name="email" type="email" autocomplete="email" placeholder="ton@email.com" required />
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                <div class="field">
+                                    <label for="topic">Sujet</label>
+                                    <select id="topic" name="topic" required>
+                                        <option value="Question produit">Question produit</option>
+                                        <option value="Commande">Commande</option>
+                                        <option value="Livraison">Livraison</option>
+                                        <option value="Retour ou remboursement">Retour ou remboursement</option>
+                                        <option value="Autre demande">Autre demande</option>
+                                    </select>
+                                </div>
+                                <div class="field">
+                                    <label for="order">Numéro de commande</label>
+                                    <input id="order" name="order" placeholder="Optionnel" />
+                                </div>
+                            </div>
+
+                            <div class="field">
+                                <label for="message">Message</label>
+                                <textarea id="message" name="message" placeholder="Explique-nous ta demande..." required></textarea>
+                            </div>
+
+                            <button type="submit" class="bg-green-600 hover:bg-green-700 text-white font-black py-4 px-8 rounded-2xl transition-all active:scale-95 uppercase text-sm tracking-widest shadow-lg shadow-green-900/20">
+                                Envoyer le message
+                            </button>
+                        </form>
+                    </section>
+                </div>
+            </section>
+        </main>
+
+        <footer class="py-16 bg-zinc-950 border-t border-white/10 px-5 md:px-10 text-center">
+            <div class="max-w-4xl mx-auto">
+                <div class="text-xl font-black italic mb-6 uppercase">À propos de <span class="text-green-600">CD</span> MOTOR SHOP</div>
+                <div class="flex flex-wrap justify-center gap-x-6 gap-y-2 mb-8">
+                    <a href="/mentions-legales" class="text-gray-500 hover:text-white text-xs uppercase tracking-widest transition">Mentions légales</a>
+                    <a href="/cgv" class="text-gray-500 hover:text-white text-xs uppercase tracking-widest transition">CGV</a>
+                    <a href="/politique-confidentialite" class="text-gray-500 hover:text-white text-xs uppercase tracking-widest transition">Politique de confidentialité</a>
+                    <a href="/contact" class="text-white text-xs uppercase tracking-widest transition">Contact</a>
+                </div>
+                <p class="text-gray-600 text-xs uppercase tracking-widest font-bold">© 2026 CD MOTOR SHOP. Tous droits réservés.</p>
+            </div>
+        </footer>
+
+        <script define:vars={{ contactEmail }}>
+            const form = document.getElementById('contact-form');
+            const toast = document.getElementById('contact-toast');
+
+            const showToast = (message, type = 'error') => {
+                if (!toast) return;
+                toast.textContent = message;
+                toast.className = `visible ${type}`;
+            };
+
+            form?.addEventListener('submit', (event) => {
+                event.preventDefault();
+
+                if (!contactEmail || contactEmail === 'À compléter') {
+                    showToast('Adresse email de contact à compléter avant de pouvoir envoyer le formulaire.');
+                    return;
+                }
+
+                const data = new FormData(form);
+                const subject = `[CD Motor Shop] ${data.get('topic') || 'Contact'}`;
+                const body = [
+                    `Nom : ${data.get('name') || ''}`,
+                    `Email : ${data.get('email') || ''}`,
+                    `Sujet : ${data.get('topic') || ''}`,
+                    `Commande : ${data.get('order') || 'Non renseignée'}`,
+                    '',
+                    'Message :',
+                    data.get('message') || '',
+                ].join('\n');
+
+                const href = `mailto:${contactEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+                window.location.href = href;
+                showToast('Ton application email va s\'ouvrir avec le message prérempli.', 'success');
+            });
+        </script>
+    </body>
+</html>
