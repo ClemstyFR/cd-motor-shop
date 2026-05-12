@@ -58,10 +58,16 @@ const providers = [
                 border-bottom: 1px solid rgba(255,255,255,0.07);
             }
             .todo { color: #facc15; }
+            .privacy-static *,
+            .privacy-static *::before,
+            .privacy-static *::after {
+                animation: none !important;
+                transition: none !important;
+            }
         </style>
         <ClientRouter/>
     </head>
-    <body class="bg-black text-white font-sans min-h-screen">
+    <body class="privacy-static bg-black text-white font-sans min-h-screen">
         <nav class="fixed w-full z-50 bg-black/80 backdrop-blur-md border-b border-white/10 p-5 px-5 md:px-10 flex justify-between items-center">
             <a href="/" class="text-xl font-black italic tracking-tighter hover:text-green-500 transition">
                 <span class="text-green-600">←</span> CD MOTOR SHOP
