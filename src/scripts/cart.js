@@ -130,8 +130,21 @@ export function initCart(product) {
     }, { signal });
 
     // ─── AJOUT AU PANIER ────────────────────────────────────────────────────────
-    const addBtn = document.getElementById('add-to-cart');
-    addBtn?.addEventListener('click', () => {
+    const addButtons = Array.from(document.querySelectorAll('[data-add-to-cart]'));
+    const legacyAddBtn = document.getElementById('add-to-cart');
+    if (legacyAddBtn && !addButtons.includes(legacyAddBtn)) addButtons.push(legacyAddBtn);
+
+    const setAddButtonsState = (state) => {
+        addButtons.forEach((btn) => {
+            const defaultLabel = btn.dataset.defaultLabel || 'Ajouter au panier';
+            const addedLabel = btn.dataset.addedLabel || '✓ Ajouté !';
+            btn.textContent = state === 'added' ? addedLabel : defaultLabel;
+            btn.classList.toggle('bg-green-700', state === 'added');
+            btn.classList.toggle('bg-green-600', state !== 'added');
+        });
+    };
+
+    addButtons.forEach((addBtn) => addBtn.addEventListener('click', () => {
         const selectedQty = typeof product.getQty === 'function' ? product.getQty() : (parseInt(document.getElementById('qty-value')?.textContent, 10) || 1);
         const existing = cart.find(i => i.id === product.id);
         if (existing) { existing.qty += selectedQty; }
@@ -149,15 +162,13 @@ export function initCart(product) {
 
         if (typeof product.resetQty === 'function') product.resetQty();
 
-        addBtn.textContent = '✓ Ajouté !';
-        addBtn.classList.replace('bg-green-600', 'bg-green-700');
+        setAddButtonsState('added');
         setTimeout(() => {
-            addBtn.textContent = 'Ajouter au panier';
-            addBtn.classList.replace('bg-green-700', 'bg-green-600');
+            setAddButtonsState('default');
         }, 1500);
 
         showToast(product.nom + ' ajouté au panier');
-    }, { signal });
+    }, { signal }));
 
     document.getElementById('checkout-btn')?.addEventListener('click', async () => {
     if (cart.length === 0) { showToast('Votre panier est vide'); return; }

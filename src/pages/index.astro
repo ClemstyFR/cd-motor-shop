@@ -189,8 +189,15 @@ const product = {
 						<span class="text-gray-500 text-xs">(24 avis)</span>
 					</div>
 					<p class="text-gray-400 mt-6 italic font-light leading-relaxed">"{product.description}"</p>
-					<div class="mt-10 flex flex-col gap-4">
-                        <a href="/deepmatte" class="w-full bg-green-600 hover:bg-green-700 text-white text-center font-black py-5 rounded-2xl transition-all active:scale-95 uppercase text-lg shadow-lg shadow-green-900/20">
+					<div class="mt-10 flex flex-col gap-3">
+                        <button
+                            data-add-to-cart
+                            data-default-label="Ajouter au panier - 29.90€"
+                            data-added-label="✓ Ajouté au panier"
+                            class="w-full bg-green-600 hover:bg-green-700 text-white text-center font-black py-5 rounded-2xl transition-all active:scale-95 uppercase text-lg shadow-lg shadow-green-900/20">
+                            Ajouter au panier - 29.90€
+                        </button>
+                        <a href="/deepmatte" class="w-full border border-white/15 hover:border-green-500/50 hover:text-green-400 text-white text-center font-bold py-4 rounded-2xl transition-all uppercase text-sm tracking-widest">
                             Détails techniques →
                         </a>
 					</div>
