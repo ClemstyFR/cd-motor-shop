@@ -1,0 +1,217 @@
+---
+import '../styles/global.css';
+import { ClientRouter } from 'astro:transitions';
+
+const lastUpdated = '12 mai 2026';
+const editor = {
+    siteName: 'CD Motor Shop',
+    legalName: 'À compléter',
+    legalForm: 'À compléter',
+    capital: 'À compléter',
+    address: 'À compléter',
+    email: 'À compléter',
+    phone: 'À compléter',
+    registration: 'À compléter',
+    vat: 'À compléter si applicable',
+    publicationDirector: 'À compléter',
+};
+
+const host = {
+    name: 'Vercel Inc.',
+    address: '440 N Barranca Ave #4133, Covina, CA 91723, États-Unis',
+    website: 'https://vercel.com',
+};
+
+const legalRows = [
+    ['Nom du site', editor.siteName],
+    ['Éditeur', editor.legalName],
+    ['Forme juridique', editor.legalForm],
+    ['Capital social', editor.capital],
+    ['Adresse', editor.address],
+    ['Email', editor.email],
+    ['Téléphone', editor.phone],
+    ['Immatriculation', editor.registration],
+    ['TVA intracommunautaire', editor.vat],
+    ['Directeur de la publication', editor.publicationDirector],
+];
+---
+
+<html lang="fr">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="icon" type="image/png" href="/logo.png" />
+        <title>Mentions légales | CD Motor Shop</title>
+        <style>
+            .legal-hero {
+                position: relative;
+                overflow: hidden;
+                border-bottom: 1px solid rgba(255,255,255,0.08);
+            }
+            .legal-hero::after {
+                content: "";
+                position: absolute;
+                inset: auto 8% -35% 8%;
+                height: 22rem;
+                background: linear-gradient(90deg, rgba(34,197,94,0.12), rgba(103,232,249,0.08), rgba(216,221,224,0.05));
+                filter: blur(70px);
+                pointer-events: none;
+            }
+            .legal-card {
+                background: linear-gradient(145deg, rgba(255,255,255,0.055), rgba(255,255,255,0.015));
+                border: 1px solid rgba(216,221,224,0.12);
+                box-shadow: 0 24px 80px rgba(0,0,0,0.35);
+            }
+            .legal-row {
+                display: grid;
+                grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.4fr);
+                gap: 1rem;
+                padding: 1rem 0;
+                border-bottom: 1px solid rgba(255,255,255,0.07);
+            }
+            .legal-row:last-child { border-bottom: 0; }
+            .legal-label {
+                color: #9aa4ad;
+                font-size: 0.72rem;
+                font-weight: 800;
+                letter-spacing: 0.08em;
+                text-transform: uppercase;
+            }
+            .legal-value {
+                color: #f4f1e8;
+                font-size: 0.92rem;
+                font-weight: 700;
+                line-height: 1.55;
+                overflow-wrap: anywhere;
+            }
+            .legal-value:has(.todo),
+            .todo { color: #facc15; }
+            @media (max-width: 640px) {
+                .legal-row { grid-template-columns: 1fr; gap: 0.35rem; }
+            }
+        </style>
+        <ClientRouter/>
+    </head>
+    <body class="bg-black text-white font-sans min-h-screen">
+        <nav class="fixed w-full z-50 bg-black/80 backdrop-blur-md border-b border-white/10 p-5 px-5 md:px-10 flex justify-between items-center">
+            <a href="/" class="text-xl font-black italic tracking-tighter hover:text-green-500 transition">
+                <span class="text-green-600">←</span> CD MOTOR SHOP
+            </a>
+            <a href="/deepmatte" class="text-xs font-bold uppercase tracking-widest text-gray-400 hover:text-green-500 transition">
+                Voir le produit
+            </a>
+        </nav>
+
+        <main>
+            <section class="legal-hero pt-32 pb-20 px-5 md:px-10">
+                <div class="relative z-10 max-w-5xl mx-auto">
+                    <span class="text-green-500 font-bold tracking-widest uppercase text-xs">Informations légales</span>
+                    <h1 class="text-4xl md:text-6xl font-black uppercase italic mt-4">Mentions légales</h1>
+                    <p class="text-gray-400 text-base md:text-lg leading-relaxed max-w-2xl mt-6">
+                        Cette page regroupe les informations permettant d'identifier l'éditeur du site, son hébergeur et les règles applicables aux contenus publiés.
+                    </p>
+                    <p class="text-gray-500 text-xs uppercase tracking-widest font-bold mt-8">Dernière mise à jour : {lastUpdated}</p>
+                </div>
+            </section>
+
+            <section class="py-16 px-5 md:px-10">
+                <div class="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-[0.9fr_1.4fr] gap-8 items-start">
+                    <aside class="legal-card rounded-2xl p-6 lg:sticky lg:top-28">
+                        <p class="text-green-500 font-bold tracking-widest uppercase text-xs">À compléter</p>
+                        <h2 class="text-2xl font-black uppercase italic mt-2">Avant publication</h2>
+                        <p class="text-gray-400 text-sm leading-relaxed mt-4">
+                            Remplace les champs jaunes par tes vraies informations : identité, adresse, email, téléphone, immatriculation et TVA si applicable.
+                        </p>
+                        <div class="mt-6 flex flex-col gap-3 text-sm text-gray-400">
+                            <a href="/cgv" class="hover:text-green-500 transition">Conditions générales de vente</a>
+                            <a href="/politique-confidentialite" class="hover:text-green-500 transition">Politique de confidentialité</a>
+                            <a href="/contact" class="hover:text-green-500 transition">Contact</a>
+                        </div>
+                    </aside>
+
+                    <div class="flex flex-col gap-8">
+                        <section class="legal-card rounded-2xl p-6 md:p-8">
+                            <h2 class="text-2xl font-black uppercase italic mb-6">Éditeur du site</h2>
+                            <div>
+                                {legalRows.map(([label, value]) => (
+                                    <div class="legal-row">
+                                        <div class="legal-label">{label}</div>
+                                        <div class="legal-value">
+                                            {value.startsWith('À compléter') ? <span class="todo">{value}</span> : value}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </section>
+
+                        <section class="legal-card rounded-2xl p-6 md:p-8">
+                            <h2 class="text-2xl font-black uppercase italic mb-5">Hébergement</h2>
+                            <p class="text-gray-400 text-sm leading-relaxed">
+                                Le site est hébergé par <strong class="text-white">{host.name}</strong>, dont le siège indiqué dans sa documentation légale est situé à {host.address}.
+                            </p>
+                            <a href={host.website} target="_blank" rel="noreferrer" class="inline-flex mt-5 text-green-500 hover:text-white font-black uppercase tracking-widest text-xs transition">
+                                {host.website}
+                            </a>
+                        </section>
+
+                        <section class="legal-card rounded-2xl p-6 md:p-8">
+                            <h2 class="text-2xl font-black uppercase italic mb-5">Propriété intellectuelle</h2>
+                            <p class="text-gray-400 text-sm leading-relaxed">
+                                L'ensemble des contenus présents sur le site, notamment les textes, visuels, photographies, logos, éléments graphiques, interfaces et codes sources, est protégé par le droit de la propriété intellectuelle. Toute reproduction, représentation, modification ou exploitation, totale ou partielle, sans autorisation préalable est interdite.
+                            </p>
+                        </section>
+
+                        <section class="legal-card rounded-2xl p-6 md:p-8">
+                            <h2 class="text-2xl font-black uppercase italic mb-5">Responsabilité</h2>
+                            <p class="text-gray-400 text-sm leading-relaxed">
+                                CD Motor Shop s'efforce de fournir des informations exactes et à jour. Toutefois, des erreurs ou omissions peuvent subsister. L'utilisateur reste responsable de la vérification de la compatibilité des produits avec son véhicule avant tout achat ou installation.
+                            </p>
+                        </section>
+
+                        <section class="legal-card rounded-2xl p-6 md:p-8">
+                            <h2 class="text-2xl font-black uppercase italic mb-5">Données personnelles</h2>
+                            <p class="text-gray-400 text-sm leading-relaxed">
+                                Les traitements de données personnelles liés au compte client, aux commandes, aux paiements et aux demandes de contact sont détaillés dans la politique de confidentialité du site. Les paiements sont traités par des prestataires spécialisés et sécurisés.
+                            </p>
+                            <a href="/politique-confidentialite" class="inline-flex mt-5 text-green-500 hover:text-white font-black uppercase tracking-widest text-xs transition">
+                                Lire la politique de confidentialité
+                            </a>
+                        </section>
+
+                        <section class="legal-card rounded-2xl p-6 md:p-8">
+                            <h2 class="text-2xl font-black uppercase italic mb-5">Médiation de la consommation</h2>
+                            <p class="text-gray-400 text-sm leading-relaxed">
+                                Conformément aux règles applicables aux ventes à des consommateurs, l'éditeur doit indiquer les coordonnées du médiateur de la consommation compétent.
+                            </p>
+                            <p class="todo text-sm font-bold mt-4">Médiateur : À compléter</p>
+                        </section>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer class="py-16 bg-zinc-950 border-t border-white/10 px-5 md:px-10 text-center">
+            <div class="max-w-4xl mx-auto">
+                <div class="text-xl font-black italic mb-6 uppercase">À propos de <span class="text-green-600">CD</span> MOTOR SHOP</div>
+                <p class="text-gray-500 text-sm leading-relaxed mb-10 italic">
+                    Passionnés de mécanique et de style, nous sélectionnons des accessoires de haute qualité pour transformer votre habitacle.
+                </p>
+                <div class="flex flex-wrap justify-center gap-x-6 gap-y-2 mb-8">
+                    <a href="/mentions-legales" class="text-white text-xs uppercase tracking-widest transition">Mentions légales</a>
+                    <a href="/cgv" class="text-gray-500 hover:text-white text-xs uppercase tracking-widest transition">CGV</a>
+                    <a href="/politique-confidentialite" class="text-gray-500 hover:text-white text-xs uppercase tracking-widest transition">Politique de confidentialité</a>
+                    <a href="/contact" class="text-gray-500 hover:text-white text-xs uppercase tracking-widest transition">Contact</a>
+                </div>
+                <p class="text-gray-600 text-xs uppercase tracking-widest font-bold">© 2026 CD MOTOR SHOP. Tous droits réservés.</p>
+            </div>
+        </footer>
+
+        <script>
+            import { initSiteEffects } from "../scripts/site-effects.js";
+            const runSiteEffects = () => initSiteEffects();
+            document.addEventListener("astro:page-load", runSiteEffects);
+            if (document.readyState !== "loading") runSiteEffects();
+            else document.addEventListener("DOMContentLoaded", runSiteEffects, { once: true });
+        </script>
+    </body>
+</html>
