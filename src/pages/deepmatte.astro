@@ -678,7 +678,7 @@ const images = [imageBlackMatte1.src, imageBlackMatte2.src, imageBlackMatte3.src
         </footer>
 
         {product.enStock && (
-            <div class="fixed left-0 right-0 bottom-0 z-50 border-t border-white/10 bg-black/90 backdrop-blur-xl px-4 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] md:left-auto md:right-6 md:bottom-6 md:w-80 md:rounded-2xl md:border md:p-4 md:shadow-2xl md:shadow-black/40">
+            <div id="sticky-cart-bar" class="fixed left-0 right-0 bottom-0 z-50 translate-y-full border-t border-white/10 bg-black/90 px-4 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] opacity-0 backdrop-blur-xl transition-all duration-300 pointer-events-none md:left-1/2 md:right-auto md:bottom-6 md:w-80 md:-translate-x-1/2 md:translate-y-4 md:rounded-2xl md:border md:p-4 md:shadow-2xl md:shadow-black/40">
                 <div class="flex items-center gap-3">
                     <div class="min-w-0 flex-1">
                         <p class="text-[10px] font-bold uppercase tracking-widest text-gray-500">Deep Matte</p>
@@ -730,6 +730,24 @@ const images = [imageBlackMatte1.src, imageBlackMatte2.src, imageBlackMatte3.src
                     // Flèches
                     galleryPrev?.addEventListener('click', () => goToImage(currentImg - 1));
                     galleryNext?.addEventListener('click', () => goToImage(currentImg + 1));
+                }
+
+                const mainCartBtn = document.getElementById('add-to-cart');
+                const stickyCartBar = document.getElementById('sticky-cart-bar');
+                if (mainCartBtn && stickyCartBar) {
+                    const updateStickyCart = () => {
+                        const show = mainCartBtn.getBoundingClientRect().bottom < 0;
+                        stickyCartBar.classList.toggle('opacity-0', !show);
+                        stickyCartBar.classList.toggle('pointer-events-none', !show);
+                        stickyCartBar.classList.toggle('translate-y-full', !show);
+                        stickyCartBar.classList.toggle('md:translate-y-4', !show);
+                        stickyCartBar.classList.toggle('opacity-100', show);
+                        stickyCartBar.classList.toggle('translate-y-0', show);
+                    };
+
+                    updateStickyCart();
+                    window.addEventListener('scroll', updateStickyCart, { passive: true });
+                    window.addEventListener('resize', updateStickyCart);
                 }
 
             });
