@@ -630,6 +630,12 @@ import { ClientRouter } from 'astro:transitions';
 
             const fmtDate  = (iso) => new Date(iso).toLocaleDateString('fr-FR', {day:'2-digit',month:'short',year:'numeric'});
             const fmtMoney = (n)   => Number(n).toFixed(2) + ' €';
+            const escapeHtml = (value) => String(value ?? '')
+                .replaceAll('&', '&amp;')
+                .replaceAll('<', '&lt;')
+                .replaceAll('>', '&gt;')
+                .replaceAll('"', '&quot;')
+                .replaceAll("'", '&#39;');
 
             // Global data cache
             let allOrders  = [];
@@ -747,7 +753,7 @@ import { ClientRouter } from 'astro:transitions';
                 }
                 tbody.innerHTML = orders.map(o => {
                     const items = Array.isArray(o.items) ? o.items : [];
-                    const names = items.map(i => `${i.name} ×${i.qty}`).join(', ');
+                    const names = escapeHtml(items.map(i => `${i.name} ×${i.qty}`).join(', '));
                     const badgeCls = STATUS_BADGE[o.status] ?? 'badge-gray';
                     const ordNum = String(o.id).slice(0,8).toUpperCase();
                     const options = STATUS_OPTIONS.map(s =>
@@ -793,14 +799,15 @@ import { ClientRouter } from 'astro:transitions';
                 tbody.innerHTML = orders.map(o => {
                     const badgeCls = STATUS_BADGE[o.status] ?? 'badge-gray';
                     const ordNum = String(o.id).slice(0,8).toUpperCase();
-                    const initial = (o.user_id?.slice(0,1) ?? '?').toUpperCase();
+                    const safeUserId = escapeHtml(o.user_id ?? '');
+                    const initial = escapeHtml(o.user_id?.slice(0,1) ?? '?').toUpperCase();
                     const col = avatarColor(o.user_id);
                     return `<tr>
                         <td style="font-family:monospace;font-size:0.7rem;color:#6b7280;">#${ordNum}</td>
                         <td>
                             <div style="display:flex;align-items:center;gap:0.5rem;">
                                 <div class="avatar" style="background:${col}22;color:${col};border:1px solid ${col}55;">${initial}</div>
-                                <span style="font-size:0.7rem;color:#9ca3af;font-family:monospace;">${o.user_id?.slice(0,12)}…</span>
+                                <span style="font-size:0.7rem;color:#9ca3af;font-family:monospace;">${safeUserId.slice(0,12)}…</span>
                             </div>
                         </td>
                         <td style="font-weight:900;color:#22c55e;">${fmtMoney(o.total)}</td>
@@ -853,18 +860,21 @@ import { ClientRouter } from 'astro:transitions';
                     return;
                 }
                 tbody.innerHTML = reviews.map(r => {
-                    const initial = (r.user_id?.slice(0,1) ?? '?').toUpperCase();
+                    const safeUserId = escapeHtml(r.user_id ?? '');
+                    const safeProductId = escapeHtml(r.product_id ?? '—');
+                    const safeComment = escapeHtml(r.comment ?? '');
+                    const initial = escapeHtml(r.user_id?.slice(0,1) ?? '?').toUpperCase();
                     const col = avatarColor(r.user_id);
                     return `<tr data-review-id="${r.id}">
                         <td>
                             <div style="display:flex;align-items:center;gap:0.5rem;">
                                 <div class="avatar" style="background:${col}22;color:${col};border:1px solid ${col}55;">${initial}</div>
-                                <span style="font-size:0.65rem;color:#9ca3af;font-family:monospace;">${r.user_id?.slice(0,14)}…</span>
+                                <span style="font-size:0.65rem;color:#9ca3af;font-family:monospace;">${safeUserId.slice(0,14)}…</span>
                             </div>
                         </td>
                         <td><div class="stars">${starsHtml(r.rating)}</div></td>
-                        <td style="max-width:220px;font-size:0.75rem;color:#d1d5db;line-height:1.4;">${r.comment ? `"${r.comment.slice(0,80)}${r.comment.length>80?'…':''}"` : '<span style="color:#3f3f46;font-style:italic;">Sans commentaire</span>'}</td>
-                        <td style="font-size:0.7rem;color:#6b7280;">${r.product_id ?? '—'}</td>
+                        <td style="max-width:220px;font-size:0.75rem;color:#d1d5db;line-height:1.4;">${safeComment ? `"${safeComment.slice(0,80)}${safeComment.length>80?'…':''}"` : '<span style="color:#3f3f46;font-style:italic;">Sans commentaire</span>'}</td>
+                        <td style="font-size:0.7rem;color:#6b7280;">${safeProductId}</td>
                         <td style="color:#6b7280;font-size:0.72rem;">${fmtDate(r.created_at)}</td>
                         <td>
                             <button class="btn-sm btn-delete" data-review-delete="${r.id}">Supprimer</button>
@@ -943,7 +953,8 @@ import { ClientRouter } from 'astro:transitions';
                     return;
                 }
                 tbody.innerHTML = users.map(u => {
-                    const initial = (u.id?.slice(0,1) ?? '?').toUpperCase();
+                    const safeId = escapeHtml(u.id ?? '');
+                    const initial = safeId.slice(0,1).toUpperCase() || '?';
                     const col = avatarColor(u.id);
                     const roleBadge = u.role === 'admin'
                         ? `<span class="badge badge-green">Admin</span>`
@@ -952,7 +963,7 @@ import { ClientRouter } from 'astro:transitions';
                         <td>
                             <div style="display:flex;align-items:center;gap:0.6rem;">
                                 <div class="avatar" style="background:${col}22;color:${col};border:1px solid ${col}55;">${initial}</div>
-                                <span style="font-family:monospace;font-size:0.65rem;color:#9ca3af;">${u.id.slice(0,16)}…</span>
+                                <span style="font-family:monospace;font-size:0.65rem;color:#9ca3af;">${safeId.slice(0,16)}…</span>
                             </div>
                         </td>
                         <td style="font-size:0.7rem;color:#6b7280;font-style:italic;">Voir Supabase Auth</td>

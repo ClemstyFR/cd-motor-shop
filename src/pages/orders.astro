@@ -261,6 +261,12 @@ import { ClientRouter } from 'astro:transitions';
                     const d = new Date(iso);
                     return d.toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' });
                 };
+                const escapeHtml = (value) => String(value ?? '')
+                    .replaceAll('&', '&amp;')
+                    .replaceAll('<', '&lt;')
+                    .replaceAll('>', '&gt;')
+                    .replaceAll('"', '&quot;')
+                    .replaceAll("'", '&#39;');
 
                 // Étapes de suivi
                 const trackingSteps = ['Commande reçue', 'En préparation', 'Expédié', 'Livré'];
@@ -271,8 +277,8 @@ import { ClientRouter } from 'astro:transitions';
                     const status   = statusLabel[order.status] ?? statusLabel['en cours'];
                     const ordNum   = String(order.id).slice(0, 8).toUpperCase();
                     const stepIdx  = trackingIndex[order.status] ?? 1;
-                    const firstImg = items[0]?.img || '';
-                    const allNames = items.map(it => `${it.name} ×${it.qty}`).join(', ');
+                    const firstImg = escapeHtml(items[0]?.img || '');
+                    const allNames = escapeHtml(items.map(it => `${it.name} ×${it.qty}`).join(', '));
 
                     const card = document.createElement('div');
                     card.className = 'order-card';
@@ -307,10 +313,10 @@ import { ClientRouter } from 'astro:transitions';
                     const itemsHtml = items.map(item => `
                         <div style="display:flex;align-items:center;justify-content:space-between;padding:0.5rem 0;border-bottom:1px solid rgba(255,255,255,0.05);">
                             <div>
-                                <p style="font-size:0.75rem;font-weight:900;text-transform:uppercase;">${item.name}</p>
-                                <p style="font-size:0.65rem;color:#6b7280;margin-top:0.15rem;">Qté : ${item.qty} · ${item.price?.toFixed(2)}€ / unité</p>
+                                <p style="font-size:0.75rem;font-weight:900;text-transform:uppercase;">${escapeHtml(item.name)}</p>
+                                <p style="font-size:0.65rem;color:#6b7280;margin-top:0.15rem;">Qté : ${Number(item.qty || 0)} · ${Number(item.price || 0).toFixed(2)}€ / unité</p>
                             </div>
-                            <p style="font-size:0.875rem;font-weight:900;color:#4ade80;flex-shrink:0;margin-left:1rem;">${(item.price * item.qty).toFixed(2)}€</p>
+                            <p style="font-size:0.875rem;font-weight:900;color:#4ade80;flex-shrink:0;margin-left:1rem;">${(Number(item.price || 0) * Number(item.qty || 0)).toFixed(2)}€</p>
                         </div>
                     `).join('');
 

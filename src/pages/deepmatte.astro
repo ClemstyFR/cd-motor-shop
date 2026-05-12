@@ -811,6 +811,12 @@ const images = [imageBlackMatte1.src, imageBlackMatte2.src, imageBlackMatte3.src
                 // ── Couleurs avatar par initiale ─────────────────────────────────
                 const COLORS = ['#16a34a','#2563eb','#9333ea','#ea580c','#db2777','#0891b2'];
                 const avatarColor = (str) => COLORS[str.charCodeAt(0) % COLORS.length];
+                const escapeHtml = (value) => String(value ?? '')
+                    .replaceAll('&', '&amp;')
+                    .replaceAll('<', '&lt;')
+                    .replaceAll('>', '&gt;')
+                    .replaceAll('"', '&quot;')
+                    .replaceAll("'", '&#39;');
 
                 // ── Étoiles en HTML ──────────────────────────────────────────────
                 const starsHtml = (n) => Array.from({length:5}, (_,i) =>
@@ -830,14 +836,16 @@ const images = [imageBlackMatte1.src, imageBlackMatte2.src, imageBlackMatte3.src
 
                 // Carte d'avis HTML
                 const reviewCard = (r) => {
-                    const initial = r.user_id.slice(0,1).toUpperCase();
-                    const col = avatarColor(r.user_id);
+                    const userId = String(r.user_id ?? 'user');
+                    const initial = escapeHtml(userId.slice(0,1).toUpperCase());
+                    const col = avatarColor(userId);
+                    const comment = escapeHtml(r.comment || '');
                     return `<div style="flex:0 0 calc(50% - 0.625rem);min-width:0;background:#18181b;border:1px solid rgba(255,255,255,0.06);border-radius:1.5rem;padding:1.5rem;display:flex;flex-direction:column;gap:1rem;box-sizing:border-box;">
                         <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:0.5rem;">
                             <div style="font-size:1.1rem;">${starsHtml(r.rating)}</div>
                             <span style="font-size:0.6rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#22c55e;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.2);padding:0.2rem 0.6rem;border-radius:99px;white-space:nowrap;flex-shrink:0;">✓ Vérifié</span>
                         </div>
-                        <p style="font-size:0.825rem;color:#d1d5db;line-height:1.65;flex:1;">"${r.comment || ''}"</p>
+                        <p style="font-size:0.825rem;color:#d1d5db;line-height:1.65;flex:1;">"${comment}"</p>
                         <div style="display:flex;align-items:center;gap:0.75rem;padding-top:0.5rem;border-top:1px solid rgba(255,255,255,0.05);">
                             <div style="height:2.2rem;width:2.2rem;border-radius:50%;background:${col}22;border:1px solid ${col}66;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:0.8rem;color:${col};flex-shrink:0;">${initial}</div>
                             <p style="font-size:0.65rem;color:#6b7280;text-transform:uppercase;letter-spacing:0.06em;">${fmtDate(r.created_at)}</p>

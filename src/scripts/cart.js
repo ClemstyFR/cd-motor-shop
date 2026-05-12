@@ -26,6 +26,18 @@ export function initCart(product) {
         try { localStorage.setItem('cd-motor-cart', JSON.stringify(cart)); } catch {}
     };
 
+    const escapeHtml = (value) => String(value ?? '')
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#39;');
+
+    const safeNumber = (value, fallback = 0) => {
+        const n = Number(value);
+        return Number.isFinite(n) ? n : fallback;
+    };
+
     // ─── TOAST ──────────────────────────────────────────────────────────────────
     let toastTimer = null;
     const showToast = (msg) => {
@@ -62,24 +74,30 @@ export function initCart(product) {
 
         itemsEl.innerHTML = cart.length === 0
             ? '<p class="text-gray-500 text-xs italic">Votre panier est vide.</p>'
-            : cart.map((item, idx) => `
+            : cart.map((item, idx) => {
+                const name = escapeHtml(item.name);
+                const img = escapeHtml(item.img);
+                const qty = Math.max(1, safeNumber(item.qty, 1));
+                const price = safeNumber(item.price);
+                return `
                 <div class="flex items-center justify-between group bg-black/20 p-2 rounded-lg">
                     <div class="flex items-center gap-3">
-                        <img src="${item.img}" class="h-10 w-10 object-cover rounded-md border border-white/10" alt="${item.name}" />
+                        <img src="${img}" class="h-10 w-10 object-cover rounded-md border border-white/10" alt="${name}" />
                         <div>
-                            <p class="text-[10px] font-black uppercase">${item.name}</p>
+                            <p class="text-[10px] font-black uppercase">${name}</p>
                             <div class="flex items-center gap-2 mt-1">
                                 <button data-action="decrease" data-index="${idx}" aria-label="Diminuer" class="text-green-500 hover:text-white px-1 leading-none">−</button>
-                                <span class="text-xs">${item.qty}</span>
+                                <span class="text-xs">${qty}</span>
                                 <button data-action="increase" data-index="${idx}" aria-label="Augmenter" class="text-green-500 hover:text-white px-1 leading-none">+</button>
                             </div>
                         </div>
                     </div>
                     <div class="text-right text-xs">
-                        <p class="font-bold">${(item.price * item.qty).toFixed(2)}€</p>
+                        <p class="font-bold">${(price * qty).toFixed(2)}€</p>
                         <button data-action="remove" data-index="${idx}" aria-label="Retirer" class="text-[9px] text-red-500 uppercase font-bold opacity-0 group-hover:opacity-100 transition">Retirer</button>
                     </div>
-                </div>`).join('');
+                </div>`;
+            }).join('');
 
         totalEl.textContent = cart.reduce((a, i) => a + i.price * i.qty, 0).toFixed(2) + '€';
 
@@ -179,7 +197,8 @@ export function initCart(product) {
 
     try {
         const { supabase } = await import('../lib/supabase.js');
-        const { data: { user } } = await supabase.auth.getUser();
+        const { data: { session } } = await supabase.auth.getSession();
+        const user = session?.user;
 
         // ← Redirige vers login si non connecté
         if (!user) {
@@ -191,10 +210,12 @@ export function initCart(product) {
 
         const res = await fetch('/api/create-checkout-session', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${session.access_token}`,
+            },
             body: JSON.stringify({
                 items: cart,
-                user_id: user.id,
             }),
         });
 
