@@ -46,5 +46,12 @@ import '../styles/global.css';
     // Vider le panier après paiement réussi
     localStorage.removeItem('cd-motor-cart');
 </script>
-</body>
+        <script>
+            import { initSiteEffects } from "../scripts/site-effects.js";
+            const runSiteEffects = () => initSiteEffects();
+            document.addEventListener("astro:page-load", runSiteEffects);
+            if (document.readyState !== "loading") runSiteEffects();
+            else document.addEventListener("DOMContentLoaded", runSiteEffects, { once: true });
+        </script>
+    </body>
 </html>

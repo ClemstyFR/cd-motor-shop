@@ -1075,5 +1075,12 @@ import { ClientRouter } from 'astro:transitions';
                 }
             }
         </script>
+        <script>
+            import { initSiteEffects } from "../scripts/site-effects.js";
+            const runSiteEffects = () => initSiteEffects();
+            document.addEventListener("astro:page-load", runSiteEffects);
+            if (document.readyState !== "loading") runSiteEffects();
+            else document.addEventListener("DOMContentLoaded", runSiteEffects, { once: true });
+        </script>
     </body>
 </html>

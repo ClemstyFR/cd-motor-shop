@@ -387,5 +387,12 @@ import { ClientRouter } from 'astro:transitions';
                 <p class="text-gray-600 text-xs uppercase tracking-widest font-bold">© 2026 CD MOTOR SHOP. Tous droits réservés.</p>
             </div>
         </footer>
+        <script>
+            import { initSiteEffects } from "../scripts/site-effects.js";
+            const runSiteEffects = () => initSiteEffects();
+            document.addEventListener("astro:page-load", runSiteEffects);
+            if (document.readyState !== "loading") runSiteEffects();
+            else document.addEventListener("DOMContentLoaded", runSiteEffects, { once: true });
+        </script>
     </body>
 </html>
