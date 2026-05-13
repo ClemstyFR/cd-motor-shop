@@ -25,6 +25,26 @@ const images = [imageBlackMatte1.src, imageBlackMatte2.src, imageBlackMatte3.src
         <style>
             html { scroll-behavior: smooth; }
 
+            #rating-card {
+                position: relative;
+                overflow: hidden;
+                transition: border-color 0.4s ease;
+            }
+            #rating-card::before {
+                content: '';
+                position: absolute;
+                inset: 0;
+                border-radius: inherit;
+                background: linear-gradient(135deg, rgba(34,197,94,0.12) 0%, rgba(56,189,248,0.10) 100%);
+                opacity: 0;
+                transition: opacity 0.4s ease;
+                pointer-events: none;
+                z-index: 0;
+            }
+            #rating-card:hover::before { opacity: 1; }
+            #rating-card:hover { border-color: rgba(56,189,248,0.25); }
+            #rating-card > * { position: relative; z-index: 1; }
+
             .cart-dropdown {
                 display: none;
                 pointer-events: none;
@@ -578,7 +598,7 @@ const images = [imageBlackMatte1.src, imageBlackMatte2.src, imageBlackMatte3.src
                     </div>
 
                     <!-- Score global -->
-                    <div class="flex items-center gap-8 bg-zinc-900 border border-white/5 rounded-3xl px-8 py-6 shrink-0">
+                    <div id="rating-card" class="flex items-center gap-8 bg-zinc-900 border border-white/5 rounded-3xl px-8 py-6 shrink-0">
                         <div class="text-center">
                             <p class="text-6xl font-black text-white">4.7</p>
                             <div class="flex text-yellow-400 text-xl mt-1 justify-center">★★★★★</div>
