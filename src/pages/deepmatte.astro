@@ -27,23 +27,72 @@ const images = [imageBlackMatte1.src, imageBlackMatte2.src, imageBlackMatte3.src
 
             #rating-card {
                 position: relative;
-                overflow: hidden;
-                transition: border-color 0.4s ease;
+                border: none !important;
+                isolation: isolate;
             }
+            /* fond de la card */
+            #rating-card::after {
+                content: '';
+                position: absolute;
+                inset: 2px;
+                background: #18181b;
+                border-radius: calc(1.5rem - 2px);
+                z-index: 0;
+            }
+            /* contour dégradé rotatif */
             #rating-card::before {
                 content: '';
                 position: absolute;
-                inset: 0;
-                border-radius: inherit;
-                background: linear-gradient(135deg, rgba(34,197,94,0.12) 0%, rgba(56,189,248,0.10) 100%);
+                inset: -3px;
+                border-radius: 1.6rem;
+                background: conic-gradient(
+                    from var(--angle, 0deg),
+                    #22c55e 0%,
+                    #38bdf8 25%,
+                    #818cf8 50%,
+                    #38bdf8 75%,
+                    #22c55e 100%
+                );
                 opacity: 0;
-                transition: opacity 0.4s ease;
-                pointer-events: none;
-                z-index: 0;
+                transition: opacity 0.5s ease;
+                z-index: -1;
+                filter: blur(0px);
+                animation: none;
             }
-            #rating-card:hover::before { opacity: 1; }
-            #rating-card:hover { border-color: rgba(56,189,248,0.25); }
-            #rating-card > * { position: relative; z-index: 1; }
+            /* glow externe */
+            #rating-card .glow-ring {
+                position: absolute;
+                inset: -8px;
+                border-radius: 1.9rem;
+                background: conic-gradient(
+                    from var(--angle, 0deg),
+                    #22c55e,
+                    #38bdf8,
+                    #818cf8,
+                    #38bdf8,
+                    #22c55e
+                );
+                opacity: 0;
+                filter: blur(14px);
+                transition: opacity 0.5s ease;
+                z-index: -2;
+                animation: none;
+                pointer-events: none;
+            }
+            #rating-card > *:not(.glow-ring) { position: relative; z-index: 1; }
+            #rating-card:hover::before,
+            #rating-card:hover .glow-ring { opacity: 1; }
+            #rating-card.border-active::before,
+            #rating-card.border-active .glow-ring { opacity: 1; }
+
+            @property --angle {
+                syntax: '<angle>';
+                initial-value: 0deg;
+                inherits: false;
+            }
+            @keyframes rotate-border {
+                to { --angle: 360deg; }
+            }
 
             .cart-dropdown {
                 display: none;
@@ -598,7 +647,8 @@ const images = [imageBlackMatte1.src, imageBlackMatte2.src, imageBlackMatte3.src
                     </div>
 
                     <!-- Score global -->
-                    <div id="rating-card" class="flex items-center gap-8 bg-zinc-900 border border-white/5 rounded-3xl px-8 py-6 shrink-0">
+                    <div id="rating-card" class="flex items-center gap-8 bg-zinc-900 rounded-3xl px-8 py-6 shrink-0">
+                        <div class="glow-ring"></div>
                         <div class="text-center">
                             <p class="text-6xl font-black text-white">4.7</p>
                             <div class="flex text-yellow-400 text-xl mt-1 justify-center">★★★★★</div>
@@ -1140,6 +1190,27 @@ const images = [imageBlackMatte1.src, imageBlackMatte2.src, imageBlackMatte3.src
                         card.style.boxShadow  = '';
                         setTimeout(() => { card.style.transition = 'transform 0.1s ease-out, box-shadow 0.1s ease-out'; }, 500);
                     });
+                });
+            });
+        </script>
+        <script>
+            document.addEventListener('astro:page-load', () => {
+                const card = document.getElementById('rating-card');
+                if (!card) return;
+                let raf, angle = 0;
+                const speed = 0.3;
+                function tick() {
+                    angle = (angle + speed) % 360;
+                    card.style.setProperty('--angle', angle + 'deg');
+                    raf = requestAnimationFrame(tick);
+                }
+                card.addEventListener('mouseenter', () => {
+                    card.classList.add('border-active');
+                    raf = requestAnimationFrame(tick);
+                });
+                card.addEventListener('mouseleave', () => {
+                    card.classList.remove('border-active');
+                    cancelAnimationFrame(raf);
                 });
             });
         </script>
