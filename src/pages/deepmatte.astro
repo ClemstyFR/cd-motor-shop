@@ -44,7 +44,7 @@ const images = [imageBlackMatte1.src, imageBlackMatte2.src, imageBlackMatte3.src
                 inset: -2px;
                 border-radius: 1.6rem;
                 background: conic-gradient(
-                    from var(--angle, 0deg),
+                    from 0deg,
                     #16a34a 0%,
                     #22c55e 20%,
                     #38bdf8 50%,
@@ -61,7 +61,7 @@ const images = [imageBlackMatte1.src, imageBlackMatte2.src, imageBlackMatte3.src
                 inset: -6px;
                 border-radius: 1.9rem;
                 background: conic-gradient(
-                    from var(--angle, 0deg),
+                    from 0deg,
                     #16a34a,
                     #22c55e,
                     #38bdf8,
@@ -75,13 +75,20 @@ const images = [imageBlackMatte1.src, imageBlackMatte2.src, imageBlackMatte3.src
                 pointer-events: none;
             }
             #rating-card > *:not(.glow-ring) { position: relative; z-index: 1; }
-            #rating-card:hover::before,
-            #rating-card:hover .glow-ring { opacity: 1; }
 
-            @property --angle {
-                syntax: '<angle>';
-                initial-value: 0deg;
-                inherits: false;
+            /* rotation active */
+            #rating-card.spinning::before {
+                opacity: 1;
+                animation: spin-border 4s linear infinite;
+            }
+            #rating-card.spinning .glow-ring {
+                opacity: 1;
+                animation: spin-border 4s linear infinite;
+            }
+
+            @keyframes spin-border {
+                from { transform: rotate(0deg); }
+                to   { transform: rotate(360deg); }
             }
 
             .cart-dropdown {
@@ -1187,21 +1194,8 @@ const images = [imageBlackMatte1.src, imageBlackMatte2.src, imageBlackMatte3.src
             document.addEventListener('astro:page-load', () => {
                 const card = document.getElementById('rating-card');
                 if (!card) return;
-                let raf, angle = 0;
-                const speed = 0.3;
-                function tick() {
-                    angle = (angle + speed) % 360;
-                    card.style.setProperty('--angle', angle + 'deg');
-                    raf = requestAnimationFrame(tick);
-                }
-                card.addEventListener('mouseenter', () => {
-                    card.classList.add('border-active');
-                    raf = requestAnimationFrame(tick);
-                });
-                card.addEventListener('mouseleave', () => {
-                    card.classList.remove('border-active');
-                    cancelAnimationFrame(raf);
-                });
+                card.addEventListener('mouseenter', () => card.classList.add('spinning'));
+                card.addEventListener('mouseleave', () => card.classList.remove('spinning'));
             });
         </script>
         <script>
