@@ -418,12 +418,9 @@ const images = [imageBlackMatte1.src, imageBlackMatte2.src, imageBlackMatte3.src
 
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         {['M8', 'M10', 'M12'].map((thread) => (
-                            <div class="bg-zinc-900 border border-white/10 rounded-2xl p-6">
+                            <div class="tilt-card bg-zinc-900 border border-white/10 rounded-2xl p-6" style="transform-style:preserve-3d;will-change:transform;">
                                 <p class="text-4xl font-black italic text-white">{thread}</p>
                                 <p class="text-gray-500 text-xs uppercase tracking-widest font-bold mt-2">Bague incluse</p>
-                                <p class="text-gray-400 text-sm leading-relaxed mt-5">
-                                    À tester sur le levier après retrait de l'ancien pommeau. La bonne bague se visse sans forcer.
-                                </p>
                             </div>
                         ))}
                     </div>
@@ -454,7 +451,7 @@ const images = [imageBlackMatte1.src, imageBlackMatte2.src, imageBlackMatte3.src
                                 { model: 'Toyota Yaris', thread: 'M12' },
                                 { model: 'Seat Ibiza', thread: 'M12' },
                             ].map(({ model, thread }) => (
-                                <div class="rounded-xl bg-black/25 border border-white/10 px-4 py-3">
+                                <div class="tilt-card rounded-xl bg-black/25 border border-white/10 px-4 py-3" style="transform-style:preserve-3d;will-change:transform;">
                                     <p class="text-white text-sm font-bold">{model}</p>
                                     <p class="text-cyan-400 text-[11px] font-black mt-1">{thread}</p>
                                 </div>
@@ -1103,7 +1100,28 @@ const images = [imageBlackMatte1.src, imageBlackMatte2.src, imageBlackMatte3.src
             });
         </script>
         <script>
-            import { initSiteEffects } from "../scripts/site-effects.js";
+            document.addEventListener('astro:page-load', () => {
+                if (!window.matchMedia('(hover: hover)').matches) return;
+                const INTENSITY = 8;
+                document.querySelectorAll('.tilt-card').forEach(card => {
+                    card.addEventListener('mousemove', (e) => {
+                        const rect = card.getBoundingClientRect();
+                        const x = (e.clientX - rect.left) / rect.width  - 0.5;
+                        const y = (e.clientY - rect.top)  / rect.height - 0.5;
+                        card.style.transition = 'transform 0.1s ease-out, box-shadow 0.1s ease-out';
+                        card.style.transform = `perspective(800px) rotateX(${(-y * INTENSITY).toFixed(2)}deg) rotateY(${(x * INTENSITY).toFixed(2)}deg) scale(1.02)`;
+                        card.style.boxShadow = '0 20px 60px rgba(0,0,0,0.5), 0 0 30px rgba(34,197,94,0.06)';
+                    });
+                    card.addEventListener('mouseleave', () => {
+                        card.style.transition = 'transform 0.5s ease-out, box-shadow 0.5s ease-out';
+                        card.style.transform  = 'perspective(800px) rotateX(0deg) rotateY(0deg) scale(1)';
+                        card.style.boxShadow  = '';
+                        setTimeout(() => { card.style.transition = 'transform 0.1s ease-out, box-shadow 0.1s ease-out'; }, 500);
+                    });
+                });
+            });
+        </script>
+        <script>
             const runSiteEffects = () => initSiteEffects();
             document.addEventListener("astro:page-load", runSiteEffects);
             if (document.readyState !== "loading") runSiteEffects();
