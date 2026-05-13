@@ -429,38 +429,34 @@ const images = [imageBlackMatte1.src, imageBlackMatte2.src, imageBlackMatte3.src
                     </div>
                 </div>
 
-                <div class="mt-14 grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <div class="bg-zinc-900 border border-white/10 rounded-2xl p-6 md:p-8">
-                        <div class="flex items-center gap-3 mb-6">
-                            <div class="h-10 w-10 rounded-xl bg-green-500/10 border border-green-500/20 flex items-center justify-center text-green-500 font-black">1</div>
-                            <h3 class="text-xl font-black uppercase italic">Comment vérifier ?</h3>
-                        </div>
-                        <div class="space-y-5">
-                            <div class="flex gap-4">
-                                <span class="text-green-500 font-black">01</span>
-                                <p class="text-gray-400 text-sm leading-relaxed">Retire l'ancien pommeau et regarde si le haut du levier est fileté.</p>
-                            </div>
-                            <div class="flex gap-4">
-                                <span class="text-green-500 font-black">02</span>
-                                <p class="text-gray-400 text-sm leading-relaxed">Teste les bagues sans forcer : M8, M10 puis M12. La bonne bague doit prendre le filet proprement.</p>
-                            </div>
-                            <div class="flex gap-4">
-                                <span class="text-green-500 font-black">03</span>
-                                <p class="text-gray-400 text-sm leading-relaxed">Visse le Deep Matte à la main et arrête dès qu'il est bien maintenu.</p>
-                            </div>
-                        </div>
-                    </div>
-
+                <div class="mt-14">
                     <div class="bg-zinc-900 border border-white/10 rounded-2xl p-6 md:p-8">
                         <div class="flex items-center gap-3 mb-6">
                             <div class="h-10 w-10 rounded-xl bg-cyan-400/10 border border-cyan-400/20 flex items-center justify-center text-cyan-300 font-black">?</div>
                             <h3 class="text-xl font-black uppercase italic">Exemples fréquents</h3>
                         </div>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                            {['Volkswagen Golf', 'Audi A3', 'BMW Série 1', 'Peugeot 208', 'Renault Clio', 'Ford Fiesta'].map((model) => (
+                        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+                            {[
+                                { model: 'Volkswagen Golf', thread: 'M12' },
+                                { model: 'Volkswagen Polo', thread: 'M12' },
+                                { model: 'Volkswagen Passat', thread: 'M12' },
+                                { model: 'Audi A3', thread: 'M12' },
+                                { model: 'Audi A4', thread: 'M12' },
+                                { model: 'BMW Série 1', thread: 'M10' },
+                                { model: 'BMW Série 3', thread: 'M10' },
+                                { model: 'Peugeot 208', thread: 'M10' },
+                                { model: 'Peugeot 308', thread: 'M10' },
+                                { model: 'Renault Clio', thread: 'M10' },
+                                { model: 'Renault Mégane', thread: 'M10' },
+                                { model: 'Ford Fiesta', thread: 'M8' },
+                                { model: 'Ford Focus', thread: 'M8' },
+                                { model: 'Citroën C3', thread: 'M10' },
+                                { model: 'Toyota Yaris', thread: 'M12' },
+                                { model: 'Seat Ibiza', thread: 'M12' },
+                            ].map(({ model, thread }) => (
                                 <div class="rounded-xl bg-black/25 border border-white/10 px-4 py-3">
                                     <p class="text-white text-sm font-bold">{model}</p>
-                                    <p class="text-gray-500 text-[11px] mt-1">Vérification du filetage recommandée</p>
+                                    <p class="text-cyan-400 text-[11px] font-black mt-1">{thread}</p>
                                 </div>
                             ))}
                         </div>
