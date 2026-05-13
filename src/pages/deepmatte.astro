@@ -30,7 +30,6 @@ const images = [imageBlackMatte1.src, imageBlackMatte2.src, imageBlackMatte3.src
                 border: none !important;
                 isolation: isolate;
             }
-            /* fond de la card */
             #rating-card::after {
                 content: '';
                 position: absolute;
@@ -39,59 +38,50 @@ const images = [imageBlackMatte1.src, imageBlackMatte2.src, imageBlackMatte3.src
                 border-radius: calc(1.5rem - 2px);
                 z-index: 0;
             }
-            /* contour dégradé rotatif */
             #rating-card::before {
                 content: '';
                 position: absolute;
-                inset: -3px;
+                inset: -2px;
                 border-radius: 1.6rem;
                 background: conic-gradient(
                     from var(--angle, 0deg),
-                    #22c55e 0%,
-                    #38bdf8 25%,
-                    #818cf8 50%,
-                    #38bdf8 75%,
-                    #22c55e 100%
+                    #16a34a 0%,
+                    #22c55e 20%,
+                    #38bdf8 50%,
+                    #22c55e 80%,
+                    #16a34a 100%
                 );
                 opacity: 0;
                 transition: opacity 0.5s ease;
                 z-index: -1;
-                filter: blur(0px);
-                animation: none;
+                filter: blur(4px);
             }
-            /* glow externe */
             #rating-card .glow-ring {
                 position: absolute;
-                inset: -8px;
+                inset: -6px;
                 border-radius: 1.9rem;
                 background: conic-gradient(
                     from var(--angle, 0deg),
+                    #16a34a,
                     #22c55e,
                     #38bdf8,
-                    #818cf8,
-                    #38bdf8,
-                    #22c55e
+                    #22c55e,
+                    #16a34a
                 );
                 opacity: 0;
-                filter: blur(14px);
+                filter: blur(10px);
                 transition: opacity 0.5s ease;
                 z-index: -2;
-                animation: none;
                 pointer-events: none;
             }
             #rating-card > *:not(.glow-ring) { position: relative; z-index: 1; }
             #rating-card:hover::before,
             #rating-card:hover .glow-ring { opacity: 1; }
-            #rating-card.border-active::before,
-            #rating-card.border-active .glow-ring { opacity: 1; }
 
             @property --angle {
                 syntax: '<angle>';
                 initial-value: 0deg;
                 inherits: false;
-            }
-            @keyframes rotate-border {
-                to { --angle: 360deg; }
             }
 
             .cart-dropdown {
