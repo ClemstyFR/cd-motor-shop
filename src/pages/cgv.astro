@@ -1,14 +1,16 @@
 ---
 import '../styles/global.css';
-import { ClientRouter } from 'astro:transitions';
 
 const lastUpdated = '12 mai 2026';
 const seller = {
     name: 'CD Motor Shop',
-    legalName: 'À compléter',
-    address: 'À compléter',
-    email: 'À compléter',
-    registration: 'À compléter',
+    legalName: 'Clément DETIVAUD',
+    legalForm: 'Entreprise individuelle en cours de création',
+    address: 'Entreprise en cours de domiciliation',
+    email: 'clem5tivo@gmail.com',
+    phone: 'Disponibilité par e-mail (Numéro en cours de création)',
+    registration: 'En cours de création',
+    vat: 'Franchise en base de TVA - TVA non applicable (art. 293 B du CGI)',
 };
 
 const sections = [
@@ -114,10 +116,15 @@ const sections = [
             }
             .legal-section + .legal-section { border-top: 1px solid rgba(255,255,255,0.08); }
             .todo { color: #facc15; }
+            .legal-static *,
+            .legal-static *::before,
+            .legal-static *::after {
+                animation: none !important;
+                transition: none !important;
+            }
         </style>
-        <ClientRouter/>
     </head>
-    <body class="bg-black text-white font-sans min-h-screen">
+    <body class="legal-static bg-black text-white font-sans min-h-screen">
         <nav class="fixed w-full z-50 bg-black/80 backdrop-blur-md border-b border-white/10 p-5 px-5 md:px-10 flex justify-between items-center">
             <a href="/" class="text-xl font-black italic tracking-tighter hover:text-green-500 transition">
                 <span class="text-green-600">←</span> CD MOTOR SHOP
@@ -143,10 +150,13 @@ const sections = [
                         <p class="text-green-500 font-bold tracking-widest uppercase text-xs">Vendeur</p>
                         <h2 class="text-2xl font-black uppercase italic mt-2">{seller.name}</h2>
                         <div class="mt-5 space-y-3 text-sm">
-                            <p><span class="text-gray-500">Nom légal :</span> <span class="todo">{seller.legalName}</span></p>
+                            <p><span class="text-gray-500">Nom légal :</span> <span class="text-white font-bold">{seller.legalName}</span></p>
+                            <p><span class="text-gray-500">Forme juridique :</span> <span class="todo">{seller.legalForm}</span></p>
                             <p><span class="text-gray-500">Adresse :</span> <span class="todo">{seller.address}</span></p>
-                            <p><span class="text-gray-500">Email :</span> <span class="todo">{seller.email}</span></p>
+                            <p><span class="text-gray-500">Email :</span> <span class="text-white font-bold">{seller.email}</span></p>
+                            <p><span class="text-gray-500">Téléphone :</span> <span class="todo">{seller.phone}</span></p>
                             <p><span class="text-gray-500">Immatriculation :</span> <span class="todo">{seller.registration}</span></p>
+                            <p><span class="text-gray-500">TVA :</span> <span class="text-white font-bold">{seller.vat}</span></p>
                         </div>
                         <div class="mt-6 flex flex-col gap-3 text-sm text-gray-400">
                             <a href="/mentions-legales" class="hover:text-green-500 transition">Mentions légales</a>

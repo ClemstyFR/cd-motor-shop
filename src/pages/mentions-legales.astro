@@ -1,6 +1,5 @@
 ---
 import '../styles/global.css';
-import { ClientRouter } from 'astro:transitions';
 
 const lastUpdated = '12 mai 2026';
 const editor = {
@@ -117,6 +116,12 @@ const legalRows = [
                 border: 1px solid rgba(250,204,21,0.22);
                 background: rgba(250,204,21,0.08);
             }
+            .legal-static *,
+            .legal-static *::before,
+            .legal-static *::after {
+                animation: none !important;
+                transition: none !important;
+            }
             @media (max-width: 640px) {
                 .legal-row { grid-template-columns: 1fr; gap: 0.35rem; }
             }
@@ -125,9 +130,8 @@ const legalRows = [
                 .legal-summary { position: static; }
             }
         </style>
-        <ClientRouter/>
     </head>
-    <body class="bg-black text-white font-sans min-h-screen">
+    <body class="legal-static bg-black text-white font-sans min-h-screen">
         <nav class="fixed w-full z-50 bg-black/80 backdrop-blur-md border-b border-white/10 p-5 px-5 md:px-10 flex justify-between items-center">
             <a href="/" class="text-xl font-black italic tracking-tighter hover:text-green-500 transition">
                 <span class="text-green-600">←</span> CD MOTOR SHOP
