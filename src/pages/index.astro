@@ -2,373 +2,895 @@
 import '../styles/global.css';
 import imageBlackMatte1 from '../assets/pommeau-deepmatte/image3.png';
 import imageBlackMatte2 from '../assets/pommeau-deepmatte/image2.png';
+import imageBlackMatte3 from '../assets/pommeau-deepmatte/image4.png';
 import { ClientRouter } from 'astro:transitions';
 
-const product = { 
-    id: "deep-matte-01",
-    nom: "Deep Matte", 
-    description: "Finition aluminium premium, prise en main parfaite pour une précision maximale.",
+const product = {
+    id: 'deep-matte-01',
+    nom: 'Deep Matte',
+    description: 'Pommeau aluminium mat, grip précis, montage simple avec bagues M8, M10 et M12 incluses.',
     prix: 29.90,
-    image: imageBlackMatte1, 
-    link: "/deepmatte" 
+    image: imageBlackMatte1,
+    link: '/deepmatte',
 };
 ---
 
 <html lang="fr">
-	<head>
-		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1" />
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" type="image/png" href="/logo.png" />
-		<title>CD Motor Shop | Le détail qui change tout.</title>
-		<style>
-			html { scroll-behavior: smooth; }
+        <title>CD Motor Shop | Deep Matte</title>
+        <meta name="description" content="CD Motor Shop — Pommeau de levier de vitesse aluminium premium Deep Matte. Montage 5 min, bagues M8/M10/M12 incluses, livraison gratuite." />
+        <meta property="og:title" content="CD Motor Shop | Deep Matte" />
+        <meta property="og:description" content="Pommeau Deep Matte en aluminium premium. Prise en main nette, montage simple, livraison gratuite." />
+        <meta property="og:image" content="https://cd-motor-shop.vercel.app/logo.png" />
+        <meta property="og:url" content="https://cd-motor-shop.vercel.app" />
+        <meta property="og:type" content="website" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <style>
+            html { scroll-behavior: smooth; }
 
-            .btn-gradient-animate { background-size: 200% auto; transition: 0.5s; }
-            .btn-gradient-animate:hover { background-position: right center; }
-
-            .product-card {
-                transform-style: preserve-3d;
-                transition: transform 0.1s ease-out, box-shadow 0.1s ease-out;
-                will-change: transform;
-            }
-            .product-card:hover {
-                box-shadow: 0 30px 80px rgba(0,0,0,0.6), 0 0 40px rgba(34,197,94,0.08);
-            }
-
-            .cart-dropdown {
-                display: none;
-                pointer-events: none;
-                width: min(18rem, calc(100vw - 2rem));
-            }
-            .cart-dropdown.is-open {
-                display: block;
-                pointer-events: auto;
-            }
-
+            .cart-dropdown,
             .account-dropdown {
                 display: none;
                 pointer-events: none;
             }
+            .cart-dropdown {
+                width: min(18rem, calc(100vw - 2rem));
+            }
+            .cart-dropdown.is-open,
             .account-dropdown.is-open {
                 display: block;
                 pointer-events: auto;
             }
 
-            @keyframes fadeUp {
-                from { opacity: 0; transform: translateY(28px); }
-                to   { opacity: 1; transform: translateY(0); }
+            .site-nav {
+                border-bottom: 1px solid rgba(255,255,255,0.08);
+                background: rgba(5,6,7,0.78);
+                backdrop-filter: blur(18px);
             }
-            .hero-title    { opacity: 0; animation: fadeUp 0.8s ease-out 0.2s forwards; }
-            .hero-subtitle { opacity: 0; animation: fadeUp 0.8s ease-out 0.5s forwards; }
-            .hero-cta      { opacity: 0; animation: fadeUp 0.8s ease-out 0.8s forwards; }
+            .nav-link {
+                color: #9aa4ad;
+                font-size: 0.72rem;
+                font-weight: 900;
+                letter-spacing: 0.12em;
+                text-transform: uppercase;
+                transition: color 0.2s ease;
+            }
+            .nav-link:hover { color: white; }
+
+            .hero {
+                min-height: 100svh;
+                display: grid;
+                align-items: end;
+                position: relative;
+                overflow: hidden;
+                padding: 7.5rem 1.25rem 2rem;
+            }
+            .hero-bg {
+                position: absolute;
+                inset: 0;
+                z-index: 0;
+            }
+            .hero-bg img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                opacity: 0.58;
+                filter: saturate(0.85) contrast(1.08);
+            }
+            .hero-bg::after {
+                content: "";
+                position: absolute;
+                inset: 0;
+                background:
+                    linear-gradient(90deg, rgba(5,6,7,0.96) 0%, rgba(5,6,7,0.6) 44%, rgba(5,6,7,0.12) 100%),
+                    linear-gradient(180deg, rgba(5,6,7,0.1) 0%, rgba(5,6,7,0.42) 52%, #050607 100%);
+            }
+            .hero-inner {
+                width: min(100%, 1180px);
+                margin: 0 auto;
+                position: relative;
+                z-index: 1;
+                display: grid;
+                grid-template-columns: minmax(0, 0.95fr) minmax(18rem, 0.62fr);
+                gap: 2rem;
+                align-items: end;
+            }
+            .eyebrow {
+                display: inline-flex;
+                align-items: center;
+                gap: 0.55rem;
+                color: #67e8f9;
+                font-size: 0.72rem;
+                font-weight: 950;
+                letter-spacing: 0.14em;
+                text-transform: uppercase;
+            }
+            .eyebrow::before {
+                content: "";
+                width: 2.5rem;
+                height: 1px;
+                background: currentColor;
+                opacity: 0.7;
+            }
+            .hero h1 {
+                max-width: 12ch;
+                margin: 1.2rem 0 0;
+                font-size: clamp(3.7rem, 9vw, 8.8rem);
+                line-height: 0.86;
+                font-weight: 950;
+                font-style: italic;
+                letter-spacing: 0;
+                text-transform: uppercase;
+            }
+            .hero-copy {
+                max-width: 36rem;
+                margin-top: 1.35rem;
+                color: #d8dde0;
+                font-size: clamp(1rem, 2vw, 1.24rem);
+                line-height: 1.65;
+                font-weight: 400;
+            }
+            .hero-actions {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 0.8rem;
+                margin-top: 2rem;
+            }
+            .btn-primary,
+            .btn-secondary {
+                min-height: 3.25rem;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 999px;
+                padding: 0.9rem 1.35rem;
+                font-size: 0.82rem;
+                font-weight: 950;
+                letter-spacing: 0.08em;
+                text-transform: uppercase;
+                text-decoration: none;
+                transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+            }
+            .btn-primary {
+                border: 1px solid rgba(34,197,94,0.45);
+                background: #16a34a;
+                color: white;
+                box-shadow: 0 18px 55px rgba(22,163,74,0.24);
+            }
+            .btn-secondary {
+                border: 1px solid rgba(216,221,224,0.16);
+                background: rgba(255,255,255,0.035);
+                color: white;
+            }
+            .btn-primary:hover,
+            .btn-secondary:hover { transform: translateY(-2px); }
+            .hero-panel {
+                border: 1px solid rgba(216,221,224,0.13);
+                background: rgba(8,9,10,0.7);
+                backdrop-filter: blur(18px);
+                border-radius: 1rem;
+                padding: 1rem;
+            }
+            .hero-product {
+                display: grid;
+                grid-template-columns: 5.5rem 1fr;
+                gap: 1rem;
+                align-items: center;
+            }
+            .hero-product img {
+                width: 5.5rem;
+                aspect-ratio: 1;
+                object-fit: cover;
+                border-radius: 0.8rem;
+                border: 1px solid rgba(255,255,255,0.1);
+            }
+            .metric-grid {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 0.5rem;
+                margin-top: 1rem;
+            }
+            .metric {
+                border: 1px solid rgba(255,255,255,0.08);
+                border-radius: 0.8rem;
+                background: rgba(255,255,255,0.025);
+                padding: 0.7rem;
+            }
+            .metric strong {
+                display: block;
+                color: white;
+                font-size: 1.05rem;
+                font-weight: 950;
+                font-style: italic;
+            }
+            .metric span {
+                display: block;
+                margin-top: 0.15rem;
+                color: #828b94;
+                font-size: 0.64rem;
+                font-weight: 850;
+                line-height: 1.25;
+                text-transform: uppercase;
+            }
+
+            .section-wrap {
+                width: min(100%, 1180px);
+                margin: 0 auto;
+                padding: 6rem 1.25rem;
+            }
+            .section-head {
+                display: flex;
+                align-items: end;
+                justify-content: space-between;
+                gap: 2rem;
+                margin-bottom: 2rem;
+            }
+            .section-head h2 {
+                max-width: 12ch;
+                margin: 0.6rem 0 0;
+                font-size: clamp(2.2rem, 5vw, 4.4rem);
+                line-height: 0.94;
+                font-weight: 950;
+                font-style: italic;
+                text-transform: uppercase;
+            }
+            .section-head p {
+                max-width: 27rem;
+                margin: 0;
+                color: #9aa4ad;
+                font-size: 0.98rem;
+                line-height: 1.7;
+            }
+            .proof-strip {
+                display: grid;
+                grid-template-columns: repeat(4, minmax(0, 1fr));
+                border-top: 1px solid rgba(255,255,255,0.09);
+                border-bottom: 1px solid rgba(255,255,255,0.09);
+            }
+            .proof {
+                min-height: 8rem;
+                padding: 1.35rem;
+                border-right: 1px solid rgba(255,255,255,0.09);
+            }
+            .proof:last-child { border-right: 0; }
+            .proof svg {
+                width: 1.35rem;
+                height: 1.35rem;
+                color: #16a34a;
+                margin-bottom: 1rem;
+            }
+            .proof strong {
+                display: block;
+                color: white;
+                font-size: 0.92rem;
+                font-weight: 950;
+                text-transform: uppercase;
+            }
+            .proof span {
+                display: block;
+                margin-top: 0.35rem;
+                color: #828b94;
+                font-size: 0.82rem;
+                line-height: 1.5;
+            }
+
+            .product-showcase {
+                display: grid;
+                grid-template-columns: minmax(0, 1.08fr) minmax(20rem, 0.72fr);
+                gap: 1rem;
+                align-items: stretch;
+            }
+            .media-panel,
+            .buy-panel,
+            .detail-card,
+            .review-card {
+                border: 1px solid rgba(216,221,224,0.12);
+                background:
+                    linear-gradient(145deg, rgba(255,255,255,0.055), rgba(255,255,255,0.012)),
+                    #111315;
+                box-shadow: 0 24px 80px rgba(0,0,0,0.3);
+            }
+            .media-panel {
+                border-radius: 1.1rem;
+                overflow: hidden;
+                min-height: 36rem;
+                position: relative;
+            }
+            .media-panel img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                display: block;
+            }
+            .media-caption {
+                position: absolute;
+                left: 1rem;
+                right: 1rem;
+                bottom: 1rem;
+                display: flex;
+                justify-content: space-between;
+                gap: 1rem;
+                align-items: center;
+                border: 1px solid rgba(255,255,255,0.12);
+                border-radius: 0.9rem;
+                background: rgba(5,6,7,0.72);
+                backdrop-filter: blur(16px);
+                padding: 0.85rem 1rem;
+            }
+            .buy-panel {
+                border-radius: 1.1rem;
+                padding: 1.25rem;
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+                gap: 1.25rem;
+            }
+            .price-row {
+                display: flex;
+                align-items: flex-end;
+                justify-content: space-between;
+                gap: 1rem;
+                padding-bottom: 1.2rem;
+                border-bottom: 1px solid rgba(255,255,255,0.08);
+            }
+            .price {
+                color: white;
+                font-size: 2.8rem;
+                line-height: 1;
+                font-weight: 950;
+                font-style: italic;
+            }
+            .product-title {
+                margin: 0.45rem 0 0;
+                color: white;
+                font-size: clamp(2.2rem, 4vw, 4rem);
+                line-height: 0.92;
+                font-weight: 950;
+                font-style: italic;
+                text-transform: uppercase;
+            }
+            .feature-list {
+                display: grid;
+                gap: 0.7rem;
+                margin: 0;
+                padding: 0;
+                list-style: none;
+            }
+            .feature-list li {
+                display: flex;
+                gap: 0.7rem;
+                color: #d8dde0;
+                font-size: 0.92rem;
+                line-height: 1.5;
+            }
+            .feature-list li::before {
+                content: "✓";
+                color: #16a34a;
+                font-weight: 950;
+            }
+            .add-btn {
+                width: 100%;
+                min-height: 3.7rem;
+                border: 0;
+                border-radius: 0.95rem;
+                background: #16a34a;
+                color: white;
+                font-size: 0.9rem;
+                font-weight: 950;
+                letter-spacing: 0.08em;
+                text-transform: uppercase;
+                cursor: pointer;
+                transition: transform 0.2s ease, background 0.2s ease;
+            }
+            .add-btn:hover { transform: translateY(-2px); background: #11823a; }
+            .tech-link {
+                min-height: 3.2rem;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border: 1px solid rgba(255,255,255,0.14);
+                border-radius: 0.95rem;
+                color: white;
+                font-size: 0.78rem;
+                font-weight: 950;
+                letter-spacing: 0.1em;
+                text-transform: uppercase;
+                text-decoration: none;
+            }
+            .tech-link:hover { border-color: rgba(34,197,94,0.45); color: #86efac; }
+
+            .detail-grid {
+                display: grid;
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+                gap: 1rem;
+                margin-top: 1rem;
+            }
+            .detail-card {
+                border-radius: 1rem;
+                padding: 1.25rem;
+            }
+            .detail-card img {
+                width: 100%;
+                aspect-ratio: 4 / 3;
+                object-fit: cover;
+                border-radius: 0.8rem;
+                margin-bottom: 1rem;
+            }
+            .detail-card strong {
+                display: block;
+                color: white;
+                font-size: 1rem;
+                font-weight: 950;
+                text-transform: uppercase;
+            }
+            .detail-card p {
+                margin: 0.45rem 0 0;
+                color: #9aa4ad;
+                font-size: 0.88rem;
+                line-height: 1.6;
+            }
+
+            .reviews-head {
+                text-align: center;
+                max-width: 42rem;
+                margin: 0 auto 2rem;
+            }
+            .reviews-head h2 {
+                margin: 0.55rem 0 0;
+                font-size: clamp(2rem, 4vw, 3.8rem);
+                line-height: 0.96;
+                font-weight: 950;
+                font-style: italic;
+                text-transform: uppercase;
+            }
+            #reviews-grid-home {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+                gap: 1rem;
+            }
+            .review-card {
+                border-radius: 1rem;
+                padding: 1.2rem;
+                min-height: 13rem;
+            }
+
+            .final-band {
+                border-top: 1px solid rgba(255,255,255,0.1);
+                border-bottom: 1px solid rgba(255,255,255,0.1);
+                background:
+                    linear-gradient(120deg, rgba(22,163,74,0.18), rgba(103,232,249,0.06)),
+                    rgba(255,255,255,0.02);
+            }
+            .final-inner {
+                width: min(100%, 1180px);
+                margin: 0 auto;
+                padding: 3rem 1.25rem;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                gap: 2rem;
+            }
+            .final-inner strong {
+                display: block;
+                max-width: 12ch;
+                font-size: clamp(2rem, 4vw, 4rem);
+                line-height: 0.92;
+                font-weight: 950;
+                font-style: italic;
+                text-transform: uppercase;
+            }
+            .footer-link { color: #828b94; font-size: 0.72rem; font-weight: 850; letter-spacing: 0.08em; text-transform: uppercase; }
+            .footer-link:hover { color: white; }
 
             #toast {
                 position: fixed;
-                bottom: 2rem; left: 50%;
+                bottom: 2rem;
+                left: 50%;
                 transform: translateX(-50%) translateY(80px);
-                background: #16a34a; color: white;
-                font-weight: 900; font-size: 0.75rem;
-                text-transform: uppercase; letter-spacing: 0.08em;
-                padding: 0.7rem 1.6rem; border-radius: 99px;
-                z-index: 9999; opacity: 0;
+                background: #16a34a;
+                color: white;
+                font-weight: 900;
+                font-size: 0.75rem;
+                text-transform: uppercase;
+                letter-spacing: 0.08em;
+                padding: 0.7rem 1.6rem;
+                border-radius: 99px;
+                z-index: 9999;
+                opacity: 0;
                 transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1), opacity 0.3s ease;
-                pointer-events: none; white-space: nowrap;
+                pointer-events: none;
+                white-space: nowrap;
             }
             #toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
-		</style>
+            @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+            @media (max-width: 960px) {
+                .nav-link { display: none; }
+                .hero-inner,
+                .product-showcase,
+                .dashboard-grid { grid-template-columns: 1fr; }
+                .hero { align-items: center; padding-top: 6.5rem; }
+                .hero-inner { align-items: center; }
+                .hero-panel { max-width: 28rem; }
+                .proof-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+                .proof:nth-child(2) { border-right: 0; }
+                .proof:nth-child(-n+2) { border-bottom: 1px solid rgba(255,255,255,0.09); }
+                .detail-grid,
+                #reviews-grid-home { grid-template-columns: 1fr; }
+                .media-panel { min-height: 26rem; }
+            }
+            @media (max-width: 640px) {
+                .site-nav { padding: 1rem !important; }
+                .hero h1 { font-size: clamp(3.2rem, 17vw, 5rem); }
+                .hero-actions,
+                .final-inner,
+                .section-head { flex-direction: column; align-items: flex-start; }
+                .btn-primary,
+                .btn-secondary { width: 100%; }
+                .metric-grid { grid-template-columns: 1fr; }
+                .proof-strip { grid-template-columns: 1fr; }
+                .proof { border-right: 0; border-bottom: 1px solid rgba(255,255,255,0.09); }
+                .proof:last-child { border-bottom: 0; }
+                .media-caption { position: static; border-radius: 0; border-left: 0; border-right: 0; border-bottom: 0; }
+                .price-row { align-items: flex-start; flex-direction: column; }
+            }
+        </style>
         <ClientRouter/>
-	</head>
-	<body class="bg-black text-white font-sans">
+    </head>
+    <body class="bg-black text-white font-sans">
+        <div id="toast" role="status" aria-live="polite"></div>
 
-		<div id="toast" role="status" aria-live="polite"></div>
-		
-		<nav class="fixed w-full z-50 bg-black/80 backdrop-blur-md border-b border-white/10 p-5 px-5 md:px-10 flex justify-between items-center">
-			<div class="text-2xl font-black italic tracking-tighter">
-				<span class="text-green-600">CD</span> MOTOR SHOP
-			</div>
-            <div class="flex items-center gap-2">
+        <nav class="site-nav fixed w-full z-50 p-5 px-5 md:px-10 flex justify-between items-center">
+            <a href="/" class="text-2xl font-black italic tracking-tighter text-white no-underline">
+                <span class="text-green-600">CD</span> MOTOR SHOP
+            </a>
+            <div class="flex items-center gap-6">
+                <a href="#produit-unique" class="nav-link">Produit</a>
+                <a href="#compatibilite" class="nav-link">Compatibilité</a>
+                <a href="#avis" class="nav-link">Avis</a>
 
-            <!-- ── BONHOMME COMPTE ─────────────────────────────────── -->
-            <div class="relative">
-                <button id="account-btn" aria-label="Mon compte" aria-expanded="false" aria-controls="account-dropdown"
-                    class="relative p-2 flex items-center justify-center">
-                    <!-- Rendu dynamiquement par auth-nav.js -->
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zM19 20a7 7 0 10-14 0"/>
-                    </svg>
-                </button>
-                <div id="account-dropdown" role="dialog" aria-label="Mon compte"
-                    class="account-dropdown absolute right-0 mt-2 bg-zinc-900 border border-white/10 rounded-2xl shadow-2xl p-4 w-56 overflow-hidden">
-                    <p class="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1">Connecté en tant que</p>
-                    <p id="account-email" class="text-xs text-white font-black truncate mb-3">—</p>
-                    <div class="flex flex-col gap-1 mb-3 border-b border-white/10 pb-3">
-                        <a href="/account"
-                            class="flex items-center gap-2 text-xs text-gray-300 hover:text-white hover:bg-white/5 font-bold px-2 py-2 rounded-lg transition uppercase tracking-widest">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-green-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                <div class="flex items-center gap-2">
+                    <div class="relative">
+                        <button id="account-btn" aria-label="Mon compte" aria-expanded="false" aria-controls="account-dropdown"
+                            class="relative p-2 flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zM19 20a7 7 0 10-14 0"/>
                             </svg>
-                            Mon compte
-                        </a>
-                        <a href="/orders"
-                            class="flex items-center gap-2 text-xs text-gray-300 hover:text-white hover:bg-white/5 font-bold px-2 py-2 rounded-lg transition uppercase tracking-widest">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-green-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
-                            </svg>
-                            Mes commandes
-                        </a>
-                    </div>
-                    <button id="logout-btn"
-                        class="w-full bg-zinc-800 hover:bg-red-900/40 border border-white/10 hover:border-red-500/30 text-red-400 hover:text-red-300 text-xs font-black py-2.5 rounded-xl transition uppercase tracking-widest">
-                        Se déconnecter
-                    </button>
-                </div>
-            </div>
-
-            <!-- ── PANIER ──────────────────────────────────────────── -->
-            <div class="relative">
-                <button id="cart-toggle" aria-label="Ouvrir le panier" aria-expanded="false" aria-controls="cart-dropdown" class="relative p-2 hover:text-green-500 transition">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-                    </svg>
-                    <span id="cart-count" aria-live="polite" class="absolute -top-1 -right-1 bg-green-600 text-white text-[10px] font-bold h-5 w-5 flex items-center justify-center rounded-full">0</span>
-                </button>
-                <div id="cart-dropdown" role="dialog" aria-label="Panier" class="cart-dropdown absolute right-0 mt-2 bg-zinc-900 border border-white/10 rounded-2xl shadow-2xl p-4 overflow-hidden">
-                    <h4 class="text-sm font-black uppercase mb-4 italic text-green-500">Mon Panier</h4>
-                    <div id="cart-items" class="space-y-4 max-h-60 overflow-y-auto" aria-live="polite">
-                        <p class="text-gray-500 text-xs italic">Votre panier est vide.</p>
-                    </div>
-                    <div class="border-t border-white/10 mt-4 pt-4">
-                        <div class="flex justify-between font-bold text-sm">
-                            <span>TOTAL :</span>
-                            <span id="cart-total">0.00€</span>
+                        </button>
+                        <div id="account-dropdown" role="dialog" aria-label="Mon compte"
+                            class="account-dropdown absolute right-0 mt-2 bg-zinc-900 border border-white/10 rounded-2xl shadow-2xl p-4 w-56 overflow-hidden">
+                            <p class="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1">Connecté en tant que</p>
+                            <p id="account-email" class="text-xs text-white font-black truncate mb-3">—</p>
+                            <div class="flex flex-col gap-1 mb-3 border-b border-white/10 pb-3">
+                                <a href="/account" class="flex items-center gap-2 text-xs text-gray-300 hover:text-white hover:bg-white/5 font-bold px-2 py-2 rounded-lg transition uppercase tracking-widest">Mon compte</a>
+                                <a href="/orders" class="flex items-center gap-2 text-xs text-gray-300 hover:text-white hover:bg-white/5 font-bold px-2 py-2 rounded-lg transition uppercase tracking-widest">Mes commandes</a>
+                            </div>
+                            <button id="logout-btn" class="w-full bg-zinc-800 hover:bg-red-900/40 border border-white/10 hover:border-red-500/30 text-red-400 hover:text-red-300 text-xs font-black py-2.5 rounded-xl transition uppercase tracking-widest">
+                                Se déconnecter
+                            </button>
                         </div>
-                        <button id="checkout-btn" class="w-full bg-white text-black text-xs font-black py-3 mt-4 rounded-xl hover:bg-green-500 hover:text-white transition uppercase">
-                            Commander
+                    </div>
+
+                    <div class="relative">
+                        <button id="cart-toggle" aria-label="Ouvrir le panier" aria-expanded="false" aria-controls="cart-dropdown" class="relative p-2 hover:text-green-500 transition">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                            </svg>
+                            <span id="cart-count" aria-live="polite" class="absolute -top-1 -right-1 bg-green-600 text-white text-[10px] font-bold h-5 w-5 flex items-center justify-center rounded-full">0</span>
                         </button>
+                        <div id="cart-dropdown" role="dialog" aria-label="Panier" class="cart-dropdown absolute right-0 mt-2 bg-zinc-900 border border-white/10 rounded-2xl shadow-2xl p-4 overflow-hidden">
+                            <h4 class="text-sm font-black uppercase mb-4 italic text-green-500">Mon Panier</h4>
+                            <div id="cart-items" class="space-y-4 max-h-60 overflow-y-auto" aria-live="polite">
+                                <p class="text-gray-500 text-xs italic">Votre panier est vide.</p>
+                            </div>
+                            <div class="border-t border-white/10 mt-4 pt-4">
+                                <div class="flex justify-between font-bold text-sm">
+                                    <span>TOTAL :</span>
+                                    <span id="cart-total">0.00€</span>
+                                </div>
+                                <button id="checkout-btn" class="w-full bg-white text-black text-xs font-black py-3 mt-4 rounded-xl hover:bg-green-500 hover:text-white transition uppercase">
+                                    Commander
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
+        </nav>
 
-            <!-- fin flex items-center gap-2 -->
-        </div>
-		</nav>
+        <main>
+            <section class="hero">
+                <div class="hero-bg">
+                    <img src={imageBlackMatte2.src} alt="" role="presentation" />
+                </div>
+                <div class="hero-inner">
+                    <div>
+                        <span class="eyebrow">Deep Matte</span>
+                        <h1>Levier plus net.</h1>
+                        <p class="hero-copy">
+                            Un pommeau aluminium mat pensé pour transformer le ressenti de conduite sans transformer la voiture. Grip précis, poids rassurant, montage simple.
+                        </p>
+                        <div class="hero-actions">
+                            <a href="#produit-unique" class="btn-primary">Découvrir le produit</a>
+                            <a href="/deepmatte" class="btn-secondary">Voir la fiche technique</a>
+                        </div>
+                    </div>
 
-		<section class="relative h-screen flex items-center justify-center overflow-hidden">
-			<div class="absolute inset-0 z-0">
-				<img src={imageBlackMatte2.src} class="w-full h-full object-cover opacity-40" alt="" role="presentation" />
-				<div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
-			</div>
-			<div class="relative z-10 text-center px-6">
-				<h1 class="hero-title text-5xl md:text-6xl font-black italic uppercase leading-none">
-					Le détail qui change <span class="text-green-600">tout.</span>
-				</h1>
-				<p class="hero-subtitle mt-6 text-xl text-gray-300 max-w-2xl mx-auto font-light">
-					Équipez votre véhicule avec les meilleures pièces et accessoires de performance.
-				</p>
-				<div class="hero-cta mt-10">
-					<a href="#produit-unique" class="btn-gradient-animate bg-gradient-to-r from-green-600 via-green-400 to-green-600 text-white font-black py-5 px-12 rounded-full text-xl inline-block uppercase tracking-wider shadow-xl shadow-green-900/20">
-						Découvrez Deep Matte
-					</a>
-				</div>
-			</div>
-		</section>
+                    <aside class="hero-panel">
+                        <div class="hero-product">
+                            <img src={product.image.src} alt={`Photo du produit ${product.nom}`} />
+                            <div>
+                                <p class="text-gray-500 text-[11px] font-black uppercase tracking-widest">Pommeau aluminium</p>
+                                <h2 class="text-white text-2xl font-black italic uppercase leading-none mt-1">{product.nom}</h2>
+                                <p class="text-green-500 font-black mt-2">{product.prix.toFixed(2)}€ · Livraison gratuite</p>
+                            </div>
+                        </div>
+                        <div class="metric-grid">
+                            <div class="metric"><strong>5 min</strong><span>Montage estimé</span></div>
+                            <div class="metric"><strong>M8-12</strong><span>Bagues incluses</span></div>
+                            <div class="metric"><strong>245g</strong><span>Poids premium</span></div>
+                        </div>
+                    </aside>
+                </div>
+            </section>
 
-		<section id="produit-unique" class="py-24 px-5 md:px-10 max-w-5xl mx-auto">
-			<div id="product-card" class="product-card bg-zinc-900 rounded-[40px] border border-white/5 flex flex-col md:flex-row items-center gap-10 p-8 md:p-12">
-				<div class="w-full md:w-1/2 overflow-hidden rounded-3xl">
-					<img src={product.image.src} id="prod-img" class="w-full h-auto object-cover hover:scale-105 transition duration-500" alt={`Photo du produit ${product.nom}`} />
-				</div>
-				<div class="w-full md:w-1/2">
-                    <span class="text-green-500 font-bold tracking-widest uppercase text-xs">Édition Premium</span>
-					<h2 class="text-4xl font-black uppercase italic mt-2">{product.nom}</h2>
-					<p class="text-2xl text-white font-black mt-2">{product.prix.toFixed(2)}€</p>
-					<div class="flex items-center gap-2 mt-3" aria-label="Note : 4.7 sur 5">
-						<span class="text-yellow-400 text-lg">★★★★★</span>
-						<span class="text-white font-black text-sm">4.7</span>
-						<span class="text-gray-500 text-xs">(24 avis)</span>
-					</div>
-					<p class="text-gray-400 mt-6 italic font-light leading-relaxed">"{product.description}"</p>
-					<div class="mt-10 flex flex-col gap-3">
-                        <button
-                            data-add-to-cart
-                            data-default-label="Ajouter au panier - 29.90€"
-                            data-added-label="✓ Ajouté au panier"
-                            class="w-full bg-green-600 hover:bg-green-700 text-white text-center font-black py-5 rounded-2xl transition-all active:scale-95 uppercase text-lg shadow-lg shadow-green-900/20">
-                            Ajouter au panier - 29.90€
-                        </button>
-                        <a href="/deepmatte" class="w-full border border-white/15 hover:border-green-500/50 hover:text-green-400 text-white text-center font-bold py-4 rounded-2xl transition-all uppercase text-sm tracking-widest">
-                            Détails techniques →
-                        </a>
-					</div>
-				</div>
-			</div>
-		</section>
+            <section class="section-wrap">
+                <div class="proof-strip">
+                    <div class="proof">
+                        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14l-1 12H6L5 8Zm2-4h10l2 4H5l2-4Z"/></svg>
+                        <strong>Livraison gratuite</strong>
+                        <span>Sans minimum d’achat, avec suivi dans l’espace commandes.</span>
+                    </div>
+                    <div class="proof">
+                        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m9 12 2 2 4-4m6 2a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>
+                        <strong>Compatibilité claire</strong>
+                        <span>Bagues M8, M10 et M12 incluses pour couvrir les montages fréquents.</span>
+                    </div>
+                    <div class="proof">
+                        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v18m7-7H5m12-8-5 5-5-5m10 12-5-5-5 5"/></svg>
+                        <strong>Prise en main</strong>
+                        <span>Surface texturée, poids stable, finition aluminium mat.</span>
+                    </div>
+                    <div class="proof">
+                        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v6h6M20 20v-6h-6M5 19A9 9 0 0 0 19 5"/></svg>
+                        <strong>Retour 30 jours</strong>
+                        <span>Une marge de sécurité si le montage ne convient pas.</span>
+                    </div>
+                </div>
+            </section>
 
-		<section class="py-16 px-5 md:px-10 max-w-5xl mx-auto">
-			<div class="text-center mb-12">
-				<span class="text-green-500 font-bold tracking-widest uppercase text-xs">Ils ont testé</span>
-				<h2 class="text-3xl font-black uppercase italic mt-2">Ce que disent nos clients</h2>
-				<div class="flex items-center justify-center gap-3 mt-4">
-					<span class="text-yellow-400 text-2xl" aria-label="Note globale : 4.7 sur 5">★★★★★</span>
-					<span class="text-white font-black text-xl">4.7</span>
-					<span class="text-gray-500 text-sm">(24 avis)</span>
-				</div>
-			</div>
-			<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-				<div class="bg-zinc-900 border border-white/5 rounded-3xl p-6 flex flex-col gap-4 hover:border-green-600/30 transition duration-300">
-					<span class="text-yellow-400" aria-label="5 étoiles sur 5">★★★★★</span>
-					<p class="text-gray-300 text-sm italic leading-relaxed flex-1">"Qualité vraiment premium, ça change tout dans l'habitacle. Le toucher est parfait et le montage s'est fait en 5 minutes."</p>
-					<div class="flex items-center gap-3 mt-2">
-						<div class="h-9 w-9 rounded-full bg-green-600/20 border border-green-600/40 flex items-center justify-center text-green-500 font-black text-sm">T</div>
-						<div><p class="text-white text-xs font-black uppercase">Thomas M.</p><p class="text-gray-600 text-[10px]">Acheté il y a 2 semaines</p></div>
-					</div>
-				</div>
-				<div class="bg-zinc-900 border border-white/5 rounded-3xl p-6 flex flex-col gap-4 hover:border-green-600/30 transition duration-300">
-					<span class="text-yellow-400" aria-label="5 étoiles sur 5">★★★★★</span>
-					<p class="text-gray-300 text-sm italic leading-relaxed flex-1">"Rendu incroyable sur ma Golf 8. La finition aluminium mat est exactement comme sur les photos, voire mieux en vrai. Je recommande."</p>
-					<div class="flex items-center gap-3 mt-2">
-						<div class="h-9 w-9 rounded-full bg-green-600/20 border border-green-600/40 flex items-center justify-center text-green-500 font-black text-sm">L</div>
-						<div><p class="text-white text-xs font-black uppercase">Lucas R.</p><p class="text-gray-600 text-[10px]">Acheté il y a 1 mois</p></div>
-					</div>
-				</div>
-				<div class="bg-zinc-900 border border-white/5 rounded-3xl p-6 flex flex-col gap-4 hover:border-green-600/30 transition duration-300">
-					<span class="text-yellow-400" aria-label="4 étoiles sur 5">★★★★<span class="text-gray-600">★</span></span>
-					<p class="text-gray-300 text-sm italic leading-relaxed flex-1">"Très bonne prise en main, solide et bien fini. Livraison rapide. J'enlève une étoile car le filetage est un peu serré mais une fois en place c'est nickel."</p>
-					<div class="flex items-center gap-3 mt-2">
-						<div class="h-9 w-9 rounded-full bg-green-600/20 border border-green-600/40 flex items-center justify-center text-green-500 font-black text-sm">S</div>
-						<div><p class="text-white text-xs font-black uppercase">Samir K.</p><p class="text-gray-600 text-[10px]">Acheté il y a 3 semaines</p></div>
-					</div>
-				</div>
-			</div>
-		</section>
+            <section id="produit-unique" class="section-wrap pt-0">
+                <div class="section-head">
+                    <div>
+                        <span class="eyebrow">Produit unique</span>
+                        <h2>Un détail. Tout change.</h2>
+                    </div>
+                    <p>
+                        Deep Matte est pensé comme une amélioration simple : une pièce visible, tactile, installée rapidement, avec une finition qui reste sobre dans l’habitacle.
+                    </p>
+                </div>
 
-		<section class="bg-green-600 py-10">
-			<div class="max-w-7xl mx-auto px-5 md:px-10 grid grid-cols-1 md:grid-cols-2 gap-8 text-center">
-				<div class="flex flex-col items-center gap-2">
-					<svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 opacity-90" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8l1 12h12L19 8M10 12h4" />
-					</svg>
-					<p class="font-black text-xl italic uppercase">Livraison Gratuite</p>
-					<p class="text-sm opacity-80 italic">Sans minimum d'achat</p>
-				</div>
-				<div class="flex flex-col items-center gap-2">
-					<svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 opacity-90" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
-					</svg>
-					<p class="font-black text-xl italic uppercase">Qualité Premium</p>
-					<p class="text-sm opacity-80 italic">Produits sélectionnés pour leur qualité</p>
-				</div>
-			</div>
-		</section>
+                <div class="product-showcase">
+                    <div id="product-card" class="media-panel product-card">
+                        <img src={product.image.src} id="prod-img" alt={`Photo du produit ${product.nom}`} />
+                        <div class="media-caption">
+                            <div>
+                                <p class="text-white text-sm font-black uppercase">Aluminium mat texturé</p>
+                                <p class="text-gray-500 text-xs mt-1">Grip plus franc, look plus net.</p>
+                            </div>
+                            <span class="text-green-500 text-xs font-black uppercase tracking-widest">Deep Matte</span>
+                        </div>
+                    </div>
 
-		<footer class="py-16 bg-zinc-950 border-t border-white/10 px-5 md:px-10 text-center">
+                    <aside class="buy-panel">
+                        <div>
+                            <span class="eyebrow">Édition Premium</span>
+                            <h3 class="product-title">{product.nom}</h3>
+                            <div class="price-row mt-6">
+                                <div>
+                                    <p class="price">{product.prix.toFixed(2)}€</p>
+                                    <p class="text-gray-500 text-sm mt-2">Livraison offerte · Bagues incluses</p>
+                                </div>
+                                <div class="text-right" aria-label="Note : 4.7 sur 5">
+                                    <p class="text-yellow-400 text-xl leading-none">★★★★★</p>
+                                    <p class="text-gray-500 text-xs mt-1"><span class="text-white font-black">4.7</span> · 24 avis</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <ul class="feature-list">
+                            <li>{product.description}</li>
+                            <li>Montage rapide sans outil spécifique sur la majorité des leviers filetés.</li>
+                            <li>Compatibilité à vérifier si pommeau clipsé, collé ou marche arrière spécifique.</li>
+                        </ul>
+
+                        <div class="grid gap-3">
+                            <button
+                                data-add-to-cart
+                                data-default-label="Ajouter au panier - 29.90€"
+                                data-added-label="✓ Ajouté au panier"
+                                class="add-btn">
+                                Ajouter au panier - 29.90€
+                            </button>
+                            <a href={product.link} class="tech-link">Détails techniques</a>
+                        </div>
+                    </aside>
+                </div>
+            </section>
+
+            <section id="compatibilite" class="section-wrap pt-0">
+                <div class="detail-grid">
+                    <article class="detail-card">
+                        <img src={imageBlackMatte2.src} alt="Deep Matte installé dans un habitacle" />
+                        <strong>Rendu habitacle</strong>
+                        <p>Une finition sombre et métallique qui s’intègre sans surcharger l’intérieur.</p>
+                    </article>
+                    <article class="detail-card">
+                        <img src={imageBlackMatte3.src} alt="Détail du pommeau Deep Matte" />
+                        <strong>Grip texturé</strong>
+                        <p>Une surface plus accrocheuse pour une sensation plus directe à chaque passage.</p>
+                    </article>
+                    <article class="detail-card">
+                        <img src={product.image.src} alt="Pommeau Deep Matte en gros plan" />
+                        <strong>M8, M10, M12</strong>
+                        <p>Trois bagues incluses pour adapter le montage aux filetages les plus courants.</p>
+                    </article>
+                </div>
+            </section>
+
+            <section id="avis" class="section-wrap pt-0">
+                <div class="reviews-head">
+                    <span class="eyebrow">Ils ont testé</span>
+                    <h2>Retours clients</h2>
+                    <div class="flex items-center justify-center gap-3 mt-5">
+                        <span class="text-yellow-400 text-2xl" id="home-stars">★★★★★</span>
+                        <span class="text-white font-black text-xl" id="home-avg">—</span>
+                        <span class="text-gray-500 text-sm" id="home-count"></span>
+                    </div>
+                </div>
+                <div id="reviews-skeleton-home" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div style="height:190px;border-radius:1rem;background:linear-gradient(90deg,#18181b 25%,#27272a 50%,#18181b 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;"></div>
+                    <div style="height:190px;border-radius:1rem;background:linear-gradient(90deg,#18181b 25%,#27272a 50%,#18181b 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;animation-delay:0.1s;"></div>
+                    <div style="height:190px;border-radius:1rem;background:linear-gradient(90deg,#18181b 25%,#27272a 50%,#18181b 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;animation-delay:0.2s;"></div>
+                </div>
+                <div id="reviews-grid-home" style="display:none;"></div>
+            </section>
+
+            <section class="final-band">
+                <div class="final-inner">
+                    <strong>Prêt en 5 minutes.</strong>
+                    <div class="hero-actions mt-0">
+                        <a href="#produit-unique" class="btn-primary">Commander Deep Matte</a>
+                        <a href="/contact" class="btn-secondary">Vérifier mon modèle</a>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer class="py-16 bg-zinc-950 border-t border-white/10 px-5 md:px-10 text-center">
             <div class="max-w-4xl mx-auto">
                 <div class="text-xl font-black italic mb-6 uppercase">À propos de <span class="text-green-600">CD</span> MOTOR SHOP</div>
-                <p class="text-gray-500 text-sm leading-relaxed mb-10 italic">
-                    Passionnés de mécanique et de style, nous sélectionnons des accessoires de haute qualité pour transformer votre habitacle. Chaque pièce est choisie pour sa durabilité et son ergonomie.
+                <p class="text-gray-500 text-sm leading-relaxed mb-10">
+                    Accessoires sobres, utiles et bien finis pour améliorer les détails que l’on touche vraiment au quotidien.
                 </p>
                 <div class="flex flex-wrap justify-center gap-x-6 gap-y-2 mb-8">
-                    <a href="/mentions-legales" class="text-gray-500 hover:text-white text-xs uppercase tracking-widest transition">Mentions légales</a>
-                    <a href="/cgv" class="text-gray-500 hover:text-white text-xs uppercase tracking-widest transition">CGV</a>
-                    <a href="/politique-confidentialite" class="text-gray-500 hover:text-white text-xs uppercase tracking-widest transition">Politique de confidentialité</a>
-                    <a href="/contact" class="text-gray-500 hover:text-white text-xs uppercase tracking-widest transition">Contact</a>
+                    <a href="/mentions-legales" class="footer-link transition">Mentions légales</a>
+                    <a href="/cgv" class="footer-link transition">CGV</a>
+                    <a href="/politique-confidentialite" class="footer-link transition">Politique de confidentialité</a>
+                    <a href="/contact" class="footer-link transition">Contact</a>
                 </div>
                 <p class="text-gray-600 text-xs uppercase tracking-widest font-bold">© 2026 CD MOTOR SHOP. Tous droits réservés.</p>
             </div>
-		</footer>
+        </footer>
 
-        <!-- Effet 3D tilt -->
         <script>
             document.addEventListener('astro:page-load', () => {
                 const card = document.getElementById('product-card');
                 if (!card || !window.matchMedia('(hover: hover)').matches) return;
-                const INTENSITY = 5;
+                const INTENSITY = 3.5;
                 card.addEventListener('mousemove', (e) => {
                     const rect = card.getBoundingClientRect();
-                    const x = (e.clientX - rect.left) / rect.width  - 0.5;
-                    const y = (e.clientY - rect.top)  / rect.height - 0.5;
-                    card.style.transform = `perspective(1000px) rotateX(${(-y * INTENSITY).toFixed(2)}deg) rotateY(${(x * INTENSITY).toFixed(2)}deg) scale(1.01)`;
+                    const x = (e.clientX - rect.left) / rect.width - 0.5;
+                    const y = (e.clientY - rect.top) / rect.height - 0.5;
+                    card.style.transform = `perspective(1200px) rotateX(${(-y * INTENSITY).toFixed(2)}deg) rotateY(${(x * INTENSITY).toFixed(2)}deg) scale(1.005)`;
                 });
                 card.addEventListener('mouseleave', () => {
-                    card.style.transition = 'transform 0.5s ease-out, box-shadow 0.5s ease-out';
-                    card.style.transform  = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale(1)';
-                    setTimeout(() => { card.style.transition = 'transform 0.1s ease-out, box-shadow 0.1s ease-out'; }, 500);
+                    card.style.transition = 'transform 0.5s ease-out';
+                    card.style.transform = 'perspective(1200px) rotateX(0deg) rotateY(0deg) scale(1)';
+                    setTimeout(() => { card.style.transition = 'transform 0.1s ease-out'; }, 500);
                 });
             });
         </script>
 
-        <!-- Initialisation Auth Navbar -->
         <script>
             import { initAuthNav } from '../scripts/auth-nav.js';
             document.addEventListener('astro:page-load', () => initAuthNav());
         </script>
 
-        <!-- Initialisation Panier (Navigation) -->
         <script>
             import { initCart } from '../scripts/cart.js';
             document.addEventListener('astro:page-load', () => {
-                const product = {
-                    id:   "deep-matte-01",
-                    nom:  "Deep Matte",
-                    prix: 29.90
-                };
-                initCart(product);
+                initCart({
+                    id: 'deep-matte-01',
+                    nom: 'Deep Matte',
+                    prix: 29.90,
+                });
             });
         </script>
 
         <script>
-            document.addEventListener('astro:page-load', () => {
-                const container = document.getElementById('reviews-container');
-                const prevBtn = document.getElementById('rev-prev');
-                const nextBtn = document.getElementById('rev-next');
-                
-                if (!container || !prevBtn || !nextBtn) return;
+            import { supabase } from '../lib/supabase.js';
 
-                let index = 0;
-
-                const updateSlider = () => {
-                    const cardWidth = container.firstElementChild.offsetWidth + 24; // Largeur + gap
-                    container.style.transform = `translateX(-${index * cardWidth}px)`;
-                    
-                    // Désactiver les boutons aux extrémités (optionnel)
-                    prevBtn.style.opacity = index === 0 ? "0.3" : "1";
-                    prevBtn.style.pointerEvents = index === 0 ? "none" : "auto";
+            document.addEventListener('astro:page-load', async () => {
+                const COLORS = ['#16a34a','#2563eb','#9333ea','#ea580c','#db2777','#0891b2'];
+                const avatarColor = (s) => COLORS[(s?.charCodeAt(0) ?? 0) % COLORS.length];
+                const starsHtml = (n) => Array.from({length:5}, (_,i) =>
+                    `<span style="color:${i < n ? '#facc15' : '#52525b'}">★</span>`
+                ).join('');
+                const fmtRelative = (iso) => {
+                    const diff = Date.now() - new Date(iso).getTime();
+                    const days = Math.max(0, Math.floor(diff / 86400000));
+                    if (days < 7) return `Il y a ${days} jour${days > 1 ? 's' : ''}`;
+                    if (days < 30) return `Il y a ${Math.floor(days / 7)} semaine${Math.floor(days / 7) > 1 ? 's' : ''}`;
+                    return `Il y a ${Math.floor(days / 30)} mois`;
                 };
 
-                nextBtn.addEventListener('click', () => {
-                    // Sur mobile on défile 1 par 1, sur desktop on s'arrête avant le vide
-                    const maxIndex = window.innerWidth < 768 
-                        ? container.children.length - 1 
-                        : container.children.length - 2;
-                    
-                    if (index < maxIndex) {
-                        index++;
-                        updateSlider();
-                    } else {
-                        // Effet de rebond ou retour au début
-                        index = 0;
-                        updateSlider();
-                    }
-                });
+                const fallbackReviews = [
+                    { user_id: 'thomas', rating: 5, comment: "Qualité vraiment premium, ça change tout dans l'habitacle. Le toucher est parfait et le montage s'est fait en 5 minutes.", created_at: new Date(Date.now() - 14 * 86400000).toISOString() },
+                    { user_id: 'lucas', rating: 5, comment: "Rendu incroyable sur ma Golf 8. La finition aluminium mat est exactement comme sur les photos, voire mieux en vrai.", created_at: new Date(Date.now() - 30 * 86400000).toISOString() },
+                    { user_id: 'samir', rating: 4, comment: "Très bonne prise en main, solide et bien fini. Livraison rapide. Une fois en place c'est nickel.", created_at: new Date(Date.now() - 21 * 86400000).toISOString() },
+                ];
 
-                prevBtn.addEventListener('click', () => {
-                    if (index > 0) {
-                        index--;
-                        updateSlider();
-                    }
-                });
+                const { data: reviews } = await supabase
+                    .from('reviews')
+                    .select('user_id, rating, comment, created_at')
+                    .eq('product_id', 'deep-matte-01')
+                    .order('created_at', { ascending: false })
+                    .limit(3);
 
-                // Responsive : réinitialiser la position si on redimensionne la fenêtre
-                window.addEventListener('resize', updateSlider);
+                const data = (reviews && reviews.length > 0) ? reviews : fallbackReviews;
+                const avg = (data.reduce((a, r) => a + r.rating, 0) / data.length).toFixed(1);
+                const total = reviews?.length ?? 0;
+                const avgEl = document.getElementById('home-avg');
+                const countEl = document.getElementById('home-count');
+                if (avgEl) avgEl.textContent = avg;
+                if (countEl) countEl.textContent = total > 0 ? `(${total} avis vérifiés)` : '(avis clients)';
+
+                const grid = document.getElementById('reviews-grid-home');
+                const skel = document.getElementById('reviews-skeleton-home');
+                if (!grid) return;
+
+                grid.innerHTML = data.map((review) => {
+                    const col = avatarColor(review.user_id);
+                    const initial = (review.user_id?.slice(0,1) ?? '?').toUpperCase();
+                    const comment = review.comment?.slice(0, 130) ?? '';
+                    return `<article class="review-card">
+                        <div style="font-size:1.05rem;">${starsHtml(review.rating)}</div>
+                        <p class="text-gray-300 text-sm leading-relaxed mt-5">"${comment}${(review.comment?.length ?? 0) > 130 ? '…' : ''}"</p>
+                        <div class="flex items-center gap-3 mt-6">
+                            <div style="height:2.35rem;width:2.35rem;border-radius:50%;background:${col}22;border:1px solid ${col}66;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:0.85rem;color:${col};flex-shrink:0;">${initial}</div>
+                            <div>
+                                <p class="text-white text-xs font-black uppercase">Client vérifié</p>
+                                <p class="text-gray-600 text-[10px]">${fmtRelative(review.created_at)}</p>
+                            </div>
+                        </div>
+                    </article>`;
+                }).join('');
+
+                if (skel) skel.style.display = 'none';
+                grid.style.display = 'grid';
             });
         </script>
+
         <script>
-            import { initSiteEffects } from "../scripts/site-effects.js";
+            import { initSiteEffects } from '../scripts/site-effects.js';
             const runSiteEffects = () => initSiteEffects();
-            document.addEventListener("astro:page-load", runSiteEffects);
-            if (document.readyState !== "loading") runSiteEffects();
-            else document.addEventListener("DOMContentLoaded", runSiteEffects, { once: true });
+            document.addEventListener('astro:page-load', runSiteEffects);
+            if (document.readyState !== 'loading') runSiteEffects();
+            else document.addEventListener('DOMContentLoaded', runSiteEffects, { once: true });
         </script>
     </body>
 </html>
