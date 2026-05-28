@@ -1,6 +1,5 @@
 ---
 import '../styles/global.css';
-import { ClientRouter } from 'astro:transitions';
 ---
 
 <html lang="fr">
@@ -10,1088 +9,1453 @@ import { ClientRouter } from 'astro:transitions';
         <link rel="icon" type="image/png" href="/logo.png" />
         <title>Admin | CD Motor Shop</title>
         <style>
-            html { scroll-behavior: smooth; }
-
-            /* ── Layout ── */
-            body {
-                display: flex;
-                min-height: 100vh;
-                background: #050505;
-                color: white;
-                font-family: sans-serif;
+            :root {
+                --admin-bg: #050607;
+                --admin-panel: #101214;
+                --admin-panel-2: #15181b;
+                --admin-border: rgba(216,221,224,0.12);
+                --admin-muted: #8b949e;
+                --admin-text: #f4f1e8;
+                --admin-green: #16a34a;
+                --admin-cyan: #67e8f9;
+                --admin-yellow: #facc15;
+                --admin-red: #ef4444;
+                --admin-blue: #60a5fa;
             }
 
-            /* ── Sidebar ── */
-            #sidebar {
-                width: 220px;
-                flex-shrink: 0;
-                background: #0a0a0a;
-                border-right: 1px solid rgba(255,255,255,0.06);
+            html { scroll-behavior: smooth; }
+            body.admin-page {
+                margin: 0;
+                min-height: 100vh;
+                background:
+                    radial-gradient(circle at 50% -12rem, rgba(103,232,249,0.08), transparent 28rem),
+                    linear-gradient(180deg, #050607 0%, #090b0c 45%, #050607 100%);
+                color: var(--admin-text);
+            }
+            body.admin-page *,
+            body.admin-page *::before,
+            body.admin-page *::after { box-sizing: border-box; }
+
+            .admin-shell {
+                min-height: 100vh;
+                display: grid;
+                grid-template-columns: 17rem minmax(0, 1fr);
+            }
+            .sidebar {
+                position: sticky;
+                top: 0;
+                height: 100vh;
+                border-right: 1px solid var(--admin-border);
+                background: rgba(5,6,7,0.86);
+                backdrop-filter: blur(18px);
+                padding: 1.25rem;
                 display: flex;
                 flex-direction: column;
-                position: fixed;
-                top: 0; left: 0; bottom: 0;
-                z-index: 100;
-                padding: 1.5rem 0;
+                gap: 1.25rem;
+                overflow-y: auto;
             }
-
-            .sidebar-logo {
-                padding: 0 1.25rem 1.5rem;
-                border-bottom: 1px solid rgba(255,255,255,0.06);
-                margin-bottom: 1rem;
+            .brand {
+                display: flex;
+                flex-direction: column;
+                gap: 0.35rem;
+                padding-bottom: 1.1rem;
+                border-bottom: 1px solid rgba(255,255,255,0.08);
             }
-            .sidebar-logo span { color: #22c55e; }
-            .sidebar-badge {
-                display: inline-block;
-                background: rgba(34,197,94,0.12);
-                border: 1px solid rgba(34,197,94,0.25);
-                color: #22c55e;
-                font-size: 0.5rem;
-                font-weight: 900;
-                text-transform: uppercase;
-                letter-spacing: 0.12em;
-                padding: 0.2rem 0.6rem;
-                border-radius: 99px;
-                margin-top: 0.25rem;
-                display: block;
+            .brand strong {
+                font-size: 1.05rem;
+                font-weight: 950;
+                font-style: italic;
+                letter-spacing: -0.02em;
+            }
+            .brand span { color: var(--admin-green); }
+            .admin-pill {
                 width: fit-content;
-            }
-
-            .nav-section {
-                padding: 0 0.75rem;
-                margin-bottom: 0.25rem;
-            }
-            .nav-label {
-                font-size: 0.5rem;
+                border: 1px solid rgba(34,197,94,0.28);
+                background: rgba(34,197,94,0.1);
+                color: #86efac;
+                border-radius: 99px;
+                padding: 0.25rem 0.55rem;
+                font-size: 0.62rem;
                 font-weight: 900;
+                letter-spacing: 0.08em;
                 text-transform: uppercase;
-                letter-spacing: 0.15em;
-                color: #3f3f46;
-                padding: 0.75rem 0.5rem 0.4rem;
             }
-            .nav-item {
+            .nav-group { display: flex; flex-direction: column; gap: 0.35rem; }
+            .nav-label {
+                color: #58606a;
+                font-size: 0.65rem;
+                font-weight: 900;
+                letter-spacing: 0.12em;
+                text-transform: uppercase;
+                padding: 0.4rem 0.55rem;
+            }
+            .nav-btn,
+            .side-link {
+                min-height: 2.7rem;
                 display: flex;
                 align-items: center;
-                gap: 0.6rem;
-                padding: 0.6rem 0.75rem;
-                border-radius: 0.6rem;
-                font-size: 0.78rem;
-                font-weight: 700;
-                color: #6b7280;
-                cursor: pointer;
-                transition: background 0.15s, color 0.15s;
-                border: none;
-                background: none;
+                gap: 0.75rem;
                 width: 100%;
+                border: 1px solid transparent;
+                border-radius: 0.8rem;
+                background: transparent;
+                color: var(--admin-muted);
+                font: inherit;
+                font-size: 0.86rem;
+                font-weight: 850;
                 text-align: left;
-                position: relative;
+                text-decoration: none;
+                padding: 0.72rem 0.8rem;
+                cursor: pointer;
             }
-            .nav-item:hover { background: rgba(255,255,255,0.04); color: white; }
-            .nav-item.active { background: rgba(34,197,94,0.1); color: #22c55e; }
-            .nav-item.active svg { color: #22c55e; }
-            .nav-item svg { height: 1rem; width: 1rem; flex-shrink: 0; }
-
-            .nav-badge {
+            .nav-btn svg,
+            .side-link svg { width: 1.05rem; height: 1.05rem; flex: 0 0 auto; }
+            .nav-btn:hover,
+            .side-link:hover {
+                color: white;
+                background: rgba(255,255,255,0.045);
+            }
+            .nav-btn.active {
+                color: white;
+                border-color: rgba(34,197,94,0.26);
+                background: linear-gradient(135deg, rgba(34,197,94,0.18), rgba(103,232,249,0.06));
+            }
+            .nav-count {
                 margin-left: auto;
-                background: #22c55e;
-                color: black;
-                font-size: 0.55rem;
-                font-weight: 900;
-                padding: 0.1rem 0.45rem;
-                border-radius: 99px;
-                min-width: 1.1rem;
+                min-width: 1.35rem;
                 text-align: center;
+                border-radius: 99px;
+                padding: 0.1rem 0.45rem;
+                background: rgba(255,255,255,0.08);
+                color: #d8dde0;
+                font-size: 0.66rem;
+                font-weight: 950;
             }
+            .sidebar-bottom { margin-top: auto; display: flex; flex-direction: column; gap: 0.5rem; }
 
-            /* ── Main content ── */
-            #main {
-                margin-left: 220px;
-                flex: 1;
+            .main {
+                min-width: 0;
                 display: flex;
                 flex-direction: column;
-                min-height: 100vh;
             }
-
-            /* ── Topbar ── */
-            #topbar {
-                background: #0a0a0a;
-                border-bottom: 1px solid rgba(255,255,255,0.06);
-                padding: 1rem 2rem;
+            .topbar {
+                position: sticky;
+                top: 0;
+                z-index: 20;
+                min-height: 4.5rem;
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
-                position: sticky;
-                top: 0;
-                z-index: 50;
+                gap: 1rem;
+                padding: 1rem 1.5rem;
+                border-bottom: 1px solid var(--admin-border);
+                background: rgba(5,6,7,0.82);
+                backdrop-filter: blur(18px);
             }
-            #topbar h1 {
-                font-size: 1.1rem;
-                font-weight: 900;
-                text-transform: uppercase;
-                letter-spacing: 0.04em;
+            .mobile-menu {
+                display: none;
+                border: 1px solid var(--admin-border);
+                background: var(--admin-panel);
+                color: white;
+                border-radius: 0.85rem;
+                width: 2.6rem;
+                height: 2.6rem;
+                align-items: center;
+                justify-content: center;
+            }
+            .mobile-menu svg { width: 1.2rem; height: 1.2rem; }
+            .page-title { min-width: 0; }
+            .page-title h1 {
+                margin: 0;
+                font-size: clamp(1.25rem, 2.5vw, 2rem);
+                font-weight: 950;
                 font-style: italic;
+                line-height: 1.1;
+                text-transform: uppercase;
             }
-            .topbar-right {
+            .page-title p {
+                margin: 0.35rem 0 0;
+                color: var(--admin-muted);
+                font-size: 0.86rem;
+                line-height: 1.45;
+            }
+            .top-actions {
                 display: flex;
                 align-items: center;
-                gap: 1rem;
+                gap: 0.75rem;
+                min-width: 0;
             }
-            #admin-email-display {
-                font-size: 0.7rem;
-                color: #6b7280;
-            }
-            .btn-logout {
-                background: transparent;
-                border: 1px solid rgba(239,68,68,0.25);
-                color: #ef4444;
-                font-size: 0.65rem;
-                font-weight: 900;
-                text-transform: uppercase;
-                letter-spacing: 0.08em;
-                padding: 0.4rem 0.9rem;
-                border-radius: 99px;
-                cursor: pointer;
-                transition: background 0.2s;
-            }
-            .btn-logout:hover { background: rgba(239,68,68,0.1); }
-
-            /* ── Sections ── */
-            .section { display: none; padding: 2rem; animation: fadeIn 0.3s ease-out; }
-            .section.active { display: block; }
-            @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
-
-            /* ── KPI Cards ── */
-            .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 2rem; }
-            .kpi-card {
-                background: #111;
-                border: 1px solid rgba(255,255,255,0.06);
-                border-radius: 1rem;
-                padding: 1.25rem;
-                position: relative;
+            .admin-email {
+                max-width: 14rem;
                 overflow: hidden;
-                transition: border-color 0.2s;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                color: #d8dde0;
+                font-size: 0.78rem;
+                font-weight: 800;
             }
-            .kpi-card:hover { border-color: rgba(34,197,94,0.2); }
-            .kpi-card::before {
-                content: '';
-                position: absolute;
-                top: 0; left: 0; right: 0;
-                height: 2px;
-                background: var(--accent, #22c55e);
-                opacity: 0.6;
+            .btn {
+                min-height: 2.5rem;
+                border: 1px solid var(--admin-border);
+                border-radius: 0.8rem;
+                background: var(--admin-panel);
+                color: white;
+                padding: 0.65rem 0.95rem;
+                font: inherit;
+                font-size: 0.78rem;
+                font-weight: 950;
+                letter-spacing: 0.06em;
+                text-transform: uppercase;
+                cursor: pointer;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                gap: 0.45rem;
+                text-decoration: none;
             }
-            .kpi-label { font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #6b7280; margin-bottom: 0.5rem; }
-            .kpi-value { font-size: 2rem; font-weight: 900; font-style: italic; color: white; line-height: 1; }
-            .kpi-sub { font-size: 0.65rem; color: #6b7280; margin-top: 0.4rem; }
-            .kpi-icon { position: absolute; right: 1rem; top: 50%; transform: translateY(-50%); opacity: 0.06; }
-            .kpi-icon svg { height: 4rem; width: 4rem; }
+            .btn svg { width: 1rem; height: 1rem; }
+            .btn:hover { border-color: rgba(103,232,249,0.38); }
+            .btn-primary {
+                border-color: rgba(34,197,94,0.35);
+                background: var(--admin-green);
+            }
+            .btn-danger {
+                color: #fca5a5;
+                border-color: rgba(239,68,68,0.26);
+                background: rgba(239,68,68,0.08);
+            }
 
-            /* ── Chart ── */
-            .chart-row { display: grid; grid-template-columns: 2fr 1fr; gap: 1rem; margin-bottom: 2rem; }
-            .card {
-                background: #111;
-                border: 1px solid rgba(255,255,255,0.06);
-                border-radius: 1rem;
+            .content {
+                width: min(100%, 1180px);
                 padding: 1.5rem;
             }
-            .card-title {
-                font-size: 0.7rem;
-                font-weight: 900;
+            .section { display: none; }
+            .section.active { display: block; }
+            .section-stack { display: flex; flex-direction: column; gap: 1rem; }
+            .grid-kpis {
+                display: grid;
+                grid-template-columns: repeat(4, minmax(0, 1fr));
+                gap: 1rem;
+            }
+            .panel {
+                background:
+                    linear-gradient(145deg, rgba(255,255,255,0.055), rgba(255,255,255,0.012)),
+                    var(--admin-panel);
+                border: 1px solid var(--admin-border);
+                border-radius: 1rem;
+                box-shadow: 0 20px 70px rgba(0,0,0,0.26);
+                overflow: hidden;
+            }
+            .panel-body { padding: 1rem; }
+            .panel-head {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 1rem;
+                padding: 1rem;
+                border-bottom: 1px solid rgba(255,255,255,0.08);
+            }
+            .panel-title {
+                display: flex;
+                flex-direction: column;
+                gap: 0.15rem;
+                min-width: 0;
+            }
+            .panel-title strong {
+                font-size: 0.82rem;
+                font-weight: 950;
+                letter-spacing: 0.09em;
                 text-transform: uppercase;
+            }
+            .panel-title span {
+                color: var(--admin-muted);
+                font-size: 0.78rem;
+                line-height: 1.35;
+            }
+            .kpi {
+                min-height: 8.2rem;
+                position: relative;
+                padding: 1rem;
+            }
+            .kpi::before {
+                content: "";
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 3px;
+                background: var(--accent, var(--admin-green));
+            }
+            .kpi-label {
+                color: var(--admin-muted);
+                font-size: 0.68rem;
+                font-weight: 950;
                 letter-spacing: 0.1em;
-                color: #6b7280;
-                margin-bottom: 1.25rem;
+                text-transform: uppercase;
+            }
+            .kpi-value {
+                margin-top: 0.85rem;
+                color: white;
+                font-size: clamp(1.65rem, 3vw, 2.25rem);
+                font-weight: 950;
+                font-style: italic;
+                line-height: 1;
+                overflow-wrap: anywhere;
+            }
+            .kpi-sub {
+                margin-top: 0.55rem;
+                color: var(--admin-muted);
+                font-size: 0.78rem;
+                line-height: 1.4;
+            }
+            .dashboard-grid {
+                display: grid;
+                grid-template-columns: minmax(0, 1.55fr) minmax(20rem, 0.9fr);
+                gap: 1rem;
+            }
+            .bars {
+                min-height: 15rem;
+                display: grid;
+                grid-template-columns: repeat(6, minmax(0, 1fr));
+                align-items: end;
+                gap: 0.65rem;
+                padding-top: 1rem;
+            }
+            .bar-col { min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; }
+            .bar-track {
+                width: 100%;
+                height: 10rem;
+                display: flex;
+                align-items: end;
+                border-radius: 0.7rem;
+                background: rgba(255,255,255,0.035);
+                overflow: hidden;
+            }
+            .bar-fill {
+                width: 100%;
+                min-height: 0.35rem;
+                border: 1px solid rgba(34,197,94,0.28);
+                border-radius: 0.7rem 0.7rem 0 0;
+                background: linear-gradient(180deg, rgba(103,232,249,0.5), rgba(34,197,94,0.65));
+            }
+            .bar-value { color: white; font-size: 0.76rem; font-weight: 950; }
+            .bar-label { color: var(--admin-muted); font-size: 0.68rem; font-weight: 900; text-transform: uppercase; }
+
+            .status-list { display: flex; flex-direction: column; gap: 0.75rem; }
+            .status-line {
+                display: grid;
+                grid-template-columns: 6.5rem 1fr 2.2rem;
+                gap: 0.75rem;
+                align-items: center;
+                font-size: 0.8rem;
+            }
+            .progress {
+                height: 0.55rem;
+                border-radius: 99px;
+                background: rgba(255,255,255,0.08);
+                overflow: hidden;
+            }
+            .progress span { display: block; height: 100%; width: var(--w, 0%); background: var(--c, var(--admin-green)); }
+
+            .toolbar {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 0.75rem;
+                flex-wrap: wrap;
+            }
+            .filters { display: flex; gap: 0.45rem; flex-wrap: wrap; }
+            .chip {
+                min-height: 2.15rem;
+                border: 1px solid var(--admin-border);
+                background: rgba(255,255,255,0.03);
+                color: var(--admin-muted);
+                border-radius: 99px;
+                padding: 0.45rem 0.75rem;
+                font: inherit;
+                font-size: 0.72rem;
+                font-weight: 950;
+                letter-spacing: 0.04em;
+                text-transform: uppercase;
+                cursor: pointer;
+            }
+            .chip.active {
+                color: white;
+                border-color: rgba(34,197,94,0.38);
+                background: rgba(34,197,94,0.16);
+            }
+            .search {
+                width: min(20rem, 100%);
+                min-height: 2.5rem;
+                border: 1px solid var(--admin-border);
+                background: #070809;
+                color: white;
+                border-radius: 0.8rem;
+                padding: 0.65rem 0.85rem;
+                font: inherit;
+                font-size: 0.86rem;
+                outline: none;
+            }
+            .search:focus { border-color: rgba(103,232,249,0.45); }
+
+            .data-list { display: flex; flex-direction: column; gap: 0.75rem; }
+            .row-card {
+                display: grid;
+                grid-template-columns: minmax(0, 1.25fr) minmax(8rem, 0.55fr) minmax(8rem, 0.55fr) minmax(9rem, 0.65fr);
+                gap: 0.85rem;
+                align-items: center;
+                padding: 1rem;
+                border: 1px solid rgba(255,255,255,0.08);
+                border-radius: 0.95rem;
+                background: rgba(255,255,255,0.025);
+            }
+            .row-card.review-row {
+                grid-template-columns: minmax(0, 0.75fr) minmax(0, 1.25fr) minmax(7rem, 0.45fr) minmax(7rem, 0.45fr);
+            }
+            .row-card.user-row {
+                grid-template-columns: minmax(0, 1.2fr) minmax(7rem, 0.45fr) minmax(7rem, 0.45fr) minmax(7rem, 0.45fr);
+            }
+            .row-main { min-width: 0; }
+            .row-title {
                 display: flex;
                 align-items: center;
                 gap: 0.5rem;
+                min-width: 0;
+                font-size: 0.92rem;
+                font-weight: 950;
             }
-            .card-title svg { height: 0.9rem; width: 0.9rem; color: #22c55e; }
-
-            /* Bars chart */
-            .bar-chart { display: flex; align-items: flex-end; gap: 0.4rem; height: 100px; }
-            .bar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 0.35rem; height: 100%; }
-            .bar {
-                width: 100%;
-                background: rgba(34,197,94,0.15);
-                border-radius: 4px 4px 0 0;
-                border: 1px solid rgba(34,197,94,0.25);
-                transition: background 0.2s;
-                position: relative;
-                margin-top: auto;
+            .mono {
+                font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+                font-size: 0.76rem;
             }
-            .bar:hover { background: rgba(34,197,94,0.35); }
-            .bar-label { font-size: 0.5rem; color: #4b5563; font-weight: 700; text-transform: uppercase; }
-
-            /* Donut */
-            .donut-wrap { display: flex; flex-direction: column; align-items: center; gap: 1rem; }
-            .donut-legend { display: flex; flex-direction: column; gap: 0.5rem; width: 100%; }
-            .donut-item { display: flex; align-items: center; gap: 0.5rem; font-size: 0.65rem; }
-            .donut-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-
-            /* ── Table shared ── */
-            .table-wrap { background: #111; border: 1px solid rgba(255,255,255,0.06); border-radius: 1rem; overflow: hidden; }
-            .table-header {
-                padding: 1rem 1.5rem;
-                border-bottom: 1px solid rgba(255,255,255,0.06);
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                gap: 1rem;
+            .muted { color: var(--admin-muted); }
+            .row-sub {
+                margin-top: 0.35rem;
+                color: var(--admin-muted);
+                font-size: 0.78rem;
+                line-height: 1.45;
+                overflow-wrap: anywhere;
             }
-            .table-title { font-size: 0.7rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; color: #6b7280; }
-            .search-input {
-                background: #0a0a0a;
-                border: 1px solid rgba(255,255,255,0.08);
-                border-radius: 0.5rem;
-                padding: 0.4rem 0.75rem;
-                font-size: 0.75rem;
-                color: white;
-                outline: none;
-                width: 200px;
-                transition: border-color 0.2s;
-            }
-            .search-input:focus { border-color: #22c55e; }
-            .search-input::placeholder { color: #3f3f46; }
-            table { width: 100%; border-collapse: collapse; }
-            thead th {
-                padding: 0.75rem 1.5rem;
-                text-align: left;
-                font-size: 0.6rem;
-                font-weight: 900;
-                text-transform: uppercase;
+            .cell-label {
+                display: block;
+                color: #64707b;
+                font-size: 0.62rem;
+                font-weight: 950;
                 letter-spacing: 0.1em;
-                color: #3f3f46;
-                border-bottom: 1px solid rgba(255,255,255,0.04);
+                text-transform: uppercase;
+                margin-bottom: 0.25rem;
             }
-            tbody tr { border-bottom: 1px solid rgba(255,255,255,0.04); transition: background 0.15s; }
-            tbody tr:last-child { border-bottom: none; }
-            tbody tr:hover { background: rgba(255,255,255,0.02); }
-            td { padding: 0.9rem 1.5rem; font-size: 0.78rem; vertical-align: middle; }
-
-            /* ── Status badges ── */
+            .cell-value { font-size: 0.86rem; font-weight: 900; }
             .badge {
-                display: inline-flex; align-items: center; gap: 0.3rem;
-                font-size: 0.6rem; font-weight: 900; text-transform: uppercase;
-                letter-spacing: 0.06em; padding: 0.2rem 0.65rem; border-radius: 99px;
+                display: inline-flex;
+                align-items: center;
+                gap: 0.35rem;
+                width: fit-content;
+                border-radius: 99px;
+                border: 1px solid rgba(255,255,255,0.14);
+                padding: 0.28rem 0.6rem;
+                font-size: 0.68rem;
+                font-weight: 950;
+                letter-spacing: 0.05em;
+                text-transform: uppercase;
                 white-space: nowrap;
             }
-            .badge-yellow  { background: rgba(234,179,8,0.1);  color: #eab308; border: 1px solid rgba(234,179,8,0.25);  }
-            .badge-blue    { background: rgba(59,130,246,0.1);  color: #60a5fa; border: 1px solid rgba(59,130,246,0.25);  }
-            .badge-green   { background: rgba(34,197,94,0.1);   color: #22c55e; border: 1px solid rgba(34,197,94,0.25);   }
-            .badge-red     { background: rgba(239,68,68,0.1);   color: #ef4444; border: 1px solid rgba(239,68,68,0.25);   }
-            .badge-purple  { background: rgba(168,85,247,0.1);  color: #a855f7; border: 1px solid rgba(168,85,247,0.25);  }
-            .badge-gray    { background: rgba(107,114,128,0.1); color: #9ca3af; border: 1px solid rgba(107,114,128,0.2);  }
-
-            /* ── Select status ── */
+            .badge.pending { color: #fde68a; border-color: rgba(250,204,21,0.28); background: rgba(250,204,21,0.1); }
+            .badge.shipped { color: #93c5fd; border-color: rgba(96,165,250,0.28); background: rgba(96,165,250,0.1); }
+            .badge.done { color: #86efac; border-color: rgba(34,197,94,0.28); background: rgba(34,197,94,0.1); }
+            .badge.cancel { color: #fca5a5; border-color: rgba(239,68,68,0.28); background: rgba(239,68,68,0.1); }
+            .badge.neutral { color: #d8dde0; background: rgba(255,255,255,0.06); }
             .status-select {
-                background: #0a0a0a;
-                border: 1px solid rgba(255,255,255,0.1);
-                border-radius: 0.5rem;
+                width: 100%;
+                min-height: 2.35rem;
+                border: 1px solid var(--admin-border);
+                border-radius: 0.75rem;
+                background: #070809;
                 color: white;
-                font-size: 0.7rem;
-                font-weight: 700;
-                padding: 0.3rem 0.5rem;
-                outline: none;
-                cursor: pointer;
-                transition: border-color 0.2s;
+                padding: 0.5rem 0.65rem;
+                font: inherit;
+                font-size: 0.8rem;
+                font-weight: 850;
             }
-            .status-select:focus { border-color: #22c55e; }
-
-            /* ── Stars ── */
-            .stars { color: #facc15; font-size: 0.8rem; letter-spacing: -1px; }
-            .stars .empty { color: #3f3f46; }
-
-            /* ── Action btns ── */
-            .btn-sm {
-                font-size: 0.6rem; font-weight: 900; text-transform: uppercase;
-                letter-spacing: 0.06em; padding: 0.3rem 0.75rem; border-radius: 99px;
-                border: none; cursor: pointer; transition: background 0.2s, opacity 0.2s;
+            .stars { color: var(--admin-yellow); font-size: 0.95rem; letter-spacing: -0.04em; }
+            .stars .empty { color: #343a40; }
+            .empty-state,
+            .error-state {
+                padding: 2.5rem 1rem;
+                text-align: center;
+                color: var(--admin-muted);
+                line-height: 1.55;
             }
-            .btn-approve { background: rgba(34,197,94,0.15); color: #22c55e; border: 1px solid rgba(34,197,94,0.3); }
-            .btn-approve:hover { background: rgba(34,197,94,0.3); }
-            .btn-reject  { background: rgba(239,68,68,0.1);  color: #ef4444; border: 1px solid rgba(239,68,68,0.25); }
-            .btn-reject:hover  { background: rgba(239,68,68,0.2); }
-            .btn-delete  { background: rgba(239,68,68,0.1);  color: #ef4444; border: 1px solid rgba(239,68,68,0.25); }
-            .btn-delete:hover  { background: rgba(239,68,68,0.2); }
-
-            /* ── Skeleton ── */
-            .skel {
-                background: linear-gradient(90deg, #1a1a1a 25%, #222 50%, #1a1a1a 75%);
+            .error-state { color: #fca5a5; }
+            .skeleton {
+                height: 5rem;
+                border-radius: 0.95rem;
+                background: linear-gradient(90deg, #111315 25%, #1a1e21 50%, #111315 75%);
                 background-size: 200% 100%;
                 animation: shimmer 1.4s infinite;
-                border-radius: 0.5rem;
             }
-            @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
-            .skel-row { height: 2.5rem; margin-bottom: 0.5rem; }
+            @keyframes shimmer { to { background-position: -200% 0; } }
 
-            /* ── Toast ── */
+            .form-grid {
+                display: grid;
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+                gap: 0.8rem;
+            }
+            .field { display: flex; flex-direction: column; gap: 0.35rem; }
+            .field label {
+                color: var(--admin-muted);
+                font-size: 0.68rem;
+                font-weight: 950;
+                letter-spacing: 0.08em;
+                text-transform: uppercase;
+            }
+            .field input {
+                width: 100%;
+                min-height: 2.65rem;
+                border: 1px solid var(--admin-border);
+                border-radius: 0.8rem;
+                background: #070809;
+                color: white;
+                padding: 0.65rem 0.75rem;
+                font: inherit;
+                font-size: 0.9rem;
+            }
+            .margin-result {
+                display: grid;
+                grid-template-columns: repeat(4, minmax(0, 1fr));
+                gap: 0.8rem;
+            }
+            .mini-stat {
+                border: 1px solid rgba(255,255,255,0.08);
+                border-radius: 0.9rem;
+                background: rgba(255,255,255,0.025);
+                padding: 0.9rem;
+            }
+            .mini-stat span {
+                display: block;
+                color: var(--admin-muted);
+                font-size: 0.65rem;
+                font-weight: 950;
+                letter-spacing: 0.08em;
+                text-transform: uppercase;
+            }
+            .mini-stat strong {
+                display: block;
+                margin-top: 0.45rem;
+                font-size: 1.35rem;
+                font-weight: 950;
+                font-style: italic;
+                overflow-wrap: anywhere;
+            }
+            .checklist { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.7rem; }
+            .check-item {
+                min-height: 3.25rem;
+                display: flex;
+                align-items: center;
+                gap: 0.7rem;
+                border: 1px solid rgba(255,255,255,0.08);
+                border-radius: 0.85rem;
+                background: rgba(255,255,255,0.025);
+                padding: 0.75rem;
+                color: #d8dde0;
+                font-size: 0.84rem;
+                font-weight: 800;
+                line-height: 1.35;
+            }
+            .check-item input { width: 1.05rem; height: 1.05rem; accent-color: var(--admin-green); flex: 0 0 auto; }
+            .check-item.done { color: var(--admin-muted); text-decoration: line-through; }
+
             #toast {
-                position: fixed; bottom: 2rem; left: 50%;
-                transform: translateX(-50%) translateY(80px);
-                background: #16a34a; color: white;
-                font-weight: 900; font-size: 0.75rem;
-                text-transform: uppercase; letter-spacing: 0.08em;
-                padding: 0.7rem 1.6rem; border-radius: 99px;
-                z-index: 9999; opacity: 0;
-                transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1), opacity 0.3s ease;
-                pointer-events: none; white-space: nowrap;
+                position: fixed;
+                left: 50%;
+                bottom: 1.5rem;
+                z-index: 1000;
+                transform: translateX(-50%) translateY(4rem);
+                opacity: 0;
+                max-width: calc(100vw - 2rem);
+                border-radius: 99px;
+                background: var(--admin-green);
+                color: white;
+                padding: 0.75rem 1.1rem;
+                font-size: 0.78rem;
+                font-weight: 950;
+                letter-spacing: 0.06em;
+                text-transform: uppercase;
+                white-space: nowrap;
+                transition: transform 0.25s ease, opacity 0.25s ease;
             }
-            #toast.show  { transform: translateX(-50%) translateY(0); opacity: 1; }
-            #toast.error { background: #dc2626; }
-
-            /* ── Auth wall ── */
-            #auth-wall {
+            #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+            #toast.error { background: var(--admin-red); }
+            .auth-wall {
+                position: fixed;
+                inset: 0;
+                z-index: 900;
                 display: none;
-                position: fixed; inset: 0;
-                background: #050505;
-                z-index: 999;
                 align-items: center;
                 justify-content: center;
-                flex-direction: column;
-                gap: 1rem;
+                padding: 1.5rem;
+                background: var(--admin-bg);
+            }
+            .auth-wall.show { display: flex; }
+            .auth-card {
+                width: min(100%, 28rem);
                 text-align: center;
-            }
-            #auth-wall.show { display: flex; }
-
-            /* ── Empty state ── */
-            .empty-state {
-                padding: 4rem 2rem;
-                text-align: center;
-                color: #4b5563;
-                font-size: 0.8rem;
-                font-style: italic;
+                padding: 2rem;
             }
 
-            /* ── Filters ── */
-            .filter-row { display: flex; gap: 0.5rem; flex-wrap: wrap; }
-            .filter-btn {
-                font-size: 0.6rem; font-weight: 700; text-transform: uppercase;
-                letter-spacing: 0.08em; padding: 0.3rem 0.8rem;
-                border-radius: 99px; border: 1px solid rgba(255,255,255,0.08);
-                background: transparent; color: #6b7280; cursor: pointer;
-                transition: all 0.15s;
+            @media (max-width: 1080px) {
+                .admin-shell { grid-template-columns: 1fr; }
+                .sidebar {
+                    position: fixed;
+                    inset: 0 auto 0 0;
+                    width: min(18rem, calc(100vw - 3rem));
+                    transform: translateX(-105%);
+                    transition: transform 0.22s ease;
+                    z-index: 80;
+                }
+                body.nav-open .sidebar { transform: translateX(0); }
+                .mobile-menu { display: inline-flex; }
+                .grid-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+                .dashboard-grid { grid-template-columns: 1fr; }
+                .content { width: 100%; }
             }
-            .filter-btn:hover { border-color: rgba(255,255,255,0.2); color: white; }
-            .filter-btn.active { background: rgba(34,197,94,0.1); border-color: rgba(34,197,94,0.3); color: #22c55e; }
-
-            /* ── User avatar ── */
-            .avatar {
-                width: 2rem; height: 2rem; border-radius: 50%;
-                display: flex; align-items: center; justify-content: center;
-                font-size: 0.7rem; font-weight: 900; flex-shrink: 0;
-            }
-
-            /* ── Responsive ── */
-            @media (max-width: 768px) {
-                #sidebar { display: none; }
-                #main { margin-left: 0; }
-                .kpi-grid { grid-template-columns: 1fr 1fr; }
-                .chart-row { grid-template-columns: 1fr; }
+            @media (max-width: 760px) {
+                .topbar { align-items: flex-start; }
+                .top-actions { flex-direction: column; align-items: flex-end; gap: 0.45rem; }
+                .admin-email { display: none; }
+                .content { padding: 1rem; }
+                .grid-kpis,
+                .form-grid,
+                .margin-result,
+                .checklist { grid-template-columns: 1fr; }
+                .row-card,
+                .row-card.review-row,
+                .row-card.user-row { grid-template-columns: 1fr; }
+                .bars { min-height: 12rem; gap: 0.4rem; }
+                .bar-track { height: 8rem; }
+                .panel-head { align-items: flex-start; flex-direction: column; }
+                .toolbar { align-items: stretch; }
+                .search { width: 100%; }
             }
         </style>
-        <ClientRouter/>
     </head>
-    <body>
-
+    <body class="admin-page">
         <div id="toast" role="status" aria-live="polite"></div>
 
-        <!-- ── Auth wall ── -->
-        <div id="auth-wall">
-            <div style="height:5rem;width:5rem;border-radius:50%;background:#111;border:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:center;margin-bottom:0.5rem;">
-                <svg xmlns="http://www.w3.org/2000/svg" style="height:2rem;width:2rem;color:#3f3f46;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+        <div id="auth-wall" class="auth-wall">
+            <div class="auth-card panel">
+                <div class="panel-body">
+                    <p class="admin-pill" style="margin:0 auto 1rem;">Admin</p>
+                    <h1 style="margin:0;font-size:1.8rem;font-weight:950;font-style:italic;text-transform:uppercase;">Accès protégé</h1>
+                    <p id="auth-message" class="muted" style="margin:0.85rem 0 1.35rem;line-height:1.55;">Vérification des droits administrateur...</p>
+                    <a href="/" class="btn btn-primary">Retour boutique</a>
+                </div>
             </div>
-            <p style="font-weight:900;font-size:1.2rem;text-transform:uppercase;font-style:italic;">Accès refusé</p>
-            <p style="color:#6b7280;font-size:0.8rem;" id="auth-wall-msg">Vous n'avez pas les droits administrateur.</p>
-            <a href="/" style="margin-top:0.5rem;background:#16a34a;color:white;font-weight:900;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.08em;padding:0.6rem 1.5rem;border-radius:99px;text-decoration:none;">← Retour à la boutique</a>
         </div>
 
-        <!-- ── Sidebar ── -->
-        <aside id="sidebar">
-            <div class="sidebar-logo">
-                <div style="font-size:1.1rem;font-weight:900;font-style:italic;letter-spacing:-0.02em;"><span>CD</span> MOTOR SHOP</div>
-                <span class="sidebar-badge">Admin</span>
-            </div>
-
-            <div class="nav-section">
-                <div class="nav-label">Dashboard</div>
-                <button class="nav-item active" data-section="stats">
-                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-                    Vue d'ensemble
-                </button>
-            </div>
-
-            <div class="nav-section">
-                <div class="nav-label">Gestion</div>
-                <button class="nav-item" data-section="orders">
-                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
-                    Commandes
-                    <span class="nav-badge" id="orders-nav-count">…</span>
-                </button>
-                <button class="nav-item" data-section="reviews">
-                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
-                    Avis clients
-                    <span class="nav-badge" id="reviews-nav-count" style="background:#eab308;">…</span>
-                </button>
-                <button class="nav-item" data-section="users">
-                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
-                    Utilisateurs
-                </button>
-            </div>
-
-            <div style="margin-top:auto;padding:0 0.75rem 0.5rem;">
-                <a href="/" style="display:flex;align-items:center;gap:0.6rem;padding:0.6rem 0.75rem;border-radius:0.6rem;font-size:0.75rem;font-weight:700;color:#4b5563;text-decoration:none;transition:color 0.15s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='#4b5563'">
-                    <svg style="height:1rem;width:1rem;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
-                    Retour boutique
-                </a>
-            </div>
-        </aside>
-
-        <!-- ── Main ── -->
-        <div id="main">
-
-            <!-- Topbar -->
-            <div id="topbar">
-                <h1 id="section-title">Vue d'ensemble</h1>
-                <div class="topbar-right">
-                    <span id="admin-email-display"></span>
-                    <button class="btn-logout" id="logout-btn">Déconnexion</button>
-                </div>
-            </div>
-
-            <!-- ═══════════════ SECTION : STATS ═══════════════ -->
-            <div class="section active" id="section-stats">
-
-                <!-- KPIs -->
-                <div class="kpi-grid">
-                    <div class="kpi-card" style="--accent:#22c55e">
-                        <div class="kpi-label">Chiffre d'affaires</div>
-                        <div class="kpi-value" id="kpi-revenue">—</div>
-                        <div class="kpi-sub" id="kpi-revenue-sub">Chargement…</div>
-                        <div class="kpi-icon"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" style="color:#22c55e"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>
-                    </div>
-                    <div class="kpi-card" style="--accent:#60a5fa">
-                        <div class="kpi-label">Commandes</div>
-                        <div class="kpi-value" id="kpi-orders">—</div>
-                        <div class="kpi-sub" id="kpi-orders-sub">Chargement…</div>
-                        <div class="kpi-icon"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" style="color:#60a5fa"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg></div>
-                    </div>
-                    <div class="kpi-card" style="--accent:#a855f7">
-                        <div class="kpi-label">Utilisateurs</div>
-                        <div class="kpi-value" id="kpi-users">—</div>
-                        <div class="kpi-sub" id="kpi-users-sub">Chargement…</div>
-                        <div class="kpi-icon"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" style="color:#a855f7"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg></div>
-                    </div>
-                    <div class="kpi-card" style="--accent:#facc15">
-                        <div class="kpi-label">Note moyenne</div>
-                        <div class="kpi-value" id="kpi-rating">—</div>
-                        <div class="kpi-sub" id="kpi-rating-sub">Chargement…</div>
-                        <div class="kpi-icon"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" style="color:#facc15"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg></div>
-                    </div>
+        <div class="admin-shell">
+            <aside class="sidebar" id="sidebar">
+                <div class="brand">
+                    <strong><span>CD</span> MOTOR SHOP</strong>
+                    <small class="admin-pill">Back-office</small>
                 </div>
 
-                <!-- Charts row -->
-                <div class="chart-row">
-                    <!-- Barres CA par mois -->
-                    <div class="card">
-                        <div class="card-title">
-                            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-                            Commandes par mois (6 derniers mois)
-                        </div>
-                        <div id="bar-chart" class="bar-chart">
-                            <!-- rempli par JS -->
-                        </div>
-                    </div>
-
-                    <!-- Donut statuts -->
-                    <div class="card">
-                        <div class="card-title">
-                            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"/></svg>
-                            Répartition statuts
-                        </div>
-                        <div class="donut-wrap">
-                            <svg id="donut-svg" viewBox="0 0 100 100" width="120" height="120"></svg>
-                            <div class="donut-legend" id="donut-legend"></div>
-                        </div>
-                    </div>
+                <div class="nav-group">
+                    <div class="nav-label">Pilotage</div>
+                    <button class="nav-btn active" data-section="dashboard">
+                        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 13h6V4H4v9Zm0 7h6v-5H4v5Zm10 0h6v-9h-6v9Zm0-11h6V4h-6v5Z"/></svg>
+                        Tableau de bord
+                    </button>
+                    <button class="nav-btn" data-section="margin">
+                        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8V7m0 10v-1m9-4a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>
+                        Marge produit
+                    </button>
+                    <button class="nav-btn" data-section="checklist">
+                        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m9 11 3 3L22 4M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                        Checklist
+                    </button>
                 </div>
 
-                <!-- Dernières commandes -->
-                <div class="table-wrap">
-                    <div class="table-header">
-                        <span class="table-title">Dernières commandes</span>
-                        <button class="nav-item" style="width:auto;padding:0.3rem 0.75rem;font-size:0.65rem;border:1px solid rgba(255,255,255,0.08);border-radius:99px;" onclick="switchSection('orders')">Voir tout →</button>
-                    </div>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>#</th><th>Client</th><th>Total</th><th>Statut</th><th>Date</th>
-                            </tr>
-                        </thead>
-                        <tbody id="recent-orders-tbody">
-                            <tr><td colspan="5"><div class="skel skel-row"></div><div class="skel skel-row"></div><div class="skel skel-row"></div></td></tr>
-                        </tbody>
-                    </table>
+                <div class="nav-group">
+                    <div class="nav-label">Gestion</div>
+                    <button class="nav-btn" data-section="orders">
+                        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5h6m-8 4h10m-11 4h12M7 21h10a2 2 0 0 0 2-2V7l-4-4H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2Z"/></svg>
+                        Commandes
+                        <span class="nav-count" id="count-orders">0</span>
+                    </button>
+                    <button class="nav-btn" data-section="reviews">
+                        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m12 3 2.8 5.67 6.26.91-4.53 4.41 1.07 6.23L12 17.27l-5.6 2.95 1.07-6.23-4.53-4.41 6.26-.91L12 3Z"/></svg>
+                        Avis
+                        <span class="nav-count" id="count-reviews">0</span>
+                    </button>
+                    <button class="nav-btn" data-section="customers">
+                        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2m7-10a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm13 10v-2a4 4 0 0 0-3-3.87m-4-12a4 4 0 0 1 0 7.75"/></svg>
+                        Clients
+                        <span class="nav-count" id="count-customers">0</span>
+                    </button>
                 </div>
-            </div>
 
-            <!-- ═══════════════ SECTION : COMMANDES ═══════════════ -->
-            <div class="section" id="section-orders">
-                <div class="table-wrap">
-                    <div class="table-header" style="flex-wrap:wrap;gap:0.75rem;">
-                        <span class="table-title">Toutes les commandes</span>
-                        <div style="display:flex;gap:0.75rem;align-items:center;flex-wrap:wrap;">
-                            <div class="filter-row" id="order-filters">
-                                <button class="filter-btn active" data-status="all">Toutes</button>
-                                <button class="filter-btn" data-status="en cours">En cours</button>
-                                <button class="filter-btn" data-status="expédié">Expédié</button>
-                                <button class="filter-btn" data-status="livré">Livré</button>
-                                <button class="filter-btn" data-status="annulé">Annulé</button>
+                <div class="sidebar-bottom">
+                    <a class="side-link" href="/deepmatte">
+                        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h10v10H7V7Zm-4 5h4m10 0h4M12 3v4m0 10v4"/></svg>
+                        Voir produit
+                    </a>
+                    <a class="side-link" href="/">
+                        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19 3 12l7-7M3 12h18"/></svg>
+                        Retour boutique
+                    </a>
+                </div>
+            </aside>
+
+            <main class="main">
+                <header class="topbar">
+                    <button id="mobile-menu" class="mobile-menu" aria-label="Ouvrir le menu">
+                        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+                    </button>
+                    <div class="page-title">
+                        <h1 id="page-heading">Tableau de bord</h1>
+                        <p id="page-subtitle">Vue claire des ventes, avis et points à surveiller.</p>
+                    </div>
+                    <div class="top-actions">
+                        <span id="admin-email" class="admin-email"></span>
+                        <button id="refresh-btn" class="btn">
+                            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 11a8.1 8.1 0 0 0-15.5-2M4 5v4h4m-4 4a8.1 8.1 0 0 0 15.5 2M20 19v-4h-4"/></svg>
+                            Actualiser
+                        </button>
+                        <button id="logout-btn" class="btn btn-danger">Déconnexion</button>
+                    </div>
+                </header>
+
+                <div class="content">
+                    <section id="section-dashboard" class="section active">
+                        <div class="section-stack">
+                            <div class="grid-kpis">
+                                <article class="panel kpi" style="--accent:var(--admin-green)">
+                                    <div class="kpi-label">Chiffre d'affaires</div>
+                                    <div id="kpi-revenue" class="kpi-value">...</div>
+                                    <div id="kpi-revenue-sub" class="kpi-sub">Commandes payées</div>
+                                </article>
+                                <article class="panel kpi" style="--accent:var(--admin-blue)">
+                                    <div class="kpi-label">Commandes</div>
+                                    <div id="kpi-orders" class="kpi-value">...</div>
+                                    <div id="kpi-orders-sub" class="kpi-sub">À préparer</div>
+                                </article>
+                                <article class="panel kpi" style="--accent:var(--admin-yellow)">
+                                    <div class="kpi-label">Note moyenne</div>
+                                    <div id="kpi-rating" class="kpi-value">...</div>
+                                    <div id="kpi-rating-sub" class="kpi-sub">Avis clients</div>
+                                </article>
+                                <article class="panel kpi" style="--accent:var(--admin-cyan)">
+                                    <div class="kpi-label">Marge estimée</div>
+                                    <div id="kpi-margin" class="kpi-value">...</div>
+                                    <div id="kpi-margin-sub" class="kpi-sub">Avec hypothèses admin</div>
+                                </article>
                             </div>
-                            <input type="text" class="search-input" id="orders-search" placeholder="Rechercher…" />
-                        </div>
-                    </div>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>#ID</th><th>Articles</th><th>Total</th><th>Statut</th><th>Date</th><th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="orders-tbody">
-                            <tr><td colspan="6"><div class="skel skel-row"></div><div class="skel skel-row"></div><div class="skel skel-row"></div></td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
 
-            <!-- ═══════════════ SECTION : AVIS ═══════════════ -->
-            <div class="section" id="section-reviews">
-                <div class="table-wrap">
-                    <div class="table-header" style="flex-wrap:wrap;gap:0.75rem;">
-                        <span class="table-title">Avis clients</span>
-                        <div style="display:flex;gap:0.75rem;align-items:center;flex-wrap:wrap;">
-                            <div class="filter-row" id="review-filters">
-                                <button class="filter-btn active" data-rating="all">Tous</button>
-                                <button class="filter-btn" data-rating="5">★ 5</button>
-                                <button class="filter-btn" data-rating="4">★ 4</button>
-                                <button class="filter-btn" data-rating="3">★ 3</button>
-                                <button class="filter-btn" data-rating="1">★ 1-2</button>
+                            <div class="dashboard-grid">
+                                <article class="panel">
+                                    <div class="panel-head">
+                                        <div class="panel-title">
+                                            <strong>Commandes par mois</strong>
+                                            <span>Six derniers mois, basé sur les commandes enregistrées.</span>
+                                        </div>
+                                    </div>
+                                    <div class="panel-body">
+                                        <div id="orders-bars" class="bars"></div>
+                                    </div>
+                                </article>
+                                <article class="panel">
+                                    <div class="panel-head">
+                                        <div class="panel-title">
+                                            <strong>Statuts commandes</strong>
+                                            <span>Ce qui demande ton attention maintenant.</span>
+                                        </div>
+                                    </div>
+                                    <div class="panel-body">
+                                        <div id="status-list" class="status-list"></div>
+                                    </div>
+                                </article>
                             </div>
-                            <input type="text" class="search-input" id="reviews-search" placeholder="Rechercher…" />
+
+                            <article class="panel">
+                                <div class="panel-head">
+                                    <div class="panel-title">
+                                        <strong>Dernières commandes</strong>
+                                        <span>Les cinq commandes les plus récentes.</span>
+                                    </div>
+                                    <button class="btn" data-jump="orders">Tout voir</button>
+                                </div>
+                                <div id="recent-orders" class="panel-body data-list"></div>
+                            </article>
                         </div>
-                    </div>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Utilisateur</th><th>Note</th><th>Commentaire</th><th>Produit</th><th>Date</th><th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="reviews-tbody">
-                            <tr><td colspan="6"><div class="skel skel-row"></div><div class="skel skel-row"></div></td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+                    </section>
 
-            <!-- ═══════════════ SECTION : UTILISATEURS ═══════════════ -->
-            <div class="section" id="section-users">
-                <div class="table-wrap">
-                    <div class="table-header">
-                        <span class="table-title">Utilisateurs inscrits</span>
-                        <input type="text" class="search-input" id="users-search" placeholder="Rechercher par email…" />
-                    </div>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Utilisateur</th><th>Email</th><th>Rôle</th><th>Commandes</th><th>Avis</th><th>Inscription</th><th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="users-tbody">
-                            <tr><td colspan="7"><div class="skel skel-row"></div><div class="skel skel-row"></div><div class="skel skel-row"></div></td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+                    <section id="section-orders" class="section">
+                        <div class="section-stack">
+                            <article class="panel">
+                                <div class="panel-head">
+                                    <div class="panel-title">
+                                        <strong>Commandes</strong>
+                                        <span>Recherche, filtre et mise à jour du suivi client.</span>
+                                    </div>
+                                    <button id="export-orders" class="btn">Exporter CSV</button>
+                                </div>
+                                <div class="panel-body section-stack">
+                                    <div class="toolbar">
+                                        <div id="order-filters" class="filters">
+                                            <button class="chip active" data-status="all">Toutes</button>
+                                            <button class="chip" data-status="en cours">En cours</button>
+                                            <button class="chip" data-status="expédié">Expédiées</button>
+                                            <button class="chip" data-status="livré">Livrées</button>
+                                            <button class="chip" data-status="annulé">Annulées</button>
+                                        </div>
+                                        <input id="orders-search" class="search" placeholder="Rechercher une commande..." />
+                                    </div>
+                                    <div id="orders-list" class="data-list"></div>
+                                </div>
+                            </article>
+                        </div>
+                    </section>
 
-        </div><!-- /#main -->
+                    <section id="section-reviews" class="section">
+                        <div class="section-stack">
+                            <article class="panel">
+                                <div class="panel-head">
+                                    <div class="panel-title">
+                                        <strong>Avis clients</strong>
+                                        <span>Lecture rapide et suppression des avis indésirables.</span>
+                                    </div>
+                                </div>
+                                <div class="panel-body section-stack">
+                                    <div class="toolbar">
+                                        <div id="review-filters" class="filters">
+                                            <button class="chip active" data-rating="all">Tous</button>
+                                            <button class="chip" data-rating="5">5 étoiles</button>
+                                            <button class="chip" data-rating="4">4 étoiles</button>
+                                            <button class="chip" data-rating="low">1-3 étoiles</button>
+                                        </div>
+                                        <input id="reviews-search" class="search" placeholder="Rechercher dans les avis..." />
+                                    </div>
+                                    <div id="reviews-list" class="data-list"></div>
+                                </div>
+                            </article>
+                        </div>
+                    </section>
+
+                    <section id="section-customers" class="section">
+                        <div class="section-stack">
+                            <article class="panel">
+                                <div class="panel-head">
+                                    <div class="panel-title">
+                                        <strong>Clients</strong>
+                                        <span>Vue consolidée depuis les commandes, avis et profils accessibles.</span>
+                                    </div>
+                                </div>
+                                <div class="panel-body section-stack">
+                                    <input id="customers-search" class="search" placeholder="Rechercher un identifiant client..." />
+                                    <div id="customers-list" class="data-list"></div>
+                                </div>
+                            </article>
+                        </div>
+                    </section>
+
+                    <section id="section-margin" class="section">
+                        <div class="section-stack">
+                            <article class="panel">
+                                <div class="panel-head">
+                                    <div class="panel-title">
+                                        <strong>Calcul de marge Deep Matte</strong>
+                                        <span>Modifie les coûts, le résultat se met à jour automatiquement et reste enregistré sur ce navigateur.</span>
+                                    </div>
+                                    <button id="reset-margin" class="btn">Réinitialiser</button>
+                                </div>
+                                <div class="panel-body section-stack">
+                                    <div class="form-grid" id="margin-form"></div>
+                                    <div class="margin-result">
+                                        <div class="mini-stat"><span>Marge par commande</span><strong id="margin-unit">...</strong></div>
+                                        <div class="mini-stat"><span>Taux de marge</span><strong id="margin-rate">...</strong></div>
+                                        <div class="mini-stat"><span>Résultat mensuel</span><strong id="margin-month">...</strong></div>
+                                        <div class="mini-stat"><span>Décision</span><strong id="margin-decision">...</strong></div>
+                                    </div>
+                                </div>
+                            </article>
+                        </div>
+                    </section>
+
+                    <section id="section-checklist" class="section">
+                        <div class="section-stack">
+                            <article class="panel">
+                                <div class="panel-head">
+                                    <div class="panel-title">
+                                        <strong>Checklist lancement</strong>
+                                        <span>Les points qui évitent les surprises avant d’envoyer du trafic vers la boutique.</span>
+                                    </div>
+                                    <button id="reset-checklist" class="btn">Tout décocher</button>
+                                </div>
+                                <div class="panel-body">
+                                    <div id="checklist" class="checklist"></div>
+                                </div>
+                            </article>
+                        </div>
+                    </section>
+                </div>
+            </main>
+        </div>
 
         <script>
             import { supabase } from '../lib/supabase.js';
 
-            const AVATAR_COLORS = ['#16a34a','#2563eb','#9333ea','#ea580c','#db2777','#0891b2','#d97706'];
-            const avatarColor = (s) => AVATAR_COLORS[(s?.charCodeAt(0) ?? 0) % AVATAR_COLORS.length];
-
-            const STATUS_BADGE = {
-                'en cours': 'badge-yellow',
-                'expédié':  'badge-blue',
-                'livré':    'badge-green',
-                'annulé':   'badge-red',
+            const PRODUCT_ID = 'deep-matte-01';
+            const STATUS = ['en cours', 'expédié', 'livré', 'annulé'];
+            const STATUS_META = {
+                'en cours': { label: 'En cours', cls: 'pending', color: '#facc15' },
+                'expédié': { label: 'Expédié', cls: 'shipped', color: '#60a5fa' },
+                'livré': { label: 'Livré', cls: 'done', color: '#16a34a' },
+                'annulé': { label: 'Annulé', cls: 'cancel', color: '#ef4444' },
             };
-            const STATUS_OPTIONS = ['en cours','expédié','livré','annulé'];
+            const DEFAULT_MARGIN = {
+                price: 29.9,
+                productCost: 8.5,
+                shippingCost: 3.9,
+                packagingCost: 0.8,
+                stripeFixed: 0.25,
+                stripeRate: 1.5,
+                adCost: 4,
+                returnRate: 5,
+                returnCost: 4.5,
+                socialRate: 12.3,
+                taxRate: 1,
+                monthlyFixed: 3,
+                monthlyOrders: 20,
+            };
+            const MARGIN_FIELDS = [
+                ['price', 'Prix de vente', '€'],
+                ['productCost', 'Coût fournisseur', '€'],
+                ['shippingCost', 'Livraison', '€'],
+                ['packagingCost', 'Emballage', '€'],
+                ['stripeFixed', 'Stripe fixe', '€'],
+                ['stripeRate', 'Stripe variable', '%'],
+                ['adCost', 'Pub par commande', '€'],
+                ['returnRate', 'Taux de retour', '%'],
+                ['returnCost', 'Coût retour moyen', '€'],
+                ['socialRate', 'Cotisations', '%'],
+                ['taxRate', 'Impôt libératoire', '%'],
+                ['monthlyFixed', 'Coûts fixes / mois', '€'],
+                ['monthlyOrders', 'Commandes / mois', ''],
+            ];
+            const CHECKS = [
+                'Prix fournisseur confirmé',
+                'Coût livraison confirmé',
+                'Délai livraison clairement affiché',
+                'Photos produit réelles ajoutées',
+                'Compatibilité M8/M10/M12 expliquée',
+                'Commande Stripe test effectuée',
+                'Email support actif',
+                'SIRET et adresse à jour',
+                'CGV / mentions / confidentialité vérifiées',
+                'Process remboursement prêt',
+                'Stock ou fournisseur fiable',
+                'Budget pub maximum défini',
+            ];
 
-            const fmtDate  = (iso) => new Date(iso).toLocaleDateString('fr-FR', {day:'2-digit',month:'short',year:'numeric'});
-            const fmtMoney = (n)   => Number(n).toFixed(2) + ' €';
-            const escapeHtml = (value) => String(value ?? '')
-                .replaceAll('&', '&amp;')
-                .replaceAll('<', '&lt;')
-                .replaceAll('>', '&gt;')
-                .replaceAll('"', '&quot;')
-                .replaceAll("'", '&#39;');
-
-            // Global data cache
-            let allOrders  = [];
-            let allReviews = [];
-            let allUsers   = [];
-
-            // ── Toast ──────────────────────────────────────────────────────────
+            let orders = [];
+            let reviews = [];
+            let profiles = [];
+            let customers = [];
             let toastTimer;
-            const showToast = (msg, err=false) => {
-                const t = document.getElementById('toast');
-                if (!t) return;
-                t.textContent = (err ? '✕ ' : '✓ ') + msg;
-                t.className = err ? 'error show' : 'show';
+
+            const $ = (selector) => document.querySelector(selector);
+            const $$ = (selector) => Array.from(document.querySelectorAll(selector));
+            const money = (n) => `${Number(n || 0).toFixed(2)} €`;
+            const pct = (n) => `${Number(n || 0).toFixed(1)} %`;
+            const date = (iso) => iso ? new Date(iso).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' }) : '—';
+            const esc = (value) => String(value ?? '')
+                .replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;')
+                .replaceAll('"', '&quot;').replaceAll("'", '&#39;');
+
+            const showToast = (message, isError = false) => {
+                const toast = $('#toast');
+                if (!toast) return;
+                toast.textContent = message;
+                toast.className = isError ? 'show error' : 'show';
                 clearTimeout(toastTimer);
-                toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
+                toastTimer = setTimeout(() => toast.classList.remove('show'), 2600);
             };
 
-            // ── Stars HTML ─────────────────────────────────────────────────────
-            const starsHtml = (n) => Array.from({length:5},(_,i)=>`<span${i>=n?' class="empty"':''}>★</span>`).join('');
+            const skeletons = (count = 3) => Array.from({ length: count }, () => '<div class="skeleton"></div>').join('');
+            const statusBadge = (status) => {
+                const meta = STATUS_META[status] ?? { label: status || 'Inconnu', cls: 'neutral' };
+                return `<span class="badge ${meta.cls}">● ${esc(meta.label)}</span>`;
+            };
+            const stars = (rating) => Array.from({ length: 5 }, (_, i) => `<span class="${i >= Number(rating) ? 'empty' : ''}">★</span>`).join('');
+            const orderLabel = (id) => `#${String(id ?? '').slice(0, 8).toUpperCase() || '—'}`;
+            const orderItemsLabel = (items) => Array.isArray(items) && items.length
+                ? items.map((item) => `${item.name ?? item.id ?? 'Produit'} x${Number(item.qty || 1)}`).join(', ')
+                : 'Aucun article';
 
-            document.addEventListener('astro:page-load', async () => {
+            document.addEventListener('DOMContentLoaded', initAdmin);
 
-                // ── Auth check + role ──────────────────────────────────────────
-                const { data: { user } } = await supabase.auth.getUser();
-                const wall = document.getElementById('auth-wall');
-                const msg  = document.getElementById('auth-wall-msg');
+            async function initAdmin() {
+                bindNavigation();
+                bindMargin();
+                bindChecklist();
+                setLoading();
 
-                if (!user) {
-                    msg.textContent = 'Vous devez être connecté.';
+                const wall = $('#auth-wall');
+                const authMessage = $('#auth-message');
+                const { data: { user }, error } = await supabase.auth.getUser();
+
+                if (error || !user) {
+                    authMessage.textContent = 'Connecte-toi avec un compte administrateur pour accéder au back-office.';
+                    wall.classList.add('show');
+                    return;
+                }
+                if (user.app_metadata?.role !== 'admin') {
+                    authMessage.textContent = 'Ce compte est connecté, mais il n’a pas les droits administrateur.';
                     wall.classList.add('show');
                     return;
                 }
 
-                const role = user.app_metadata?.role;
-
-                if (role !== 'admin') {
-                    msg.textContent = 'Vous n\'avez pas les droits administrateur.';
-                    wall.classList.add('show');
-                    return;
-                }
-
-                document.getElementById('admin-email-display').textContent = user.email;
-
-                // ── Logout ─────────────────────────────────────────────────────
-                document.getElementById('logout-btn')?.addEventListener('click', async () => {
+                $('#admin-email').textContent = user.email || '';
+                $('#logout-btn')?.addEventListener('click', async () => {
                     await supabase.auth.signOut();
                     window.location.href = '/';
                 });
+                $('#refresh-btn')?.addEventListener('click', loadData);
+                $('#export-orders')?.addEventListener('click', exportOrdersCsv);
 
-                // ── Sidebar navigation ─────────────────────────────────────────
-                document.querySelectorAll('.nav-item[data-section]').forEach(btn => {
+                await loadData();
+            }
+
+            function bindNavigation() {
+                $('#mobile-menu')?.addEventListener('click', () => document.body.classList.toggle('nav-open'));
+                $$('.nav-btn[data-section]').forEach((btn) => {
                     btn.addEventListener('click', () => switchSection(btn.dataset.section));
                 });
-
-                // ── Load all data ──────────────────────────────────────────────
-                await Promise.all([loadOrders(), loadReviews(), loadUsers()]);
-                renderStats();
-            });
-
-            // ── Switch section ─────────────────────────────────────────────────
-            window.switchSection = (name) => {
-                document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-                document.querySelectorAll('.nav-item[data-section]').forEach(b => b.classList.remove('active'));
-                document.getElementById('section-' + name)?.classList.add('active');
-                document.querySelector(`.nav-item[data-section="${name}"]`)?.classList.add('active');
-                const titles = { stats:'Vue d\'ensemble', orders:'Commandes', reviews:'Avis clients', users:'Utilisateurs' };
-                document.getElementById('section-title').textContent = titles[name] ?? '';
-            };
-
-            // ══════════════════════════════════════════════════════════════════
-            // LOAD ORDERS
-            // ══════════════════════════════════════════════════════════════════
-            async function loadOrders() {
-                const { data, error } = await supabase
-                    .from('orders')
-                    .select('*')
-                    .order('created_at', { ascending: false });
-
-                if (error) { console.error(error); return; }
-                allOrders = data ?? [];
-
-                const count = allOrders.length;
-                document.getElementById('orders-nav-count').textContent = count;
-                renderOrdersTable(allOrders);
-                renderRecentOrders(allOrders.slice(0, 5));
-
-                // Filters
-                document.querySelectorAll('#order-filters .filter-btn').forEach(btn => {
-                    btn.addEventListener('click', () => {
-                        document.querySelectorAll('#order-filters .filter-btn').forEach(b => b.classList.remove('active'));
-                        btn.classList.add('active');
-                        const s = btn.dataset.status;
-                        const search = document.getElementById('orders-search')?.value.toLowerCase() ?? '';
-                        renderOrdersTable(filterOrders(s, search));
-                    });
-                });
-                document.getElementById('orders-search')?.addEventListener('input', (e) => {
-                    const s = document.querySelector('#order-filters .filter-btn.active')?.dataset.status ?? 'all';
-                    renderOrdersTable(filterOrders(s, e.target.value.toLowerCase()));
+                $$('[data-jump]').forEach((btn) => {
+                    btn.addEventListener('click', () => switchSection(btn.dataset.jump));
                 });
             }
 
-            const filterOrders = (status, search) => allOrders.filter(o =>
-                (status === 'all' || o.status === status) &&
-                (!search || o.id.toString().toLowerCase().includes(search) ||
-                    (Array.isArray(o.items) && o.items.some(i => i.name?.toLowerCase().includes(search))))
-            );
+            function switchSection(section) {
+                $$('.section').forEach((el) => el.classList.remove('active'));
+                $$('.nav-btn[data-section]').forEach((el) => el.classList.remove('active'));
+                $(`#section-${section}`)?.classList.add('active');
+                $(`.nav-btn[data-section="${section}"]`)?.classList.add('active');
+                document.body.classList.remove('nav-open');
 
-            function renderOrdersTable(orders) {
-                const tbody = document.getElementById('orders-tbody');
-                if (!tbody) return;
-                if (orders.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state">Aucune commande trouvée.</div></td></tr>`;
-                    return;
-                }
-                tbody.innerHTML = orders.map(o => {
-                    const items = Array.isArray(o.items) ? o.items : [];
-                    const names = escapeHtml(items.map(i => `${i.name} ×${i.qty}`).join(', '));
-                    const badgeCls = STATUS_BADGE[o.status] ?? 'badge-gray';
-                    const ordNum = String(o.id).slice(0,8).toUpperCase();
-                    const options = STATUS_OPTIONS.map(s =>
-                        `<option value="${s}" ${o.status===s?'selected':''}>${s.charAt(0).toUpperCase()+s.slice(1)}</option>`
-                    ).join('');
-                    return `<tr>
-                        <td style="font-family:monospace;font-size:0.7rem;color:#6b7280;">#${ordNum}</td>
-                        <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#d1d5db;font-size:0.75rem;">${names || '—'}</td>
-                        <td style="font-weight:900;color:#22c55e;">${fmtMoney(o.total)}</td>
-                        <td><span class="badge ${badgeCls}">● ${o.status}</span></td>
-                        <td style="color:#6b7280;font-size:0.72rem;">${fmtDate(o.created_at)}</td>
-                        <td>
-                            <select class="status-select" data-order-id="${o.id}">${options}</select>
-                        </td>
-                    </tr>`;
-                }).join('');
-
-                // Status update listeners
-                tbody.querySelectorAll('.status-select').forEach(sel => {
-                    sel.addEventListener('change', async () => {
-                        const { error } = await supabase
-                            .from('orders')
-                            .update({ status: sel.value })
-                            .eq('id', sel.dataset.orderId);
-                        if (error) showToast('Erreur mise à jour', true);
-                        else {
-                            const o = allOrders.find(x => x.id == sel.dataset.orderId);
-                            if (o) o.status = sel.value;
-                            showToast('Statut mis à jour !');
-                            renderStats();
-                        }
-                    });
-                });
+                const titles = {
+                    dashboard: ['Tableau de bord', 'Vue claire des ventes, avis et points à surveiller.'],
+                    orders: ['Commandes', 'Suivi, recherche et mise à jour des statuts.'],
+                    reviews: ['Avis clients', 'Modération et lecture rapide des retours.'],
+                    customers: ['Clients', 'Vue consolidée des profils, commandes et avis.'],
+                    margin: ['Marge produit', 'Simule la rentabilité du Deep Matte.'],
+                    checklist: ['Checklist', 'Les points à valider avant lancement.'],
+                };
+                $('#page-heading').textContent = titles[section]?.[0] ?? 'Admin';
+                $('#page-subtitle').textContent = titles[section]?.[1] ?? '';
             }
 
-            function renderRecentOrders(orders) {
-                const tbody = document.getElementById('recent-orders-tbody');
-                if (!tbody) return;
-                if (orders.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state">Aucune commande.</div></td></tr>`;
-                    return;
-                }
-                tbody.innerHTML = orders.map(o => {
-                    const badgeCls = STATUS_BADGE[o.status] ?? 'badge-gray';
-                    const ordNum = String(o.id).slice(0,8).toUpperCase();
-                    const safeUserId = escapeHtml(o.user_id ?? '');
-                    const initial = escapeHtml(o.user_id?.slice(0,1) ?? '?').toUpperCase();
-                    const col = avatarColor(o.user_id);
-                    return `<tr>
-                        <td style="font-family:monospace;font-size:0.7rem;color:#6b7280;">#${ordNum}</td>
-                        <td>
-                            <div style="display:flex;align-items:center;gap:0.5rem;">
-                                <div class="avatar" style="background:${col}22;color:${col};border:1px solid ${col}55;">${initial}</div>
-                                <span style="font-size:0.7rem;color:#9ca3af;font-family:monospace;">${safeUserId.slice(0,12)}…</span>
-                            </div>
-                        </td>
-                        <td style="font-weight:900;color:#22c55e;">${fmtMoney(o.total)}</td>
-                        <td><span class="badge ${badgeCls}">● ${o.status}</span></td>
-                        <td style="color:#6b7280;font-size:0.72rem;">${fmtDate(o.created_at)}</td>
-                    </tr>`;
-                }).join('');
+            function setLoading() {
+                $('#recent-orders').innerHTML = skeletons(3);
+                $('#orders-list').innerHTML = skeletons(4);
+                $('#reviews-list').innerHTML = skeletons(3);
+                $('#customers-list').innerHTML = skeletons(3);
             }
 
-            // ══════════════════════════════════════════════════════════════════
-            // LOAD REVIEWS
-            // ══════════════════════════════════════════════════════════════════
-            async function loadReviews() {
-                const { data, error } = await supabase
-                    .from('reviews')
-                    .select('*')
-                    .order('created_at', { ascending: false });
-
-                if (error) { console.error(error); return; }
-                allReviews = data ?? [];
-                document.getElementById('reviews-nav-count').textContent = allReviews.length;
-                renderReviewsTable(allReviews);
-
-                // Filters
-                document.querySelectorAll('#review-filters .filter-btn').forEach(btn => {
-                    btn.addEventListener('click', () => {
-                        document.querySelectorAll('#review-filters .filter-btn').forEach(b => b.classList.remove('active'));
-                        btn.classList.add('active');
-                        const r = btn.dataset.rating;
-                        const search = document.getElementById('reviews-search')?.value.toLowerCase() ?? '';
-                        renderReviewsTable(filterReviews(r, search));
-                    });
-                });
-                document.getElementById('reviews-search')?.addEventListener('input', e => {
-                    const r = document.querySelector('#review-filters .filter-btn.active')?.dataset.rating ?? 'all';
-                    renderReviewsTable(filterReviews(r, e.target.value.toLowerCase()));
-                });
-            }
-
-            const filterReviews = (rating, search) => allReviews.filter(r =>
-                (rating === 'all' || (rating === '1' ? r.rating <= 2 : r.rating == rating)) &&
-                (!search || (r.comment ?? '').toLowerCase().includes(search) || r.user_id.toLowerCase().includes(search))
-            );
-
-            function renderReviewsTable(reviews) {
-                const tbody = document.getElementById('reviews-tbody');
-                if (!tbody) return;
-                if (reviews.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state">Aucun avis trouvé.</div></td></tr>`;
-                    return;
-                }
-                tbody.innerHTML = reviews.map(r => {
-                    const safeUserId = escapeHtml(r.user_id ?? '');
-                    const safeProductId = escapeHtml(r.product_id ?? '—');
-                    const safeComment = escapeHtml(r.comment ?? '');
-                    const initial = escapeHtml(r.user_id?.slice(0,1) ?? '?').toUpperCase();
-                    const col = avatarColor(r.user_id);
-                    return `<tr data-review-id="${r.id}">
-                        <td>
-                            <div style="display:flex;align-items:center;gap:0.5rem;">
-                                <div class="avatar" style="background:${col}22;color:${col};border:1px solid ${col}55;">${initial}</div>
-                                <span style="font-size:0.65rem;color:#9ca3af;font-family:monospace;">${safeUserId.slice(0,14)}…</span>
-                            </div>
-                        </td>
-                        <td><div class="stars">${starsHtml(r.rating)}</div></td>
-                        <td style="max-width:220px;font-size:0.75rem;color:#d1d5db;line-height:1.4;">${safeComment ? `"${safeComment.slice(0,80)}${safeComment.length>80?'…':''}"` : '<span style="color:#3f3f46;font-style:italic;">Sans commentaire</span>'}</td>
-                        <td style="font-size:0.7rem;color:#6b7280;">${safeProductId}</td>
-                        <td style="color:#6b7280;font-size:0.72rem;">${fmtDate(r.created_at)}</td>
-                        <td>
-                            <button class="btn-sm btn-delete" data-review-delete="${r.id}">Supprimer</button>
-                        </td>
-                    </tr>`;
-                }).join('');
-
-                tbody.querySelectorAll('[data-review-delete]').forEach(btn => {
-                    btn.addEventListener('click', async () => {
-                        if (!confirm('Supprimer cet avis ?')) return;
-                        const id = btn.dataset.reviewDelete;
-                        const { error } = await supabase.from('reviews').delete().eq('id', id);
-                        if (error) { showToast('Erreur suppression', true); return; }
-                        allReviews = allReviews.filter(r => r.id != id);
-                        document.getElementById('reviews-nav-count').textContent = allReviews.length;
-                        const r = document.querySelector('#review-filters .filter-btn.active')?.dataset.rating ?? 'all';
-                        const s = document.getElementById('reviews-search')?.value.toLowerCase() ?? '';
-                        renderReviewsTable(filterReviews(r, s));
-                        showToast('Avis supprimé');
-                        renderStats();
-                    });
-                });
-            }
-
-            // ══════════════════════════════════════════════════════════════════
-            // LOAD USERS
-            // ══════════════════════════════════════════════════════════════════
-            async function loadUsers() {
-                // On joint profiles + on compte commandes et avis par user_id
-                const { data: profiles } = await supabase
-                    .from('profiles')
-                    .select('id, role, updated_at');
-
-                // On a besoin de l'email : on le déduit des commandes (user_id) et on le stocke en profiles si possible
-                // Alternative : récupérer via Supabase Auth Admin API (non dispo côté client)
-                // On affiche l'UUID avec les données disponibles
-                allUsers = profiles ?? [];
-
-                // Compter commandes et avis par user
-                const orderCounts  = {};
-                const reviewCounts = {};
-                allOrders.forEach(o  => { orderCounts[o.user_id]  = (orderCounts[o.user_id]  || 0) + 1; });
-                allReviews.forEach(r => { reviewCounts[r.user_id] = (reviewCounts[r.user_id] || 0) + 1; });
-
-                // Merge unique user_ids from orders + reviews + profiles
-                const userIds = new Set([
-                    ...allUsers.map(p => p.id),
-                    ...allOrders.map(o => o.user_id),
-                    ...allReviews.map(r => r.user_id),
+            async function loadData() {
+                setLoading();
+                const [ordersRes, reviewsRes, profilesRes] = await Promise.all([
+                    supabase.from('orders').select('*').order('created_at', { ascending: false }),
+                    supabase.from('reviews').select('*').order('created_at', { ascending: false }),
+                    supabase.from('profiles').select('id, role, updated_at'),
                 ]);
 
-                allUsers = Array.from(userIds).map(id => {
-                    const profile = profiles?.find(p => p.id === id);
-                    return {
-                        id,
-                        role: profile?.role ?? 'user',
-                        updated_at: profile?.updated_at,
-                        orders:  orderCounts[id]  || 0,
-                        reviews: reviewCounts[id] || 0,
+                if (ordersRes.error) renderError('#orders-list', ordersRes.error.message);
+                if (reviewsRes.error) renderError('#reviews-list', reviewsRes.error.message);
+
+                orders = ordersRes.data ?? [];
+                reviews = reviewsRes.data ?? [];
+                profiles = profilesRes.data ?? [];
+                customers = buildCustomers();
+
+                $('#count-orders').textContent = orders.length;
+                $('#count-reviews').textContent = reviews.length;
+                $('#count-customers').textContent = customers.length;
+
+                bindFilters();
+                renderAll();
+                showToast('Données actualisées');
+            }
+
+            function buildCustomers() {
+                const map = new Map();
+                const ensure = (id) => {
+                    if (!id) return null;
+                    if (!map.has(id)) {
+                        const profile = profiles.find((p) => p.id === id);
+                        map.set(id, {
+                            id,
+                            role: profile?.role ?? 'user',
+                            updated_at: profile?.updated_at,
+                            orders: 0,
+                            revenue: 0,
+                            reviews: 0,
+                            lastSeen: profile?.updated_at ?? null,
+                        });
+                    }
+                    return map.get(id);
+                };
+                orders.forEach((order) => {
+                    const customer = ensure(order.user_id);
+                    if (!customer) return;
+                    customer.orders += 1;
+                    customer.revenue += Number(order.total || 0);
+                    customer.lastSeen = maxDate(customer.lastSeen, order.created_at);
+                });
+                reviews.forEach((review) => {
+                    const customer = ensure(review.user_id);
+                    if (!customer) return;
+                    customer.reviews += 1;
+                    customer.lastSeen = maxDate(customer.lastSeen, review.created_at);
+                });
+                profiles.forEach((profile) => ensure(profile.id));
+                return Array.from(map.values()).sort((a, b) => new Date(b.lastSeen || 0) - new Date(a.lastSeen || 0));
+            }
+
+            function maxDate(a, b) {
+                if (!a) return b;
+                if (!b) return a;
+                return new Date(a) > new Date(b) ? a : b;
+            }
+
+            function bindFilters() {
+                $$('#order-filters .chip').forEach((btn) => {
+                    btn.onclick = () => {
+                        $$('#order-filters .chip').forEach((b) => b.classList.remove('active'));
+                        btn.classList.add('active');
+                        renderOrders();
                     };
                 });
+                $('#orders-search').oninput = renderOrders;
 
-                renderUsersTable(allUsers);
+                $$('#review-filters .chip').forEach((btn) => {
+                    btn.onclick = () => {
+                        $$('#review-filters .chip').forEach((b) => b.classList.remove('active'));
+                        btn.classList.add('active');
+                        renderReviews();
+                    };
+                });
+                $('#reviews-search').oninput = renderReviews;
+                $('#customers-search').oninput = renderCustomers;
+            }
 
-                document.getElementById('users-search')?.addEventListener('input', e => {
-                    const q = e.target.value.toLowerCase();
-                    renderUsersTable(allUsers.filter(u => u.id.toLowerCase().includes(q)));
+            function renderAll() {
+                renderDashboard();
+                renderOrders();
+                renderReviews();
+                renderCustomers();
+                updateMargin();
+            }
+
+            function renderDashboard() {
+                const revenue = orders.reduce((sum, order) => sum + Number(order.total || 0), 0);
+                const pending = orders.filter((order) => order.status === 'en cours').length;
+                const avg = reviews.length ? reviews.reduce((sum, review) => sum + Number(review.rating || 0), 0) / reviews.length : 0;
+                const margin = calculateMargin();
+
+                $('#kpi-revenue').textContent = money(revenue);
+                $('#kpi-revenue-sub').textContent = `${orders.length} commande${orders.length > 1 ? 's' : ''}`;
+                $('#kpi-orders').textContent = orders.length;
+                $('#kpi-orders-sub').textContent = `${pending} à préparer`;
+                $('#kpi-rating').textContent = reviews.length ? avg.toFixed(1) : '—';
+                $('#kpi-rating-sub').textContent = `${reviews.length} avis`;
+                $('#kpi-margin').textContent = money(margin.unit);
+                $('#kpi-margin-sub').textContent = `${pct(margin.rate * 100)} de marge nette`;
+
+                renderBars();
+                renderStatusList();
+                $('#recent-orders').innerHTML = orders.length ? orders.slice(0, 5).map(orderCard).join('') : empty('Aucune commande pour le moment.');
+            }
+
+            function renderBars() {
+                const now = new Date();
+                const months = Array.from({ length: 6 }, (_, index) => {
+                    const d = new Date(now.getFullYear(), now.getMonth() - (5 - index), 1);
+                    return { label: d.toLocaleDateString('fr-FR', { month: 'short' }), year: d.getFullYear(), month: d.getMonth(), count: 0 };
+                });
+                orders.forEach((order) => {
+                    const d = new Date(order.created_at);
+                    const bucket = months.find((m) => m.year === d.getFullYear() && m.month === d.getMonth());
+                    if (bucket) bucket.count += 1;
+                });
+                const max = Math.max(1, ...months.map((m) => m.count));
+                $('#orders-bars').innerHTML = months.map((m) => `
+                    <div class="bar-col">
+                        <span class="bar-value">${m.count}</span>
+                        <div class="bar-track"><div class="bar-fill" style="height:${Math.max(5, (m.count / max) * 100)}%"></div></div>
+                        <span class="bar-label">${esc(m.label)}</span>
+                    </div>
+                `).join('');
+            }
+
+            function renderStatusList() {
+                const total = Math.max(1, orders.length);
+                $('#status-list').innerHTML = STATUS.map((status) => {
+                    const count = orders.filter((order) => order.status === status).length;
+                    const meta = STATUS_META[status];
+                    return `
+                        <div class="status-line">
+                            <span class="muted">${esc(meta.label)}</span>
+                            <div class="progress"><span style="--w:${(count / total) * 100}%;--c:${meta.color}"></span></div>
+                            <strong>${count}</strong>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            function renderOrders() {
+                const status = $('#order-filters .chip.active')?.dataset.status ?? 'all';
+                const query = ($('#orders-search')?.value ?? '').trim().toLowerCase();
+                const filtered = orders.filter((order) => {
+                    const items = orderItemsLabel(order.items).toLowerCase();
+                    const haystack = `${order.id} ${order.user_id ?? ''} ${order.status ?? ''} ${items}`.toLowerCase();
+                    return (status === 'all' || order.status === status) && (!query || haystack.includes(query));
+                });
+                $('#orders-list').innerHTML = filtered.length ? filtered.map(orderCard).join('') : empty('Aucune commande ne correspond à ce filtre.');
+                $$('#orders-list [data-order-status]').forEach((select) => {
+                    select.addEventListener('change', async () => updateOrderStatus(select.dataset.orderStatus, select.value));
                 });
             }
 
-            function renderUsersTable(users) {
-                const tbody = document.getElementById('users-tbody');
-                if (!tbody) return;
-                if (users.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state">Aucun utilisateur trouvé.</div></td></tr>`;
+            function orderCard(order) {
+                const items = orderItemsLabel(order.items);
+                const statusOptions = STATUS.map((status) => `<option value="${status}" ${order.status === status ? 'selected' : ''}>${STATUS_META[status].label}</option>`).join('');
+                return `
+                    <article class="row-card">
+                        <div class="row-main">
+                            <div class="row-title">
+                                <span class="mono">${orderLabel(order.id)}</span>
+                                ${statusBadge(order.status)}
+                            </div>
+                            <div class="row-sub">${esc(items)}</div>
+                            <div class="row-sub mono">${esc(order.user_id ?? 'Client non associé')}</div>
+                        </div>
+                        <div><span class="cell-label">Total</span><span class="cell-value" style="color:#86efac">${money(order.total)}</span></div>
+                        <div><span class="cell-label">Date</span><span class="cell-value">${date(order.created_at)}</span></div>
+                        <div>
+                            <span class="cell-label">Statut</span>
+                            <select class="status-select" data-order-status="${esc(order.id)}">${statusOptions}</select>
+                        </div>
+                    </article>
+                `;
+            }
+
+            async function updateOrderStatus(orderId, status) {
+                const { error } = await supabase.from('orders').update({ status }).eq('id', orderId);
+                if (error) {
+                    showToast('Statut non modifié', true);
                     return;
                 }
-                tbody.innerHTML = users.map(u => {
-                    const safeId = escapeHtml(u.id ?? '');
-                    const initial = safeId.slice(0,1).toUpperCase() || '?';
-                    const col = avatarColor(u.id);
-                    const roleBadge = u.role === 'admin'
-                        ? `<span class="badge badge-green">Admin</span>`
-                        : `<span class="badge badge-gray">User</span>`;
-                    return `<tr>
-                        <td>
-                            <div style="display:flex;align-items:center;gap:0.6rem;">
-                                <div class="avatar" style="background:${col}22;color:${col};border:1px solid ${col}55;">${initial}</div>
-                                <span style="font-family:monospace;font-size:0.65rem;color:#9ca3af;">${safeId.slice(0,16)}…</span>
-                            </div>
-                        </td>
-                        <td style="font-size:0.7rem;color:#6b7280;font-style:italic;">Voir Supabase Auth</td>
-                        <td>${roleBadge}</td>
-                        <td style="text-align:center;">
-                            ${u.orders > 0
-                                ? `<span class="badge badge-blue">${u.orders}</span>`
-                                : `<span style="color:#3f3f46;font-size:0.7rem;">0</span>`}
-                        </td>
-                        <td style="text-align:center;">
-                            ${u.reviews > 0
-                                ? `<span class="badge badge-yellow">${u.reviews}</span>`
-                                : `<span style="color:#3f3f46;font-size:0.7rem;">0</span>`}
-                        </td>
-                        <td style="color:#6b7280;font-size:0.72rem;">${u.updated_at ? fmtDate(u.updated_at) : '—'}</td>
-                        <td>
-                            <select class="status-select role-select" data-user-id="${u.id}" style="font-size:0.65rem;">
-                                <option value="user" ${u.role!=='admin'?'selected':''}>User</option>
-                                <option value="admin" ${u.role==='admin'?'selected':''}>Admin</option>
-                            </select>
-                        </td>
-                    </tr>`;
-                }).join('');
+                const order = orders.find((item) => String(item.id) === String(orderId));
+                if (order) order.status = status;
+                renderDashboard();
+                renderOrders();
+                showToast('Statut mis à jour');
+            }
 
-                tbody.querySelectorAll('.role-select').forEach(sel => {
-                    sel.addEventListener('change', async () => {
-                        const uid = sel.dataset.userId;
-                        const { error } = await supabase
-                            .from('profiles')
-                            .upsert({ id: uid, role: sel.value, updated_at: new Date().toISOString() }, { onConflict: 'id' });
-                        if (error) { showToast('Erreur mise à jour rôle', true); return; }
-                        const u = allUsers.find(x => x.id === uid);
-                        if (u) u.role = sel.value;
-                        showToast(`Rôle mis à jour → ${sel.value}`);
+            function renderReviews() {
+                const rating = $('#review-filters .chip.active')?.dataset.rating ?? 'all';
+                const query = ($('#reviews-search')?.value ?? '').trim().toLowerCase();
+                const filtered = reviews.filter((review) => {
+                    const rateOk = rating === 'all' || (rating === 'low' ? Number(review.rating) <= 3 : String(review.rating) === rating);
+                    const haystack = `${review.user_id ?? ''} ${review.product_id ?? ''} ${review.comment ?? ''}`.toLowerCase();
+                    return rateOk && (!query || haystack.includes(query));
+                });
+                $('#reviews-list').innerHTML = filtered.length ? filtered.map(reviewCard).join('') : empty('Aucun avis ne correspond à ce filtre.');
+                $$('#reviews-list [data-delete-review]').forEach((btn) => {
+                    btn.addEventListener('click', async () => deleteReview(btn.dataset.deleteReview));
+                });
+            }
+
+            function reviewCard(review) {
+                return `
+                    <article class="row-card review-row">
+                        <div class="row-main">
+                            <div class="row-title mono">${esc(String(review.user_id ?? '').slice(0, 18)) || 'Client'}</div>
+                            <div class="row-sub">${esc(review.product_id ?? PRODUCT_ID)}</div>
+                        </div>
+                        <div class="row-main">
+                            <div class="stars">${stars(review.rating)}</div>
+                            <div class="row-sub">${review.comment ? `"${esc(review.comment)}"` : 'Sans commentaire'}</div>
+                        </div>
+                        <div><span class="cell-label">Date</span><span class="cell-value">${date(review.created_at)}</span></div>
+                        <div><button class="btn btn-danger" data-delete-review="${esc(review.id)}">Supprimer</button></div>
+                    </article>
+                `;
+            }
+
+            async function deleteReview(id) {
+                if (!window.confirm('Supprimer cet avis ?')) return;
+                const { error } = await supabase.from('reviews').delete().eq('id', id);
+                if (error) {
+                    showToast('Avis non supprimé', true);
+                    return;
+                }
+                reviews = reviews.filter((review) => String(review.id) !== String(id));
+                customers = buildCustomers();
+                $('#count-reviews').textContent = reviews.length;
+                renderDashboard();
+                renderReviews();
+                renderCustomers();
+                showToast('Avis supprimé');
+            }
+
+            function renderCustomers() {
+                const query = ($('#customers-search')?.value ?? '').trim().toLowerCase();
+                const filtered = customers.filter((customer) => `${customer.id} ${customer.role}`.toLowerCase().includes(query));
+                $('#customers-list').innerHTML = filtered.length ? filtered.map(customerCard).join('') : empty('Aucun client trouvé.');
+            }
+
+            function customerCard(customer) {
+                return `
+                    <article class="row-card user-row">
+                        <div class="row-main">
+                            <div class="row-title mono">${esc(String(customer.id).slice(0, 22))}</div>
+                            <div class="row-sub">${customer.role === 'admin' ? '<span class="badge done">Admin</span>' : '<span class="badge neutral">Client</span>'}</div>
+                        </div>
+                        <div><span class="cell-label">Commandes</span><span class="cell-value">${customer.orders}</span></div>
+                        <div><span class="cell-label">Dépensé</span><span class="cell-value" style="color:#86efac">${money(customer.revenue)}</span></div>
+                        <div><span class="cell-label">Dernière activité</span><span class="cell-value">${date(customer.lastSeen)}</span></div>
+                    </article>
+                `;
+            }
+
+            function bindMargin() {
+                renderMarginForm();
+                $('#reset-margin')?.addEventListener('click', () => {
+                    localStorage.removeItem('cd_admin_margin');
+                    renderMarginForm();
+                    updateMargin();
+                    showToast('Calcul réinitialisé');
+                });
+            }
+
+            function getMarginInputs() {
+                try {
+                    return { ...DEFAULT_MARGIN, ...JSON.parse(localStorage.getItem('cd_admin_margin') || '{}') };
+                } catch {
+                    return { ...DEFAULT_MARGIN };
+                }
+            }
+
+            function saveMarginInputs(values) {
+                localStorage.setItem('cd_admin_margin', JSON.stringify(values));
+            }
+
+            function renderMarginForm() {
+                const values = getMarginInputs();
+                $('#margin-form').innerHTML = MARGIN_FIELDS.map(([key, label, unit]) => `
+                    <div class="field">
+                        <label for="margin-${key}">${label}${unit ? ` (${unit})` : ''}</label>
+                        <input id="margin-${key}" data-margin="${key}" type="number" step="0.01" value="${Number(values[key])}" />
+                    </div>
+                `).join('');
+                $$('[data-margin]').forEach((input) => {
+                    input.addEventListener('input', () => {
+                        const next = getMarginInputs();
+                        next[input.dataset.margin] = Number(input.value || 0);
+                        saveMarginInputs(next);
+                        updateMargin();
                     });
                 });
             }
 
-            // ══════════════════════════════════════════════════════════════════
-            // RENDER STATS
-            // ══════════════════════════════════════════════════════════════════
-            function renderStats() {
-                // KPIs
-                const revenue = allOrders.reduce((a, o) => a + Number(o.total), 0);
-                const avgRating = allReviews.length
-                    ? (allReviews.reduce((a, r) => a + r.rating, 0) / allReviews.length).toFixed(1)
-                    : '—';
+            function calculateMargin() {
+                const v = getMarginInputs();
+                const direct = v.productCost + v.shippingCost + v.packagingCost;
+                const payment = v.stripeFixed + (v.price * v.stripeRate / 100);
+                const returns = (v.returnRate / 100) * v.returnCost;
+                const social = v.price * ((v.socialRate + v.taxRate) / 100);
+                const fixed = v.monthlyFixed / Math.max(1, v.monthlyOrders);
+                const unit = v.price - direct - payment - v.adCost - returns - social - fixed;
+                const rate = v.price ? unit / v.price : 0;
+                const month = unit * v.monthlyOrders;
+                return { unit, rate, month };
+            }
 
-                const pending = allOrders.filter(o => o.status === 'en cours').length;
-
-                document.getElementById('kpi-revenue').textContent   = revenue.toFixed(2) + ' €';
-                document.getElementById('kpi-revenue-sub').textContent = `${allOrders.length} commandes au total`;
-                document.getElementById('kpi-orders').textContent    = allOrders.length;
-                document.getElementById('kpi-orders-sub').textContent = `${pending} en attente`;
-                document.getElementById('kpi-users').textContent     = allUsers.length;
-                document.getElementById('kpi-users-sub').textContent  = `${allUsers.filter(u => u.role==='admin').length} admin(s)`;
-                document.getElementById('kpi-rating').textContent    = avgRating;
-                document.getElementById('kpi-rating-sub').textContent = `Sur ${allReviews.length} avis`;
-
-                // Bar chart — commandes par mois (6 derniers)
-                const now = new Date();
-                const months = Array.from({length:6}, (_,i) => {
-                    const d = new Date(now.getFullYear(), now.getMonth() - (5-i), 1);
-                    return { label: d.toLocaleDateString('fr-FR',{month:'short'}), year: d.getFullYear(), month: d.getMonth(), count: 0 };
-                });
-                allOrders.forEach(o => {
-                    const d = new Date(o.created_at);
-                    const m = months.find(x => x.year === d.getFullYear() && x.month === d.getMonth());
-                    if (m) m.count++;
-                });
-                const maxCount = Math.max(...months.map(m => m.count), 1);
-                const barChart = document.getElementById('bar-chart');
-                if (barChart) {
-                    barChart.innerHTML = months.map(m => `
-                        <div class="bar-wrap" title="${m.count} commande${m.count>1?'s':''}">
-                            <div class="bar" style="height:${Math.max((m.count/maxCount)*100, 4)}%;"
-                                data-tooltip="${m.count}"></div>
-                            <span class="bar-label">${m.label}</span>
-                        </div>`).join('');
-                }
-
-                // Donut — statuts
-                const statusGroups = { 'en cours': 0, 'expédié': 0, 'livré': 0, 'annulé': 0 };
-                allOrders.forEach(o => { if (statusGroups[o.status] !== undefined) statusGroups[o.status]++; });
-                const donutColors = { 'en cours':'#eab308', 'expédié':'#60a5fa', 'livré':'#22c55e', 'annulé':'#ef4444' };
-                const total = allOrders.length || 1;
-
-                const svg = document.getElementById('donut-svg');
-                const legend = document.getElementById('donut-legend');
-                if (svg && legend) {
-                    let offset = 25; // start at top
-                    const radius = 35, cx = 50, cy = 50;
-                    const circ = 2 * Math.PI * radius;
-
-                    let paths = '';
-                    let legendHtml = '';
-
-                    Object.entries(statusGroups).forEach(([status, count]) => {
-                        const pct = count / total;
-                        const dash = pct * circ;
-                        const gap  = circ - dash;
-                        const col  = donutColors[status];
-                        paths += `<circle cx="${cx}" cy="${cy}" r="${radius}"
-                            fill="none" stroke="${col}" stroke-width="12"
-                            stroke-dasharray="${dash} ${gap}"
-                            stroke-dashoffset="${-offset * circ / 100}"
-                            style="transform:rotate(-90deg);transform-origin:50px 50px;transition:stroke-dasharray 0.6s ease;" />`;
-                        offset += pct * 100;
-                        legendHtml += `<div class="donut-item">
-                            <div class="donut-dot" style="background:${col}"></div>
-                            <span style="flex:1;color:#9ca3af;">${status.charAt(0).toUpperCase()+status.slice(1)}</span>
-                            <span style="font-weight:900;color:white;">${count}</span>
-                        </div>`;
-                    });
-
-                    svg.innerHTML = `<circle cx="50" cy="50" r="35" fill="none" stroke="#1a1a1a" stroke-width="12"/>
-                        ${paths}
-                        <text x="50" y="55" text-anchor="middle" fill="white" font-size="14" font-weight="900" font-style="italic">${total}</text>`;
-                    legend.innerHTML = legendHtml;
+            function updateMargin() {
+                const result = calculateMargin();
+                $('#margin-unit').textContent = money(result.unit);
+                $('#margin-rate').textContent = pct(result.rate * 100);
+                $('#margin-month').textContent = money(result.month);
+                $('#margin-decision').textContent = result.unit <= 0 ? 'À revoir' : result.rate < 0.2 ? 'Fragile' : 'OK test';
+                $('#margin-decision').style.color = result.unit <= 0 ? '#fca5a5' : result.rate < 0.2 ? '#fde68a' : '#86efac';
+                if ($('#kpi-margin')) {
+                    $('#kpi-margin').textContent = money(result.unit);
+                    $('#kpi-margin-sub').textContent = `${pct(result.rate * 100)} de marge nette`;
                 }
             }
-        </script>
-        <script>
-            import { initSiteEffects } from "../scripts/site-effects.js";
-            const runSiteEffects = () => initSiteEffects();
-            document.addEventListener("astro:page-load", runSiteEffects);
-            if (document.readyState !== "loading") runSiteEffects();
-            else document.addEventListener("DOMContentLoaded", runSiteEffects, { once: true });
+
+            function bindChecklist() {
+                renderChecklist();
+                $('#reset-checklist')?.addEventListener('click', () => {
+                    localStorage.removeItem('cd_admin_checklist');
+                    renderChecklist();
+                    showToast('Checklist réinitialisée');
+                });
+            }
+
+            function renderChecklist() {
+                const done = new Set(JSON.parse(localStorage.getItem('cd_admin_checklist') || '[]'));
+                $('#checklist').innerHTML = CHECKS.map((label, index) => `
+                    <label class="check-item ${done.has(index) ? 'done' : ''}">
+                        <input type="checkbox" data-check="${index}" ${done.has(index) ? 'checked' : ''} />
+                        <span>${esc(label)}</span>
+                    </label>
+                `).join('');
+                $$('[data-check]').forEach((input) => {
+                    input.addEventListener('change', () => {
+                        const next = new Set(JSON.parse(localStorage.getItem('cd_admin_checklist') || '[]'));
+                        const index = Number(input.dataset.check);
+                        if (input.checked) next.add(index);
+                        else next.delete(index);
+                        localStorage.setItem('cd_admin_checklist', JSON.stringify(Array.from(next)));
+                        input.closest('.check-item')?.classList.toggle('done', input.checked);
+                    });
+                });
+            }
+
+            function exportOrdersCsv() {
+                const lines = [['id', 'date', 'status', 'total', 'user_id', 'items']];
+                orders.forEach((order) => {
+                    lines.push([
+                        order.id,
+                        order.created_at,
+                        order.status,
+                        Number(order.total || 0).toFixed(2),
+                        order.user_id ?? '',
+                        orderItemsLabel(order.items),
+                    ]);
+                });
+                const csv = lines.map((line) => line.map((cell) => `"${String(cell).replaceAll('"', '""')}"`).join(',')).join('\n');
+                const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `commandes-cdmotorshop-${new Date().toISOString().slice(0, 10)}.csv`;
+                a.click();
+                URL.revokeObjectURL(url);
+            }
+
+            function empty(message) {
+                return `<div class="empty-state">${esc(message)}</div>`;
+            }
+
+            function renderError(selector, message) {
+                const el = $(selector);
+                if (el) el.innerHTML = `<div class="error-state">Erreur de chargement : ${esc(message)}</div>`;
+            }
         </script>
     </body>
 </html>
