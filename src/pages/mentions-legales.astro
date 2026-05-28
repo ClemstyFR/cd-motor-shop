@@ -9,7 +9,7 @@ const editor = {
     legalForm: 'Entreprise individuelle en cours de création',
     capital: 'Sans objet',
     address: 'Entreprise en cours de domiciliation',
-    email: 'À compléter',
+    email: 'clem5tivo@gmail.com',
     phone: 'Disponibilité par e-mail (Numéro en cours de création)',
     registration: 'En cours de création',
     vat: 'Franchise en base de TVA - TVA non applicable (art. 293 B du CGI)',
@@ -62,6 +62,33 @@ const legalRows = [
                 border: 1px solid rgba(216,221,224,0.12);
                 box-shadow: 0 24px 80px rgba(0,0,0,0.35);
             }
+            .legal-layout {
+                display: grid;
+                grid-template-columns: minmax(0, 0.82fr) minmax(0, 1.55fr);
+                gap: 2rem;
+                align-items: start;
+            }
+            .legal-summary {
+                position: sticky;
+                top: 7rem;
+            }
+            .legal-nav {
+                display: flex;
+                flex-direction: column;
+                gap: 0.75rem;
+                margin-top: 1.5rem;
+            }
+            .legal-nav a {
+                color: #9aa4ad;
+                font-size: 0.82rem;
+                font-weight: 800;
+                line-height: 1.35;
+                transition: color 0.2s ease, transform 0.2s ease;
+            }
+            .legal-nav a:hover {
+                color: #16a34a;
+                transform: translateX(0.15rem);
+            }
             .legal-row {
                 display: grid;
                 grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.4fr);
@@ -86,8 +113,16 @@ const legalRows = [
             }
             .legal-value:has(.todo),
             .todo { color: #facc15; }
+            .legal-warning {
+                border: 1px solid rgba(250,204,21,0.22);
+                background: rgba(250,204,21,0.08);
+            }
             @media (max-width: 640px) {
                 .legal-row { grid-template-columns: 1fr; gap: 0.35rem; }
+            }
+            @media (max-width: 1024px) {
+                .legal-layout { grid-template-columns: 1fr; }
+                .legal-summary { position: static; }
             }
         </style>
         <ClientRouter/>
@@ -115,25 +150,45 @@ const legalRows = [
             </section>
 
             <section class="py-16 px-5 md:px-10">
-                <div class="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-[0.9fr_1.4fr] gap-8 items-start">
-                    
+                <div class="legal-layout max-w-5xl mx-auto">
+                    <aside class="legal-summary legal-card rounded-2xl p-6">
+                        <p class="text-green-500 font-bold tracking-widest uppercase text-xs">Repères</p>
+                        <h2 class="text-2xl font-black uppercase italic mt-2">À vérifier</h2>
+                        <p class="text-gray-400 text-sm leading-relaxed mt-4">
+                            Certaines informations restent provisoires tant que la micro-entreprise, la domiciliation et le médiateur ne sont pas finalisés.
+                        </p>
+                        <div class="legal-warning rounded-xl p-4 mt-5">
+                            <p class="todo text-xs font-black uppercase tracking-widest">Informations à compléter</p>
+                            <p class="text-gray-400 text-xs leading-relaxed mt-2">
+                                SIRET, adresse professionnelle, téléphone, médiateur et coordonnées définitives.
+                            </p>
+                        </div>
+                        <nav class="legal-nav" aria-label="Sections des mentions légales">
+                            <a href="#editeur">Éditeur du site</a>
+                            <a href="#hebergement">Hébergement</a>
+                            <a href="#propriete">Propriété intellectuelle</a>
+                            <a href="#responsabilite">Responsabilité</a>
+                            <a href="#donnees">Données personnelles</a>
+                            <a href="#mediation">Médiation</a>
+                        </nav>
+                    </aside>
 
                     <div class="flex flex-col gap-8">
-                        <section class="legal-card rounded-2xl p-6 md:p-8">
+                        <section id="editeur" class="legal-card rounded-2xl p-6 md:p-8 scroll-mt-28">
                             <h2 class="text-2xl font-black uppercase italic mb-6">Éditeur du site</h2>
                             <div>
                                 {legalRows.map(([label, value]) => (
                                     <div class="legal-row">
                                         <div class="legal-label">{label}</div>
                                         <div class="legal-value">
-                                            {value.startsWith('À compléter') ? <span class="todo">{value}</span> : value}
+                                            {value.includes('À compléter') || value.includes('en cours') || value.includes('En cours') ? <span class="todo">{value}</span> : value}
                                         </div>
                                     </div>
                                 ))}
                             </div>
                         </section>
 
-                        <section class="legal-card rounded-2xl p-6 md:p-8">
+                        <section id="hebergement" class="legal-card rounded-2xl p-6 md:p-8 scroll-mt-28">
                             <h2 class="text-2xl font-black uppercase italic mb-5">Hébergement</h2>
                             <p class="text-gray-400 text-sm leading-relaxed">
                                 Le site est hébergé par <strong class="text-white">{host.name}</strong>, dont le siège indiqué dans sa documentation légale est situé à {host.address}.
@@ -143,21 +198,21 @@ const legalRows = [
                             </a>
                         </section>
 
-                        <section class="legal-card rounded-2xl p-6 md:p-8">
+                        <section id="propriete" class="legal-card rounded-2xl p-6 md:p-8 scroll-mt-28">
                             <h2 class="text-2xl font-black uppercase italic mb-5">Propriété intellectuelle</h2>
                             <p class="text-gray-400 text-sm leading-relaxed">
                                 L'ensemble des contenus présents sur le site, notamment les textes, visuels, photographies, logos, éléments graphiques, interfaces et codes sources, est protégé par le droit de la propriété intellectuelle. Toute reproduction, représentation, modification ou exploitation, totale ou partielle, sans autorisation préalable est interdite.
                             </p>
                         </section>
 
-                        <section class="legal-card rounded-2xl p-6 md:p-8">
+                        <section id="responsabilite" class="legal-card rounded-2xl p-6 md:p-8 scroll-mt-28">
                             <h2 class="text-2xl font-black uppercase italic mb-5">Responsabilité</h2>
                             <p class="text-gray-400 text-sm leading-relaxed">
                                 CD Motor Shop s'efforce de fournir des informations exactes et à jour. Toutefois, des erreurs ou omissions peuvent subsister. L'utilisateur reste responsable de la vérification de la compatibilité des produits avec son véhicule avant tout achat ou installation.
                             </p>
                         </section>
 
-                        <section class="legal-card rounded-2xl p-6 md:p-8">
+                        <section id="donnees" class="legal-card rounded-2xl p-6 md:p-8 scroll-mt-28">
                             <h2 class="text-2xl font-black uppercase italic mb-5">Données personnelles</h2>
                             <p class="text-gray-400 text-sm leading-relaxed">
                                 Les traitements de données personnelles liés au compte client, aux commandes, aux paiements et aux demandes de contact sont détaillés dans la politique de confidentialité du site. Les paiements sont traités par des prestataires spécialisés et sécurisés.
@@ -167,7 +222,7 @@ const legalRows = [
                             </a>
                         </section>
 
-                        <section class="legal-card rounded-2xl p-6 md:p-8">
+                        <section id="mediation" class="legal-card rounded-2xl p-6 md:p-8 scroll-mt-28">
                             <h2 class="text-2xl font-black uppercase italic mb-5">Médiation de la consommation</h2>
                             <p class="text-gray-400 text-sm leading-relaxed">
                                 Conformément aux règles applicables aux ventes à des consommateurs, l'éditeur doit indiquer les coordonnées du médiateur de la consommation compétent.
