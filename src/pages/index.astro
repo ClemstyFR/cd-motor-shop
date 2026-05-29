@@ -323,6 +323,21 @@ const galleryImages = [
                 transition: transform 240ms var(--ease), border-color 240ms var(--ease), background 240ms var(--ease), color 240ms var(--ease), box-shadow 240ms var(--ease);
             }
 
+            .btn-main::before,
+            .btn-ghost::before,
+            .btn-dark::before,
+            .add-btn::before {
+                content: "";
+                position: absolute;
+                inset: -80%;
+                z-index: 0;
+                pointer-events: none;
+                background: radial-gradient(circle, rgba(103,232,249,0.36), transparent 38%);
+                opacity: 0;
+                transform: translate3d(-18%, 18%, 0) scale(0.78);
+                transition: opacity 280ms var(--ease), transform 520ms var(--ease);
+            }
+
             .btn-main {
                 background: linear-gradient(135deg, var(--green), #0f766e);
                 color: var(--white);
@@ -333,7 +348,8 @@ const galleryImages = [
                 content: "";
                 position: absolute;
                 inset: 0;
-                z-index: -1;
+                z-index: 0;
+                pointer-events: none;
                 background: linear-gradient(110deg, transparent 0 34%, rgba(255,255,255,0.36) 48%, transparent 62%);
                 transform: translateX(-120%);
                 transition: transform 650ms var(--ease);
@@ -341,6 +357,14 @@ const galleryImages = [
 
             .btn-main:hover::after { transform: translateX(120%); }
             .btn-main:hover { transform: translateY(-2px); box-shadow: 0 22px 70px rgba(22,163,74,0.34); }
+
+            .btn-main:hover::before,
+            .btn-ghost:hover::before,
+            .btn-dark:hover::before,
+            .add-btn:hover::before {
+                opacity: 1;
+                transform: translate3d(12%, -8%, 0) scale(1);
+            }
 
             .btn-ghost {
                 border-color: rgba(255,255,255,0.14);
@@ -703,6 +727,26 @@ const galleryImages = [
                 transition: opacity 220ms ease, transform 650ms var(--ease), filter 650ms var(--ease);
             }
 
+            .product-visual .gallery-main-image.is-sliding-out-left {
+                opacity: 0;
+                transform: translateX(-2.2rem) rotate(-10deg) scale(0.97);
+            }
+
+            .product-visual .gallery-main-image.is-sliding-out-right {
+                opacity: 0;
+                transform: translateX(2.2rem) rotate(-4deg) scale(0.97);
+            }
+
+            .product-visual .gallery-main-image.is-sliding-in-left {
+                opacity: 0;
+                transform: translateX(2.2rem) rotate(-4deg) scale(0.97);
+            }
+
+            .product-visual .gallery-main-image.is-sliding-in-right {
+                opacity: 0;
+                transform: translateX(-2.2rem) rotate(-10deg) scale(0.97);
+            }
+
             .product-shell:hover .product-visual .gallery-main-image {
                 transform: rotate(-4deg) scale(1.025);
                 filter: contrast(1.06);
@@ -871,9 +915,12 @@ const galleryImages = [
             .rating-stars { color: var(--amber); font-size: 0.9rem; letter-spacing: 0.05em; }
 
             .add-btn {
+                position: relative;
+                isolation: isolate;
                 width: 100%;
                 min-height: 3.15rem;
                 margin-top: 0.9rem;
+                overflow: hidden;
                 border: 0;
                 border-radius: 6px;
                 background: linear-gradient(135deg, var(--green), #0f766e);
@@ -886,10 +933,23 @@ const galleryImages = [
                 transition: transform 240ms var(--ease), box-shadow 240ms var(--ease), background 240ms var(--ease);
             }
 
+            .add-btn::after {
+                content: "";
+                position: absolute;
+                inset: 0;
+                z-index: 0;
+                pointer-events: none;
+                background: linear-gradient(110deg, transparent 0 34%, rgba(255,255,255,0.34) 48%, transparent 62%);
+                transform: translateX(-120%);
+                transition: transform 650ms var(--ease);
+            }
+
             .add-btn:hover {
                 transform: translateY(-2px);
                 box-shadow: 0 18px 54px rgba(22,163,74,0.28);
             }
+
+            .add-btn:hover::after { transform: translateX(120%); }
 
             .product-links {
                 display: grid;
@@ -1230,6 +1290,41 @@ const galleryImages = [
                 font-weight: 800;
                 letter-spacing: 0.12em;
                 text-transform: uppercase;
+            }
+
+            .home-footer {
+                position: relative;
+                overflow: hidden;
+            }
+
+            .home-footer::before {
+                content: "";
+                position: absolute;
+                left: 50%;
+                top: 0;
+                width: min(42rem, 82vw);
+                height: 1px;
+                background: linear-gradient(90deg, transparent, rgba(103,232,249,0.85), rgba(34,197,94,0.9), transparent);
+                opacity: 0;
+                transform: translateX(-50%) scaleX(0.35);
+                transform-origin: center;
+                transition: opacity 650ms var(--ease), transform 900ms var(--ease);
+            }
+
+            .home-footer > div {
+                opacity: 0;
+                transform: translateY(1.4rem);
+                transition: opacity 700ms var(--ease), transform 760ms var(--ease);
+            }
+
+            .home-footer.is-visible::before {
+                opacity: 1;
+                transform: translateX(-50%) scaleX(1);
+            }
+
+            .home-footer.is-visible > div {
+                opacity: 1;
+                transform: translateY(0);
             }
 
             #toast {
@@ -1633,12 +1728,12 @@ const galleryImages = [
                         <div>
                             <div class="price-block">
                                 <div>
-                                    <p class="price">{product.prix.toFixed(2)}€</p>
+                                    <p class="price"><span data-count-to={product.prix.toFixed(2)} data-count-decimals="2">0.00</span>€</p>
                                     <p class="price-note">Livraison offerte</p>
                                 </div>
                                 <div class="rating-block" aria-label="Note : 4.7 sur 5">
                                     <div class="rating-stars">★★★★★</div>
-                                    <div class="rating-count"><span style="color:white;font-weight:900;">4.7</span> · 24 avis</div>
+                                    <div class="rating-count"><span style="color:white;font-weight:900;" data-count-to="4.7" data-count-decimals="1">0.0</span> · <span data-count-to="24">0</span> avis</div>
                                 </div>
                             </div>
                             <button
@@ -1665,7 +1760,7 @@ const galleryImages = [
                         <h2>Ce que la piece change en vrai.</h2>
                     </div>
                     <div class="reviews-avg">
-                        <span class="avg-num" id="home-avg">-</span>
+                        <span class="avg-num" id="home-avg" data-count-to="4.7" data-count-decimals="1">0.0</span>
                         <div class="avg-stars" id="home-stars">★★★★★</div>
                         <div class="avg-count" id="home-count"></div>
                     </div>
@@ -1690,7 +1785,7 @@ const galleryImages = [
             </section>
         </main>
 
-        <footer class="py-16 bg-zinc-950 border-t border-white/10 px-5 md:px-10 text-center">
+        <footer class="home-footer py-16 bg-zinc-950 border-t border-white/10 px-5 md:px-10 text-center">
             <div class="max-w-4xl mx-auto">
                 <div class="text-xl font-black italic mb-6 uppercase">À propos de <span class="text-green-600">CD</span> MOTOR SHOP</div>
                 <p class="text-gray-500 text-sm leading-relaxed mb-10 italic">
@@ -1758,16 +1853,23 @@ const galleryImages = [
                 let activeIndex = 0;
 
                 const showImage = (index) => {
-                    activeIndex = (index + thumbs.length) % thumbs.length;
+                    const nextIndex = (index + thumbs.length) % thumbs.length;
+                    const direction = nextIndex > activeIndex || (activeIndex === thumbs.length - 1 && nextIndex === 0) ? 'left' : 'right';
+                    activeIndex = nextIndex;
                     const activeThumb = thumbs[activeIndex];
                     const nextSrc = activeThumb.dataset.gallerySrc;
                     if (!nextSrc || image.getAttribute('src') === nextSrc) return;
 
-                    image.style.opacity = '0';
+                    image.classList.remove('is-sliding-out-left', 'is-sliding-out-right', 'is-sliding-in-left', 'is-sliding-in-right');
+                    image.classList.add(`is-sliding-out-${direction}`);
                     window.setTimeout(() => {
                         image.setAttribute('src', nextSrc);
-                        image.style.opacity = '1';
-                    }, 120);
+                        image.classList.remove(`is-sliding-out-${direction}`);
+                        image.classList.add(`is-sliding-in-${direction}`);
+                        requestAnimationFrame(() => {
+                            image.classList.remove(`is-sliding-in-${direction}`);
+                        });
+                    }, 170);
 
                     thumbs.forEach((thumb, thumbIndex) => {
                         const isActive = thumbIndex === activeIndex;
@@ -1783,6 +1885,79 @@ const galleryImages = [
 
                 prev?.addEventListener('click', () => showImage(activeIndex - 1));
                 next?.addEventListener('click', () => showImage(activeIndex + 1));
+            });
+        </script>
+
+        <script>
+            document.addEventListener('astro:page-load', () => {
+                const counters = Array.from(document.querySelectorAll('[data-count-to]'));
+                if (counters.length === 0) return;
+
+                const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+                const animateCounter = (el) => {
+                    if (el.dataset.counted === 'true') return;
+                    el.dataset.counted = 'true';
+                    const target = Number(el.dataset.countTo);
+                    const decimals = Number(el.dataset.countDecimals || 0);
+                    if (!Number.isFinite(target)) return;
+
+                    if (reduceMotion) {
+                        el.textContent = target.toFixed(decimals);
+                        return;
+                    }
+
+                    const duration = 950;
+                    const start = performance.now();
+                    const easeOut = (t) => 1 - Math.pow(1 - t, 3);
+
+                    const tick = (now) => {
+                        const progress = Math.min((now - start) / duration, 1);
+                        el.textContent = (target * easeOut(progress)).toFixed(decimals);
+                        if (progress < 1) requestAnimationFrame(tick);
+                    };
+
+                    requestAnimationFrame(tick);
+                };
+
+                if (!('IntersectionObserver' in window)) {
+                    counters.forEach(animateCounter);
+                    return;
+                }
+
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach((entry) => {
+                        if (!entry.isIntersecting) return;
+                        animateCounter(entry.target);
+                        observer.unobserve(entry.target);
+                    });
+                }, { threshold: 0.45 });
+
+                counters.forEach((counter) => observer.observe(counter));
+            });
+        </script>
+
+        <script>
+            document.addEventListener('astro:page-load', () => {
+                if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+                const cards = Array.from(document.querySelectorAll('.world-card'));
+                if (cards.length === 0) return;
+
+                cards.forEach((card) => {
+                    card.addEventListener('mousemove', (e) => {
+                        const rect = card.getBoundingClientRect();
+                        const x = (e.clientX - rect.left) / rect.width - 0.5;
+                        const y = (e.clientY - rect.top) / rect.height - 0.5;
+                        card.style.transform = `perspective(1000px) rotateX(${(-y * 4).toFixed(2)}deg) rotateY(${(x * 5).toFixed(2)}deg) translateY(-5px)`;
+                    });
+
+                    card.addEventListener('mouseleave', () => {
+                        card.style.transition = 'transform 420ms var(--ease)';
+                        card.style.transform = '';
+                        window.setTimeout(() => {
+                            card.style.transition = '';
+                        }, 430);
+                    });
+                });
             });
         </script>
 
@@ -1834,7 +2009,11 @@ const galleryImages = [
 
                 const avgEl = document.getElementById('home-avg');
                 const countEl = document.getElementById('home-count');
-                if (avgEl) avgEl.textContent = avg;
+                if (avgEl) {
+                    avgEl.dataset.countTo = avg;
+                    avgEl.dataset.countDecimals = '1';
+                    avgEl.textContent = avg;
+                }
                 if (countEl) countEl.textContent = total > 0 ? `${total} avis verifies` : 'Avis clients';
 
                 const grid = document.getElementById('reviews-grid-home');
