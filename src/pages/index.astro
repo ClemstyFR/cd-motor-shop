@@ -485,6 +485,8 @@ const galleryImages = [
 
             .world-card {
                 position: relative;
+                --accent: 103, 232, 249;
+                --accent-2: 22, 163, 74;
                 min-height: 21rem;
                 padding: clamp(1.35rem, 3vw, 2rem);
                 display: flex;
@@ -494,9 +496,10 @@ const galleryImages = [
                 border: 1px solid var(--line-soft);
                 border-radius: var(--card-radius);
                 background:
-                    linear-gradient(145deg, rgba(255,255,255,0.08), transparent 38%),
+                    linear-gradient(145deg, rgba(var(--accent),0.13), transparent 38%),
+                    radial-gradient(circle at 88% 12%, rgba(var(--accent),0.18), transparent 12rem),
                     rgba(8, 10, 12, 0.95);
-                transition: transform 320ms var(--ease), background 320ms var(--ease);
+                transition: transform 320ms var(--ease), border-color 320ms var(--ease), background 320ms var(--ease);
             }
 
             .world-card::before {
@@ -504,10 +507,23 @@ const galleryImages = [
                 position: absolute;
                 inset: 18% 10% 8%;
                 background:
-                    radial-gradient(ellipse at 50% 88%, rgba(103,232,249,0.18) 0%, rgba(22,163,74,0.08) 32%, transparent 72%);
+                    radial-gradient(ellipse at 50% 88%, rgba(var(--accent),0.22) 0%, rgba(var(--accent-2),0.10) 32%, transparent 72%);
                 filter: blur(28px);
                 opacity: 0;
                 transition: opacity 320ms var(--ease), transform 320ms var(--ease);
+            }
+
+            .world-card::after {
+                content: "";
+                position: absolute;
+                top: 1.5rem;
+                right: 1.5rem;
+                width: 0.7rem;
+                height: 0.7rem;
+                border-radius: 50%;
+                background: rgb(var(--accent));
+                box-shadow: 0 0 28px rgba(var(--accent),0.72);
+                opacity: 0.88;
             }
 
             .world-card:hover::before {
@@ -515,8 +531,17 @@ const galleryImages = [
                 transform: translateY(-4%);
             }
 
-            .world-card:hover { transform: translateY(-4px); }
+            .world-card:hover {
+                border-color: rgba(var(--accent),0.42);
+                transform: translateY(-4px);
+            }
             .world-card.featured { grid-row: span 2; min-height: 42rem; }
+
+            .world-card:nth-child(1) { --accent: 103, 232, 249; --accent-2: 22, 163, 74; }
+            .world-card:nth-child(2) { --accent: 245, 197, 66; --accent-2: 234, 88, 12; }
+            .world-card:nth-child(3) { --accent: 34, 197, 94; --accent-2: 20, 184, 166; }
+            .world-card:nth-child(4) { --accent: 148, 163, 184; --accent-2: 103, 232, 249; }
+            .world-card:nth-child(5) { --accent: 244, 114, 182; --accent-2: 147, 51, 234; }
 
             .world-card img {
                 position: absolute;
@@ -540,7 +565,7 @@ const galleryImages = [
             }
 
             .world-number {
-                color: rgba(255,255,255,0.38);
+                color: rgb(var(--accent));
                 font-size: 0.65rem;
                 font-weight: 950;
                 letter-spacing: 0.18em;
