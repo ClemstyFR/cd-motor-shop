@@ -98,7 +98,7 @@ const product = {
                 pointer-events: none;
             }
 
-            .cart-dropdown { width: min(21rem, calc(100vw - 2rem)); }
+            .cart-dropdown { width: min(18rem, calc(100vw - 2rem)); }
             .cart-dropdown.is-open,
             .account-dropdown.is-open {
                 display: block;
@@ -1238,11 +1238,11 @@ const product = {
                 </div>
 
                 <div class="relative">
-                    <button id="cart-toggle" aria-label="Ouvrir le panier" aria-expanded="false" aria-controls="cart-dropdown" class="nav-icon-btn relative">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                    <button id="cart-toggle" aria-label="Ouvrir le panier" aria-expanded="false" aria-controls="cart-dropdown" class="relative p-2 hover:text-green-500 transition">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                         </svg>
-                        <span id="cart-count" aria-live="polite" class="absolute -top-0.5 -right-0.5 bg-green-600 text-white text-[9px] font-bold h-4 w-4 flex items-center justify-center rounded-full">0</span>
+                        <span id="cart-count" aria-live="polite" class="absolute -top-1 -right-1 bg-green-600 text-white text-[10px] font-bold h-5 w-5 flex items-center justify-center rounded-full">0</span>
                     </button>
                     <div id="cart-dropdown" role="dialog" aria-label="Panier" class="cart-dropdown absolute right-0 mt-2 bg-zinc-900 border border-white/10 rounded-2xl shadow-2xl p-4 overflow-hidden">
                         <h4 class="text-sm font-black uppercase mb-4 italic text-green-500">Mon Panier</h4>
