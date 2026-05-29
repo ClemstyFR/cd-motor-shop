@@ -1741,7 +1741,7 @@ const galleryImages = [
                     if (!entry?.isIntersecting) return;
                     grid.classList.add('in-view');
                     observer.disconnect();
-                }, { threshold: 0.22 });
+                }, { threshold: 0.48 });
 
                 observer.observe(grid);
             });
