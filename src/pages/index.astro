@@ -17,7 +17,6 @@ const product = {
 const galleryImages = [
     imageBlackMatte1.src,
     imageBlackMatte2.src,
-    imageBlackMatte3.src,
 ];
 ---
 
@@ -578,7 +577,7 @@ const galleryImages = [
             .product-shell {
                 display: grid;
                 grid-template-columns: minmax(0, 0.95fr) minmax(20rem, 0.72fr);
-                min-height: 34rem;
+                min-height: 29rem;
                 border: 1px solid var(--line-soft);
                 border-radius: var(--card-radius);
                 background: rgba(255,255,255,0.035);
@@ -587,7 +586,7 @@ const galleryImages = [
 
             .product-visual {
                 position: relative;
-                min-height: 34rem;
+                min-height: 29rem;
                 display: grid;
                 place-items: center;
                 overflow: hidden;
@@ -609,8 +608,8 @@ const galleryImages = [
             .product-visual::after {
                 content: "Disponible maintenant";
                 position: absolute;
-                top: 1.4rem;
-                left: 1.4rem;
+                top: 1.15rem;
+                left: 1.15rem;
                 color: rgba(255,255,255,0.42);
                 font-size: 0.64rem;
                 font-weight: 950;
@@ -621,8 +620,8 @@ const galleryImages = [
             .product-visual .gallery-main-image {
                 position: relative;
                 z-index: 1;
-                width: min(62%, 25rem);
-                aspect-ratio: 0.78;
+                width: min(54%, 21rem);
+                aspect-ratio: 0.8;
                 object-fit: cover;
                 border: 1px solid rgba(255,255,255,0.12);
                 border-radius: var(--card-radius);
@@ -710,8 +709,8 @@ const galleryImages = [
                 display: flex;
                 flex-direction: column;
                 justify-content: space-between;
-                gap: 2.5rem;
-                padding: clamp(1.6rem, 4vw, 3.25rem);
+                gap: 1.4rem;
+                padding: clamp(1.35rem, 3vw, 2.35rem);
                 border-left: 1px solid var(--line-soft);
                 background:
                     linear-gradient(180deg, rgba(255,255,255,0.055), transparent 42%),
@@ -727,9 +726,9 @@ const galleryImages = [
             }
 
             .product-name {
-                margin-top: 1rem;
+                margin-top: 0.75rem;
                 color: var(--white);
-                font-size: clamp(3.1rem, 6vw, 6.2rem);
+                font-size: clamp(2.75rem, 5vw, 5.3rem);
                 font-style: italic;
                 font-weight: 950;
                 letter-spacing: 0;
@@ -738,7 +737,7 @@ const galleryImages = [
             }
 
             .product-copy {
-                margin-top: 1.35rem;
+                margin-top: 1rem;
                 color: #c3cbd1;
                 font-size: 1rem;
                 line-height: 1.8;
@@ -746,8 +745,8 @@ const galleryImages = [
 
             .feature-list {
                 display: grid;
-                gap: 0.8rem;
-                margin-top: 2rem;
+                gap: 0.55rem;
+                margin-top: 1.35rem;
                 list-style: none;
             }
 
@@ -774,7 +773,7 @@ const galleryImages = [
                 align-items: flex-end;
                 justify-content: space-between;
                 gap: 1rem;
-                padding-top: 1.6rem;
+                padding-top: 1.15rem;
                 border-top: 1px solid var(--line-soft);
             }
 
@@ -800,8 +799,8 @@ const galleryImages = [
 
             .add-btn {
                 width: 100%;
-                min-height: 3.45rem;
-                margin-top: 1.15rem;
+                min-height: 3.15rem;
+                margin-top: 0.9rem;
                 border: 0;
                 border-radius: 6px;
                 background: linear-gradient(135deg, var(--green), #0f766e);
