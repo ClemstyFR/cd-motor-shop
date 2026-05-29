@@ -611,6 +611,7 @@ const galleryImages = [
             .world-grid.is-reveal-ready.in-view .world-card {
                 opacity: 1;
                 transform: translate3d(0, 0, 0) scale(1);
+                transition-delay: 0ms;
             }
 
             .world-grid.is-reveal-ready.in-view .world-card:hover {
@@ -1950,8 +1951,10 @@ const galleryImages = [
                         const rect = card.getBoundingClientRect();
                         const x = (e.clientX - rect.left) / rect.width - 0.5;
                         const y = (e.clientY - rect.top) / rect.height - 0.5;
-                        card.style.setProperty('--tilt-x', `${(-y * 4).toFixed(2)}deg`);
-                        card.style.setProperty('--tilt-y', `${(x * 5).toFixed(2)}deg`);
+                        const intensityX = card.classList.contains('featured') ? 4 : 7;
+                        const intensityY = card.classList.contains('featured') ? 5 : 8;
+                        card.style.setProperty('--tilt-x', `${(-y * intensityX).toFixed(2)}deg`);
+                        card.style.setProperty('--tilt-y', `${(x * intensityY).toFixed(2)}deg`);
                     });
 
                     card.addEventListener('mouseleave', () => {
