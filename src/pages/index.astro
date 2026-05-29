@@ -512,6 +512,8 @@ const galleryImages = [
                 position: relative;
                 --accent: 103, 232, 249;
                 --accent-2: 22, 163, 74;
+                --tilt-x: 0deg;
+                --tilt-y: 0deg;
                 min-height: 21rem;
                 padding: clamp(1.35rem, 3vw, 2rem);
                 display: flex;
@@ -524,6 +526,7 @@ const galleryImages = [
                     linear-gradient(145deg, rgba(var(--accent),0.13), transparent 38%),
                     radial-gradient(circle at 88% 12%, rgba(var(--accent),0.18), transparent 12rem),
                     rgba(8, 10, 12, 0.95);
+                transform-style: preserve-3d;
                 transition: transform 320ms var(--ease), border-color 320ms var(--ease), background 320ms var(--ease);
             }
 
@@ -558,7 +561,7 @@ const galleryImages = [
 
             .world-card:hover {
                 border-color: rgba(var(--accent),0.42);
-                transform: translateY(-4px);
+                transform: perspective(1000px) rotateX(var(--tilt-x)) rotateY(var(--tilt-y)) translateY(-5px);
             }
             .world-card.featured { grid-row: span 2; min-height: 42rem; }
 
@@ -611,7 +614,7 @@ const galleryImages = [
             }
 
             .world-grid.is-reveal-ready.in-view .world-card:hover {
-                transform: translateY(-4px);
+                transform: perspective(1000px) rotateX(var(--tilt-x)) rotateY(var(--tilt-y)) translateY(-5px);
             }
 
             .world-card img {
@@ -1947,15 +1950,13 @@ const galleryImages = [
                         const rect = card.getBoundingClientRect();
                         const x = (e.clientX - rect.left) / rect.width - 0.5;
                         const y = (e.clientY - rect.top) / rect.height - 0.5;
-                        card.style.transform = `perspective(1000px) rotateX(${(-y * 4).toFixed(2)}deg) rotateY(${(x * 5).toFixed(2)}deg) translateY(-5px)`;
+                        card.style.setProperty('--tilt-x', `${(-y * 4).toFixed(2)}deg`);
+                        card.style.setProperty('--tilt-y', `${(x * 5).toFixed(2)}deg`);
                     });
 
                     card.addEventListener('mouseleave', () => {
-                        card.style.transition = 'transform 420ms var(--ease)';
-                        card.style.transform = '';
-                        window.setTimeout(() => {
-                            card.style.transition = '';
-                        }, 430);
+                        card.style.setProperty('--tilt-x', '0deg');
+                        card.style.setProperty('--tilt-y', '0deg');
                     });
                 });
             });
