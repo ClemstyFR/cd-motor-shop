@@ -51,7 +51,7 @@ const product = {
                 --red: #ff4d5d;
                 --glass: rgba(5, 6, 7, 0.72);
                 --ease: cubic-bezier(0.22, 1, 0.36, 1);
-                --card-radius: 8px;
+                --card-radius: 24px;
             }
 
             body {
@@ -502,10 +502,7 @@ const product = {
             .world-grid {
                 display: grid;
                 grid-template-columns: 1.1fr 0.9fr 0.9fr;
-                gap: 1px;
-                border: 1px solid var(--line-soft);
-                background: var(--line-soft);
-                overflow: hidden;
+                gap: 1rem;
             }
 
             .world-card {
@@ -516,6 +513,7 @@ const product = {
                 flex-direction: column;
                 justify-content: space-between;
                 overflow: hidden;
+                border: 1px solid var(--line-soft);
                 border-radius: var(--card-radius);
                 background:
                     linear-gradient(145deg, rgba(255,255,255,0.08), transparent 38%),
@@ -594,15 +592,13 @@ const product = {
             .signal-row {
                 display: grid;
                 grid-template-columns: repeat(4, 1fr);
-                gap: 1px;
-                margin-top: 1px;
-                border: 1px solid var(--line-soft);
-                border-top: 0;
-                background: var(--line-soft);
+                gap: 1rem;
+                margin-top: 1rem;
             }
 
             .signal {
                 padding: 1.4rem;
+                border: 1px solid var(--line-soft);
                 border-radius: var(--card-radius);
                 background: rgba(8, 10, 12, 0.92);
             }
@@ -822,15 +818,13 @@ const product = {
             .catalog-strip {
                 display: grid;
                 grid-template-columns: repeat(3, 1fr);
-                gap: 1px;
-                margin-top: 1px;
-                border: 1px solid var(--line-soft);
-                border-top: 0;
-                background: var(--line-soft);
+                gap: 1rem;
+                margin-top: 1rem;
             }
 
             .catalog-item {
                 padding: 1.35rem;
+                border: 1px solid var(--line-soft);
                 border-radius: var(--card-radius);
                 background: rgba(8,10,12,0.92);
             }
@@ -897,19 +891,23 @@ const product = {
             #reviews-grid-home,
             #reviews-skeleton-home {
                 grid-template-columns: repeat(3, 1fr);
-                gap: 1px;
-                border: 1px solid var(--line-soft);
-                background: var(--line-soft);
-                overflow: hidden;
+                gap: 1rem;
             }
 
             .review-card {
                 min-height: 15rem;
                 padding: 1.5rem;
+                border: 1px solid var(--line-soft);
                 border-radius: var(--card-radius);
                 background:
                     linear-gradient(145deg, rgba(255,255,255,0.06), transparent 38%),
                     rgba(8,10,12,0.94);
+            }
+
+            #reviews-skeleton-home > div {
+                border: 1px solid var(--line-soft);
+                border-radius: var(--card-radius);
+                overflow: hidden;
             }
 
             .final-cta {
