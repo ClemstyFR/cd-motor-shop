@@ -51,6 +51,7 @@ const product = {
                 --red: #ff4d5d;
                 --glass: rgba(5, 6, 7, 0.72);
                 --ease: cubic-bezier(0.22, 1, 0.36, 1);
+                --card-radius: 8px;
             }
 
             body {
@@ -413,6 +414,7 @@ const product = {
                 width: min(16rem, 36vw);
                 padding: 1rem;
                 border: 1px solid rgba(255,255,255,0.13);
+                border-radius: var(--card-radius);
                 background: rgba(5, 6, 7, 0.66);
                 backdrop-filter: blur(18px);
                 box-shadow: 0 18px 70px rgba(0,0,0,0.36);
@@ -514,6 +516,7 @@ const product = {
                 flex-direction: column;
                 justify-content: space-between;
                 overflow: hidden;
+                border-radius: var(--card-radius);
                 background:
                     linear-gradient(145deg, rgba(255,255,255,0.08), transparent 38%),
                     rgba(8, 10, 12, 0.95);
@@ -600,6 +603,7 @@ const product = {
 
             .signal {
                 padding: 1.4rem;
+                border-radius: var(--card-radius);
                 background: rgba(8, 10, 12, 0.92);
             }
 
@@ -634,6 +638,7 @@ const product = {
                 grid-template-columns: minmax(0, 0.95fr) minmax(20rem, 0.72fr);
                 min-height: 42rem;
                 border: 1px solid var(--line-soft);
+                border-radius: var(--card-radius);
                 background: rgba(255,255,255,0.035);
                 overflow: hidden;
             }
@@ -826,6 +831,7 @@ const product = {
 
             .catalog-item {
                 padding: 1.35rem;
+                border-radius: var(--card-radius);
                 background: rgba(8,10,12,0.92);
             }
 
@@ -900,6 +906,7 @@ const product = {
             .review-card {
                 min-height: 15rem;
                 padding: 1.5rem;
+                border-radius: var(--card-radius);
                 background:
                     linear-gradient(145deg, rgba(255,255,255,0.06), transparent 38%),
                     rgba(8,10,12,0.94);
@@ -921,6 +928,7 @@ const product = {
                 padding: clamp(1.6rem, 5vw, 3rem);
                 overflow: hidden;
                 border: 1px solid var(--line-soft);
+                border-radius: var(--card-radius);
                 background:
                     linear-gradient(135deg, rgba(103,232,249,0.13), transparent 38%),
                     linear-gradient(315deg, rgba(22,163,74,0.16), transparent 42%),
