@@ -502,16 +502,17 @@ const galleryImages = [
             .world-card::before {
                 content: "";
                 position: absolute;
-                inset: auto -15% -34% -15%;
-                height: 60%;
-                background: radial-gradient(circle, rgba(103,232,249,0.16), transparent 66%);
+                inset: 18% 10% 8%;
+                background:
+                    radial-gradient(ellipse at 50% 88%, rgba(103,232,249,0.18) 0%, rgba(22,163,74,0.08) 32%, transparent 72%);
+                filter: blur(28px);
                 opacity: 0;
                 transition: opacity 320ms var(--ease), transform 320ms var(--ease);
             }
 
             .world-card:hover::before {
                 opacity: 1;
-                transform: translateY(-10%);
+                transform: translateY(-4%);
             }
 
             .world-card:hover { transform: translateY(-4px); }
@@ -911,13 +912,137 @@ const galleryImages = [
             }
 
             .review-card {
-                min-height: 15rem;
-                padding: 1.5rem;
+                position: relative;
+                min-height: 18rem;
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+                gap: 1.6rem;
+                padding: 1.6rem;
+                overflow: hidden;
                 border: 1px solid var(--line-soft);
                 border-radius: var(--card-radius);
                 background:
-                    linear-gradient(145deg, rgba(255,255,255,0.06), transparent 38%),
+                    linear-gradient(145deg, rgba(255,255,255,0.085), transparent 34%),
+                    radial-gradient(circle at 82% 18%, rgba(103,232,249,0.10), transparent 12rem),
                     rgba(8,10,12,0.94);
+                box-shadow: 0 24px 80px rgba(0,0,0,0.24);
+                transition: transform 260ms var(--ease), border-color 260ms var(--ease), background 260ms var(--ease);
+            }
+
+            .review-card::before {
+                content: "";
+                position: absolute;
+                inset: 0;
+                pointer-events: none;
+                border-radius: inherit;
+                background: linear-gradient(180deg, rgba(255,255,255,0.08), transparent 36%);
+                opacity: 0.5;
+            }
+
+            .review-card:hover {
+                border-color: rgba(103,232,249,0.28);
+                transform: translateY(-4px);
+            }
+
+            .review-top,
+            .review-bottom,
+            .review-quote {
+                position: relative;
+                z-index: 1;
+            }
+
+            .review-top {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 1rem;
+            }
+
+            .review-user {
+                display: flex;
+                align-items: center;
+                gap: 0.8rem;
+                min-width: 0;
+            }
+
+            .review-avatar {
+                width: 2.7rem;
+                height: 2.7rem;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                flex-shrink: 0;
+                border-radius: 50%;
+                font-size: 0.78rem;
+                font-weight: 950;
+            }
+
+            .review-name {
+                color: var(--white);
+                font-size: 0.72rem;
+                font-weight: 950;
+                letter-spacing: 0.1em;
+                text-transform: uppercase;
+            }
+
+            .review-date {
+                margin-top: 0.18rem;
+                color: var(--dim);
+                font-size: 0.64rem;
+                font-weight: 800;
+            }
+
+            .review-badge {
+                flex-shrink: 0;
+                padding: 0.42rem 0.62rem;
+                border: 1px solid rgba(34,197,94,0.28);
+                border-radius: 999px;
+                background: rgba(34,197,94,0.09);
+                color: #86efac;
+                font-size: 0.56rem;
+                font-weight: 950;
+                letter-spacing: 0.1em;
+                text-transform: uppercase;
+            }
+
+            .review-stars {
+                color: var(--amber);
+                font-size: 0.92rem;
+                letter-spacing: 0.06em;
+            }
+
+            .review-quote {
+                color: #d4dade;
+                font-size: 0.98rem;
+                line-height: 1.75;
+            }
+
+            .review-quote::before {
+                content: "“";
+                display: block;
+                height: 1.6rem;
+                color: rgba(255,255,255,0.18);
+                font-size: 4rem;
+                font-family: Georgia, serif;
+                line-height: 0.75;
+            }
+
+            .review-bottom {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 1rem;
+                padding-top: 1rem;
+                border-top: 1px solid rgba(255,255,255,0.08);
+            }
+
+            .review-product {
+                color: var(--dim);
+                font-size: 0.58rem;
+                font-weight: 950;
+                letter-spacing: 0.12em;
+                text-transform: uppercase;
             }
 
             #reviews-skeleton-home > div {
@@ -1621,13 +1746,21 @@ const galleryImages = [
                     const initial = (review.user_id?.slice(0,1) ?? '?').toUpperCase();
                     const comment = review.comment?.slice(0, 150) ?? '';
                     return `<article class="review-card">
-                        <div style="font-size:0.9rem;letter-spacing:0.06em;">${starsHtml(review.rating)}</div>
-                        <p style="color:#c4cbd1;font-size:0.9rem;line-height:1.75;margin-top:1.1rem;">"${comment}${(review.comment?.length ?? 0) > 150 ? '…' : ''}"</p>
-                        <div style="display:flex;align-items:center;gap:0.75rem;margin-top:1.5rem;">
-                            <div style="height:2rem;width:2rem;border-radius:50%;background:${col}1a;border:1px solid ${col}55;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:0.75rem;color:${col};flex-shrink:0;">${initial}</div>
+                        <div class="review-top">
+                            <div class="review-user">
+                                <div class="review-avatar" style="background:${col}1a;border:1px solid ${col}55;color:${col};">${initial}</div>
+                                <div>
+                                    <p class="review-name">Client verifie</p>
+                                    <p class="review-date">${fmtRelative(review.created_at)}</p>
+                                </div>
+                            </div>
+                            <span class="review-badge">Verifie</span>
+                        </div>
+                        <p class="review-quote">${comment}${(review.comment?.length ?? 0) > 150 ? '…' : ''}</p>
+                        <div class="review-bottom">
+                            <div class="review-stars">${starsHtml(review.rating)}</div>
                             <div>
-                                <p style="color:white;font-size:0.65rem;font-weight:900;text-transform:uppercase;letter-spacing:0.08em;">Client verifie</p>
-                                <p style="color:#626c76;font-size:0.6rem;margin-top:0.1rem;">${fmtRelative(review.created_at)}</p>
+                                <p class="review-product">Deep Matte</p>
                             </div>
                         </div>
                     </article>`;
