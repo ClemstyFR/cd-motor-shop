@@ -1080,7 +1080,7 @@ const product = {
             import { initSiteEffects } from '../scripts/site-effects.js';
             const runSiteEffects = () => initSiteEffects();
             document.addEventListener('astro:page-load', runSiteEffects);
-            if(document.readyState !== 'loading') runSiteEffects();
+            if (document.readyState !== 'loading') runSiteEffects() ;
             else document.addEventListener('DOMContentLoaded', runSiteEffects, { once: true });
         </script>
     </body>
