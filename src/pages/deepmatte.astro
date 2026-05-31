@@ -32,6 +32,74 @@ const images = [imageBlackMatte1.src, imageBlackMatte2.src, imageBlackMatte3.src
         <style>
             html { scroll-behavior: smooth; }
 
+            :root {
+                --ease: cubic-bezier(0.22, 1, 0.36, 1);
+            }
+
+            .motion-shine {
+                position: relative;
+                isolation: isolate;
+                overflow: hidden;
+            }
+
+            .motion-shine::before {
+                content: "";
+                position: absolute;
+                inset: -80%;
+                z-index: 0;
+                pointer-events: none;
+                background: radial-gradient(circle, rgba(103,232,249,0.32), transparent 38%);
+                opacity: 0;
+                transform: translate3d(-18%, 18%, 0) scale(0.78);
+                transition: opacity 280ms var(--ease), transform 520ms var(--ease);
+            }
+
+            .motion-shine::after {
+                content: "";
+                position: absolute;
+                inset: 0;
+                z-index: 0;
+                pointer-events: none;
+                background: linear-gradient(110deg, transparent 0 34%, rgba(255,255,255,0.34) 48%, transparent 62%);
+                transform: translateX(-120%);
+                transition: transform 650ms var(--ease);
+            }
+
+            .motion-shine:hover::before {
+                opacity: 1;
+                transform: translate3d(12%, -8%, 0) scale(1);
+            }
+
+            .motion-shine:hover::after {
+                transform: translateX(120%);
+            }
+
+            .motion-shine > * {
+                position: relative;
+                z-index: 1;
+            }
+
+            .deep-reveal,
+            .tilt-card,
+            #rating-card {
+                opacity: 0;
+                transition: opacity 720ms var(--ease), transform 820ms var(--ease), box-shadow 420ms var(--ease), border-color 420ms var(--ease);
+            }
+
+            .deep-reveal {
+                transform: translateY(26px);
+            }
+
+            .deep-reveal.is-visible,
+            .tilt-card.is-visible,
+            #rating-card.is-visible {
+                opacity: 1;
+            }
+
+            .deep-reveal.is-visible {
+                transform: translateY(0);
+            }
+
             #rating-card {
                 position: relative;
                 border: none !important;
@@ -126,10 +194,33 @@ const images = [imageBlackMatte1.src, imageBlackMatte2.src, imageBlackMatte3.src
 
             /* ── Galerie ── */
             #gallery-main {
-                transition: opacity 0.25s ease;
+                overflow: hidden;
+                transition: transform 420ms var(--ease), box-shadow 420ms var(--ease), border-color 420ms var(--ease);
             }
-            #gallery-main.fade {
+            #gallery-main:hover {
+                border-color: rgba(103,232,249,0.22);
+                box-shadow: 0 26px 90px rgba(0,0,0,0.36), 0 0 44px rgba(34,197,94,0.07);
+                transform: translateY(-3px);
+            }
+            #prod-img {
+                transition: opacity 220ms ease, transform 520ms var(--ease), filter 520ms var(--ease);
+                will-change: transform, opacity;
+            }
+            #prod-img.is-sliding-out-left {
                 opacity: 0;
+                transform: translateX(-2rem) scale(0.98);
+            }
+            #prod-img.is-sliding-out-right {
+                opacity: 0;
+                transform: translateX(2rem) scale(0.98);
+            }
+            #prod-img.is-sliding-in-left {
+                opacity: 0;
+                transform: translateX(2rem) scale(0.98);
+            }
+            #prod-img.is-sliding-in-right {
+                opacity: 0;
+                transform: translateX(-2rem) scale(0.98);
             }
             .thumb {
                 transition: opacity 0.2s, transform 0.2s, border-color 0.2s;
@@ -160,9 +251,45 @@ const images = [imageBlackMatte1.src, imageBlackMatte2.src, imageBlackMatte3.src
             .gallery-arrow:hover {
                 background: #16a34a;
                 border-color: #16a34a;
+                transform: translateY(-50%) scale(1.05);
             }
             .gallery-arrow.prev { left: 0.6rem; }
             .gallery-arrow.next { right: 0.6rem; }
+
+            .home-footer {
+                position: relative;
+                overflow: hidden;
+            }
+
+            .home-footer::before {
+                content: "";
+                position: absolute;
+                left: 50%;
+                top: 0;
+                width: min(42rem, 82vw);
+                height: 1px;
+                background: linear-gradient(90deg, transparent, rgba(103,232,249,0.85), rgba(34,197,94,0.9), transparent);
+                opacity: 0;
+                transform: translateX(-50%) scaleX(0.35);
+                transform-origin: center;
+                transition: opacity 650ms var(--ease), transform 900ms var(--ease);
+            }
+
+            .home-footer > div {
+                opacity: 0;
+                transform: translateY(1.4rem);
+                transition: opacity 700ms var(--ease), transform 760ms var(--ease);
+            }
+
+            .home-footer.is-visible::before {
+                opacity: 1;
+                transform: translateX(-50%) scaleX(1);
+            }
+
+            .home-footer.is-visible > div {
+                opacity: 1;
+                transform: translateY(0);
+            }
 
             /* ── Slider avis ── */
             .review-card {
@@ -270,7 +397,7 @@ const images = [imageBlackMatte1.src, imageBlackMatte2.src, imageBlackMatte3.src
                 <div class="w-full md:w-1/2 flex flex-col gap-4">
 
                     <!-- Image principale avec flèches -->
-                    <div class="relative bg-zinc-900 rounded-[40px] border border-white/5 p-4">
+                    <div id="gallery-main" class="deep-reveal relative bg-zinc-900 rounded-[40px] border border-white/5 p-4">
                         <img
                             id="prod-img"
                             src={images[0]}
@@ -304,12 +431,12 @@ const images = [imageBlackMatte1.src, imageBlackMatte2.src, imageBlackMatte3.src
                 </div>
 
                 <!-- INFOS PRODUIT -->
-                <div class="w-full md:w-1/2">
+                <div class="deep-reveal w-full md:w-1/2">
                     <span class="text-green-500 font-bold tracking-widest uppercase text-xs">Fiche Produit</span>
                     <h1 class="text-5xl font-black uppercase italic mt-2">{product.nom}</h1>
                     
                     <div class="flex items-center gap-4 mt-4">
-                        <p class="text-3xl text-white font-black">{product.prix.toFixed(2)}€</p>
+                        <p class="text-3xl text-white font-black"><span data-count-to={product.prix.toFixed(2)} data-count-decimals="2">0.00</span>€</p>
                         {!product.enStock && (
                             <span class="bg-red-600/10 border border-red-600 text-red-500 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter">
                                 Rupture de stock
@@ -319,8 +446,8 @@ const images = [imageBlackMatte1.src, imageBlackMatte2.src, imageBlackMatte3.src
 
                     <a href="#avis-clients" class="flex items-center gap-2 mt-4 hover:opacity-80 transition group">
                         <div class="flex text-yellow-400 text-lg">★★★★★</div>
-                        <span class="text-white font-black text-sm">4.7</span>
-                        <span class="text-gray-500 text-xs underline decoration-gray-700 group-hover:text-green-500">(24 avis clients)</span>
+                        <span class="text-white font-black text-sm" data-count-to="4.7" data-count-decimals="1">0.0</span>
+                        <span class="text-gray-500 text-xs underline decoration-gray-700 group-hover:text-green-500">(<span data-count-to="24">0</span> avis clients)</span>
                     </a>
 
                     <p class="text-gray-400 mt-8 text-lg italic leading-relaxed">"{product.description}"</p>
@@ -351,8 +478,8 @@ const images = [imageBlackMatte1.src, imageBlackMatte2.src, imageBlackMatte3.src
                                     data-add-to-cart
                                     data-default-label="Ajouter au panier"
                                     data-added-label="✓ Ajouté !"
-                                    class="w-full bg-green-600 hover:bg-green-700 text-white font-black py-5 rounded-2xl transition-all active:scale-95 uppercase text-xl shadow-lg shadow-green-900/20">
-                                    Ajouter au panier
+                                    class="motion-shine w-full bg-green-600 hover:bg-green-700 text-white font-black py-5 rounded-2xl transition-all active:scale-95 uppercase text-xl shadow-lg shadow-green-900/20">
+                                    <span>Ajouter au panier</span>
                                 </button>
                             </>
                         ) : (
@@ -361,8 +488,8 @@ const images = [imageBlackMatte1.src, imageBlackMatte2.src, imageBlackMatte3.src
                             </button>
                         )}
                         
-                        <a href="/" class="w-full border border-white/20 hover:border-green-500/50 hover:text-green-400 text-white text-center font-bold py-3 rounded-2xl transition-all uppercase text-sm tracking-widest">
-                            ← Retour à la boutique
+                        <a href="/" class="motion-shine w-full border border-white/20 hover:border-green-500/50 hover:text-green-400 text-white text-center font-bold py-3 rounded-2xl transition-all uppercase text-sm tracking-widest">
+                            <span>← Retour à la boutique</span>
                         </a>
                     </div>
 
@@ -796,7 +923,7 @@ const images = [imageBlackMatte1.src, imageBlackMatte2.src, imageBlackMatte3.src
         </section>
 
         <!-- FOOTER -->
-        <footer class="py-16 bg-zinc-950 border-t border-white/10 px-5 md:px-10 text-center">
+        <footer class="home-footer py-16 bg-zinc-950 border-t border-white/10 px-5 md:px-10 text-center">
             <div class="max-w-4xl mx-auto">
                 <div class="text-xl font-black italic mb-6 uppercase">À propos de <span class="text-green-600">CD</span> MOTOR SHOP</div>
                 <p class="text-gray-500 text-sm leading-relaxed mb-10 italic">
@@ -823,8 +950,8 @@ const images = [imageBlackMatte1.src, imageBlackMatte2.src, imageBlackMatte3.src
                         data-add-to-cart
                         data-default-label="Ajouter"
                         data-added-label="✓ Ajouté"
-                        class="bg-green-600 hover:bg-green-700 text-white font-black py-3 px-5 rounded-xl transition-all active:scale-95 uppercase text-sm shadow-lg shadow-green-900/20 whitespace-nowrap">
-                        Ajouter
+                        class="motion-shine bg-green-600 hover:bg-green-700 text-white font-black py-3 px-5 rounded-xl transition-all active:scale-95 uppercase text-sm shadow-lg shadow-green-900/20 whitespace-nowrap">
+                        <span>Ajouter</span>
                     </button>
                 </div>
             </div>
@@ -844,14 +971,20 @@ const images = [imageBlackMatte1.src, imageBlackMatte2.src, imageBlackMatte3.src
                     let currentImg = 0;
 
                     const goToImage = (idx) => {
-                        currentImg = (idx + thumbs.length) % thumbs.length;
+                        const nextImg = (idx + thumbs.length) % thumbs.length;
+                        const direction = nextImg > currentImg || (currentImg === thumbs.length - 1 && nextImg === 0) ? 'left' : 'right';
+                        currentImg = nextImg;
 
-                        // Fade transition
-                        galleryMain?.classList.add('fade');
+                        mainImg.classList.remove('is-sliding-out-left', 'is-sliding-out-right', 'is-sliding-in-left', 'is-sliding-in-right');
+                        mainImg.classList.add(`is-sliding-out-${direction}`);
                         setTimeout(() => {
                             mainImg.src = thumbs[currentImg].querySelector('img').src;
-                            galleryMain?.classList.remove('fade');
-                        }, 250);
+                            mainImg.classList.remove(`is-sliding-out-${direction}`);
+                            mainImg.classList.add(`is-sliding-in-${direction}`);
+                            requestAnimationFrame(() => {
+                                mainImg.classList.remove(`is-sliding-in-${direction}`);
+                            });
+                        }, 170);
 
                         // Mettre à jour les miniatures actives
                         thumbs.forEach((t, i) => t.classList.toggle('active', i === currentImg));
@@ -1192,6 +1325,73 @@ const images = [imageBlackMatte1.src, imageBlackMatte2.src, imageBlackMatte3.src
         </script>
         <script>
             document.addEventListener('astro:page-load', () => {
+                const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+                const revealItems = Array.from(document.querySelectorAll('.deep-reveal, .tilt-card, #rating-card, .review-card, .home-footer'));
+                revealItems.forEach((item, index) => {
+                    item.style.transitionDelay = `${Math.min(index * 55, 220)}ms`;
+                    if (reduceMotion) item.classList.add('is-visible');
+                });
+
+                if (!reduceMotion && 'IntersectionObserver' in window) {
+                    const revealObserver = new IntersectionObserver((entries) => {
+                        entries.forEach((entry) => {
+                            if (!entry.isIntersecting) return;
+                            entry.target.classList.add('is-visible');
+                            entry.target.style.transitionDelay = '0ms';
+                            revealObserver.unobserve(entry.target);
+                        });
+                    }, { threshold: 0.18, rootMargin: '0px 0px -10% 0px' });
+
+                    revealItems.forEach((item) => revealObserver.observe(item));
+                } else {
+                    revealItems.forEach((item) => item.classList.add('is-visible'));
+                }
+
+                const counters = Array.from(document.querySelectorAll('[data-count-to]'));
+                const animateCounter = (el) => {
+                    if (el.dataset.counted === 'true') return;
+                    el.dataset.counted = 'true';
+                    const target = Number(el.dataset.countTo);
+                    const decimals = Number(el.dataset.countDecimals || 0);
+                    if (!Number.isFinite(target)) return;
+
+                    if (reduceMotion) {
+                        el.textContent = target.toFixed(decimals);
+                        return;
+                    }
+
+                    const duration = 950;
+                    const start = performance.now();
+                    const easeOut = (t) => 1 - Math.pow(1 - t, 3);
+
+                    const tick = (now) => {
+                        const progress = Math.min((now - start) / duration, 1);
+                        el.textContent = (target * easeOut(progress)).toFixed(decimals);
+                        if (progress < 1) requestAnimationFrame(tick);
+                    };
+
+                    requestAnimationFrame(tick);
+                };
+
+                if (!('IntersectionObserver' in window)) {
+                    counters.forEach(animateCounter);
+                    return;
+                }
+
+                const counterObserver = new IntersectionObserver((entries) => {
+                    entries.forEach((entry) => {
+                        if (!entry.isIntersecting) return;
+                        animateCounter(entry.target);
+                        counterObserver.unobserve(entry.target);
+                    });
+                }, { threshold: 0.45 });
+
+                counters.forEach((counter) => counterObserver.observe(counter));
+            });
+        </script>
+        <script>
+            document.addEventListener('astro:page-load', () => {
                 const card = document.getElementById('rating-card');
                 if (!card) return;
                 let raf, angle = 0;
@@ -1212,6 +1412,7 @@ const images = [imageBlackMatte1.src, imageBlackMatte2.src, imageBlackMatte3.src
             });
         </script>
         <script>
+            import { initSiteEffects } from '../scripts/site-effects.js';
             const runSiteEffects = () => initSiteEffects();
             document.addEventListener("astro:page-load", runSiteEffects);
             if (document.readyState !== "loading") runSiteEffects();
