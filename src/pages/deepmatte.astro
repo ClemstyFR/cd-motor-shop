@@ -426,6 +426,33 @@ const images = [
                 pointer-events: auto;
             }
 
+            .accordion-item summary::-webkit-details-marker {
+                display: none;
+            }
+
+            .accordion-panel {
+                overflow: hidden;
+                height: 0;
+                opacity: 0;
+                transform: translateY(-0.35rem);
+                transition: height 340ms var(--ease), opacity 260ms ease, transform 340ms var(--ease);
+                will-change: height, opacity, transform;
+            }
+
+            .accordion-item.is-open .accordion-panel {
+                opacity: 1;
+                transform: translateY(0);
+            }
+
+            .accordion-item .chevron {
+                transition: transform 300ms var(--ease), color 220ms ease !important;
+            }
+
+            .accordion-item.is-open .chevron {
+                color: #22c55e !important;
+                transform: rotate(180deg);
+            }
+
             #toast {
                 position: fixed;
                 bottom: 2rem; left: 50%;
@@ -810,7 +837,7 @@ const images = [
                                 </div>
                                 <svg class="chevron" xmlns="http://www.w3.org/2000/svg" style="height:0.9rem;width:0.9rem;color:#6b7280;flex-shrink:0;transition:transform 0.25s;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                             </summary>
-                            <div style="padding:0 0 1.25rem;display:flex;flex-direction:column;gap:0.75rem;">
+                            <div class="accordion-panel" style="display:flex;flex-direction:column;gap:0.75rem;">
                                 <div style="display:flex;align-items:flex-start;gap:0.6rem;">
                                     <span style="color:#22c55e;font-size:0.9rem;flex-shrink:0;margin-top:0.05rem;">✓</span>
                                     <div>
@@ -837,7 +864,7 @@ const images = [
                                 </div>
                                 <svg class="chevron" xmlns="http://www.w3.org/2000/svg" style="height:0.9rem;width:0.9rem;color:#6b7280;flex-shrink:0;transition:transform 0.25s;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                             </summary>
-                            <div style="padding:0 0 1.25rem;display:flex;flex-direction:column;gap:0.75rem;">
+                            <div class="accordion-panel" style="display:flex;flex-direction:column;gap:0.75rem;">
                                 <div style="display:flex;align-items:flex-start;gap:0.6rem;">
                                     <span style="color:#22c55e;font-size:0.9rem;flex-shrink:0;margin-top:0.05rem;">✓</span>
                                     <div>
@@ -866,7 +893,7 @@ const images = [
                                 </div>
                                 <svg class="chevron" xmlns="http://www.w3.org/2000/svg" style="height:0.9rem;width:0.9rem;color:#6b7280;flex-shrink:0;transition:transform 0.25s;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                             </summary>
-                            <div style="padding:0 0 1.25rem;display:flex;flex-direction:column;gap:0.75rem;">
+                            <div class="accordion-panel" style="display:flex;flex-direction:column;gap:0.75rem;">
                                 <div style="display:flex;align-items:flex-start;gap:0.6rem;">
                                     <span style="color:#22c55e;font-size:0.9rem;flex-shrink:0;margin-top:0.05rem;">✓</span>
                                     <div>
@@ -1302,6 +1329,55 @@ const images = [
                     galleryPrev?.addEventListener('click', () => goToImage(currentImg - 1));
                     galleryNext?.addEventListener('click', () => goToImage(currentImg + 1));
                 }
+
+                const accordionItems = Array.from(document.querySelectorAll('.accordion-item'));
+                accordionItems.forEach((item) => {
+                    const summary = item.querySelector('summary');
+                    const panel = item.querySelector('.accordion-panel');
+                    if (!summary || !panel) return;
+
+                    const setPanelHeight = () => {
+                        if (item.open) panel.style.height = `${panel.scrollHeight}px`;
+                    };
+
+                    const openItem = () => {
+                        item.open = true;
+                        item.classList.add('is-open');
+                        panel.style.height = '0px';
+                        panel.style.opacity = '0';
+                        requestAnimationFrame(() => {
+                            panel.style.height = `${panel.scrollHeight}px`;
+                            panel.style.opacity = '1';
+                        });
+                    };
+
+                    const closeItem = () => {
+                        panel.style.height = `${panel.scrollHeight}px`;
+                        requestAnimationFrame(() => {
+                            item.classList.remove('is-open');
+                            panel.style.height = '0px';
+                            panel.style.opacity = '0';
+                        });
+                    };
+
+                    const onTransitionEnd = (event) => {
+                        if (event.propertyName !== 'height') return;
+                        if (item.classList.contains('is-open')) {
+                            panel.style.height = 'auto';
+                        } else {
+                            item.open = false;
+                        }
+                    };
+
+                    summary.addEventListener('click', (event) => {
+                        event.preventDefault();
+                        if (item.open && item.classList.contains('is-open')) closeItem();
+                        else openItem();
+                    });
+
+                    panel.addEventListener('transitionend', onTransitionEnd);
+                    window.addEventListener('resize', setPanelHeight);
+                });
 
                 const mainCartBtn = document.getElementById('add-to-cart');
                 const stickyCartBar = document.getElementById('sticky-cart-bar');
