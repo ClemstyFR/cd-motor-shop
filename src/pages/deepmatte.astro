@@ -744,8 +744,8 @@ const images = [
 
                     <a href="#avis-clients" class="flex items-center gap-2 mt-4 hover:opacity-80 transition group">
                         <div class="flex text-yellow-400 text-lg">★★★★★</div>
-                        <span class="text-white font-black text-sm" data-count-to="4.7" data-count-decimals="1">0.0</span>
-                        <span class="text-gray-500 text-xs underline decoration-gray-700 group-hover:text-green-500">(<span data-count-to="24">0</span> avis clients)</span>
+                        <span id="product-rating-inline" class="text-white font-black text-sm">—</span>
+                        <span class="text-gray-500 text-xs underline decoration-gray-700 group-hover:text-green-500">(<span id="product-rating-count">0</span> avis clients)</span>
                     </a>
 
                     <p class="text-gray-400 mt-8 text-lg italic leading-relaxed">"{product.description}"</p>
@@ -1083,35 +1083,35 @@ const images = [
                     <div id="rating-card" class="flex items-center gap-8 bg-zinc-900 rounded-3xl px-8 py-6 shrink-0">
                         <div class="glow-ring"></div>
                         <div class="text-center">
-                            <p class="text-6xl font-black text-white">4.7</p>
-                            <div class="flex text-yellow-400 text-xl mt-1 justify-center">★★★★★</div>
-                            <p class="text-gray-500 text-xs mt-1">24 avis vérifiés</p>
+                            <p id="rating-score" class="text-6xl font-black text-white">—</p>
+                            <div id="rating-stars" class="flex text-yellow-400 text-xl mt-1 justify-center">☆☆☆☆☆</div>
+                            <p id="rating-count-label" class="text-gray-500 text-xs mt-1">Aucun avis vérifié</p>
                         </div>
                         <div class="flex flex-col gap-1.5 min-w-[120px]">
                             <div class="flex items-center gap-2 text-xs">
                                 <span class="text-gray-400 w-3">5</span>
-                                <div class="flex-1 h-1.5 bg-zinc-700 rounded-full overflow-hidden"><div class="h-full bg-yellow-400 rounded-full" style="width:79%"></div></div>
-                                <span class="text-gray-500 w-4">79%</span>
+                                <div class="flex-1 h-1.5 bg-zinc-700 rounded-full overflow-hidden"><div data-rating-bar="5" class="h-full bg-yellow-400 rounded-full" style="width:0%"></div></div>
+                                <span data-rating-percent="5" class="text-gray-500 w-4">0%</span>
                             </div>
                             <div class="flex items-center gap-2 text-xs">
                                 <span class="text-gray-400 w-3">4</span>
-                                <div class="flex-1 h-1.5 bg-zinc-700 rounded-full overflow-hidden"><div class="h-full bg-yellow-400 rounded-full" style="width:13%"></div></div>
-                                <span class="text-gray-500 w-4">13%</span>
+                                <div class="flex-1 h-1.5 bg-zinc-700 rounded-full overflow-hidden"><div data-rating-bar="4" class="h-full bg-yellow-400 rounded-full" style="width:0%"></div></div>
+                                <span data-rating-percent="4" class="text-gray-500 w-4">0%</span>
                             </div>
                             <div class="flex items-center gap-2 text-xs">
                                 <span class="text-gray-400 w-3">3</span>
-                                <div class="flex-1 h-1.5 bg-zinc-700 rounded-full overflow-hidden"><div class="h-full bg-yellow-400 rounded-full" style="width:8%"></div></div>
-                                <span class="text-gray-500 w-4">8%</span>
+                                <div class="flex-1 h-1.5 bg-zinc-700 rounded-full overflow-hidden"><div data-rating-bar="3" class="h-full bg-yellow-400 rounded-full" style="width:0%"></div></div>
+                                <span data-rating-percent="3" class="text-gray-500 w-4">0%</span>
                             </div>
                             <div class="flex items-center gap-2 text-xs">
                                 <span class="text-gray-400 w-3">2</span>
-                                <div class="flex-1 h-1.5 bg-zinc-700 rounded-full overflow-hidden"><div class="h-full bg-yellow-400 rounded-full" style="width:0%"></div></div>
-                                <span class="text-gray-500 w-4">0%</span>
+                                <div class="flex-1 h-1.5 bg-zinc-700 rounded-full overflow-hidden"><div data-rating-bar="2" class="h-full bg-yellow-400 rounded-full" style="width:0%"></div></div>
+                                <span data-rating-percent="2" class="text-gray-500 w-4">0%</span>
                             </div>
                             <div class="flex items-center gap-2 text-xs">
                                 <span class="text-gray-400 w-3">1</span>
-                                <div class="flex-1 h-1.5 bg-zinc-700 rounded-full overflow-hidden"><div class="h-full bg-yellow-400 rounded-full" style="width:0%"></div></div>
-                                <span class="text-gray-500 w-4">0%</span>
+                                <div class="flex-1 h-1.5 bg-zinc-700 rounded-full overflow-hidden"><div data-rating-bar="1" class="h-full bg-yellow-400 rounded-full" style="width:0%"></div></div>
+                                <span data-rating-percent="1" class="text-gray-500 w-4">0%</span>
                             </div>
                         </div>
                     </div>
@@ -1399,6 +1399,7 @@ const images = [
                 const starsHtml = (n) => Array.from({length:5}, (_,i) =>
                     `<span style="color:${i < n ? '#facc15' : '#3f3f46'}">★</span>`
                 ).join('');
+                const starsText = (rating) => Array.from({ length: 5 }, (_, i) => i < Math.round(rating) ? '★' : '☆').join('');
 
                 // ── Formater la date ─────────────────────────────────────────────
                 const fmtDate = (iso) => new Date(iso).toLocaleDateString('fr-FR', {day:'2-digit',month:'long',year:'numeric'});
@@ -1410,6 +1411,11 @@ const images = [
                 const dotsEl        = document.getElementById('rev-dots');
                 const prevBtn       = document.getElementById('rev-prev');
                 const nextBtn       = document.getElementById('rev-next');
+                const ratingScoreEl = document.getElementById('rating-score');
+                const ratingStarsEl = document.getElementById('rating-stars');
+                const ratingCountLabelEl = document.getElementById('rating-count-label');
+                const productRatingInlineEl = document.getElementById('product-rating-inline');
+                const productRatingCountEl = document.getElementById('product-rating-count');
 
                 // Carte d'avis HTML
                 const reviewCard = (r) => {
@@ -1478,6 +1484,47 @@ const images = [
                     updateSlider();
                 };
 
+                const updateRatingSummary = (reviews = []) => {
+                    const total = reviews.length;
+
+                    if (total === 0) {
+                        if (ratingScoreEl) ratingScoreEl.textContent = '—';
+                        if (ratingStarsEl) ratingStarsEl.textContent = '☆☆☆☆☆';
+                        if (ratingCountLabelEl) ratingCountLabelEl.textContent = 'Aucun avis vérifié';
+                        if (productRatingInlineEl) productRatingInlineEl.textContent = '—';
+                        if (productRatingCountEl) productRatingCountEl.textContent = '0';
+                        [1, 2, 3, 4, 5].forEach((rating) => {
+                            const bar = document.querySelector(`[data-rating-bar="${rating}"]`);
+                            const percent = document.querySelector(`[data-rating-percent="${rating}"]`);
+                            if (bar) bar.style.width = '0%';
+                            if (percent) percent.textContent = '0%';
+                        });
+                        return;
+                    }
+
+                    const average = reviews.reduce((sum, review) => sum + Number(review.rating || 0), 0) / total;
+                    const averageText = average.toFixed(1);
+                    const counts = reviews.reduce((acc, review) => {
+                        const rating = Math.max(1, Math.min(5, Number(review.rating || 0)));
+                        acc[rating] = (acc[rating] || 0) + 1;
+                        return acc;
+                    }, {});
+
+                    if (ratingScoreEl) ratingScoreEl.textContent = averageText;
+                    if (ratingStarsEl) ratingStarsEl.textContent = starsText(average);
+                    if (ratingCountLabelEl) ratingCountLabelEl.textContent = `${total} avis vérifié${total > 1 ? 's' : ''}`;
+                    if (productRatingInlineEl) productRatingInlineEl.textContent = averageText;
+                    if (productRatingCountEl) productRatingCountEl.textContent = String(total);
+
+                    [1, 2, 3, 4, 5].forEach((rating) => {
+                        const value = Math.round(((counts[rating] || 0) / total) * 100);
+                        const bar = document.querySelector(`[data-rating-bar="${rating}"]`);
+                        const percent = document.querySelector(`[data-rating-percent="${rating}"]`);
+                        if (bar) bar.style.width = `${value}%`;
+                        if (percent) percent.textContent = `${value}%`;
+                    });
+                };
+
                 const goTo = (page) => {
                     const { pages } = applyReviewLayout();
                     sliderIndex = Math.max(0, Math.min(page, pages - 1));
@@ -1523,30 +1570,20 @@ const images = [
                     if (skeleton) skeleton.style.display = 'none';
                     if (error) console.error('Supabase reviews error:', error);
 
-                    const FAKE = [
-                        { user_id: 'julien', rating: 5, comment: "L'aspect mat est parfait, ne laisse vraiment aucune trace de doigts. Le toucher aluminium brossé est au-dessus de ce que j'attendais pour ce prix.", created_at: new Date(Date.now() - 30*86400000).toISOString() },
-                        { user_id: 'marc',   rating: 5, comment: "On sent vraiment la qualité rien qu'au poids du pommeau. La pose prend 5 minutes et les bagues d'adaptation sont déjà incluses. Je recommande sans hésiter.", created_at: new Date(Date.now() - 14*86400000).toISOString() },
-                        { user_id: 'sarah',  rating: 5, comment: "Livraison ultra rapide, le packaging est soigné — vraiment premium. Ça fait un très beau cadeau aussi, mon copain a adoré.", created_at: new Date(Date.now() - 3*86400000).toISOString() },
-                        { user_id: 'kevin',  rating: 4, comment: "Très bon rendu visuel dans mon habitacle tout noir. Je mets 4 étoiles car le délai de livraison était un peu long, mais la qualité est vraiment là.", created_at: new Date(Date.now() - 21*86400000).toISOString() },
-                    ];
+                    const data = reviews ?? [];
+                    updateRatingSummary(data);
 
-                    const data = (reviews && reviews.length > 0) ? reviews : FAKE;
+                    if (data.length === 0) {
+                        if (reviewsEmpty) reviewsEmpty.style.display = 'block';
+                        if (reviewsSlider) reviewsSlider.style.display = 'none';
+                        return [];
+                    }
 
                     if (reviewsEmpty) reviewsEmpty.style.display = 'none';
                     if (reviewsSlider) reviewsSlider.style.display = 'block';
-
                     buildSlider(data);
 
-                    // Mise à jour score global si vrais avis
-                    if (reviews && reviews.length > 0) {
-                        const avg = (reviews.reduce((a,r) => a + r.rating, 0) / reviews.length).toFixed(1);
-                        const scoreEl = document.querySelector('.text-6xl.font-black.text-white');
-                        const countEl = document.querySelector('.text-gray-500.text-xs.mt-1');
-                        if (scoreEl) scoreEl.textContent = avg;
-                        if (countEl) countEl.textContent = reviews.length + ' avis';
-                    }
-
-                    return reviews ?? [];
+                    return data;
                 };
 
                 const reviews = await loadReviews();

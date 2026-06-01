@@ -1772,9 +1772,9 @@ const galleryImages = [
                                     <p class="price"><span data-count-to={product.prix.toFixed(2)} data-count-decimals="2">0.00</span>€</p>
                                     <p class="price-note">Livraison offerte</p>
                                 </div>
-                                <div class="rating-block" aria-label="Note : 4.7 sur 5">
-                                    <div class="rating-stars">★★★★★</div>
-                                    <div class="rating-count"><span style="color:white;font-weight:900;" data-count-to="4.7" data-count-decimals="1">0.0</span> · <span data-count-to="24">0</span> avis</div>
+                                <div class="rating-block" aria-label="Note produit">
+                                    <div class="rating-stars" id="product-card-stars">☆☆☆☆☆</div>
+                                    <div class="rating-count"><span id="product-card-rating" style="color:white;font-weight:900;">—</span> · <span id="product-card-review-count">0</span> avis</div>
                                 </div>
                             </div>
                             <button
@@ -1800,8 +1800,8 @@ const galleryImages = [
                         <h2>Ce que la piece change en vrai.</h2>
                     </div>
                     <div class="reviews-avg">
-                        <span class="avg-num" id="home-avg" data-count-to="4.7" data-count-decimals="1">0.0</span>
-                        <div class="avg-stars" id="home-stars">★★★★★</div>
+                        <span class="avg-num" id="home-avg">—</span>
+                        <div class="avg-stars" id="home-stars">☆☆☆☆☆</div>
                         <div class="avg-count" id="home-count"></div>
                     </div>
                 </div>
@@ -2022,6 +2022,7 @@ const galleryImages = [
                 const starsHtml = (n) => Array.from({length:5}, (_,i) =>
                     `<span style="color:${i < n ? '#facc15' : '#27272a'}">★</span>`
                 ).join('');
+                const starsText = (rating) => Array.from({ length: 5 }, (_, i) => i < Math.round(rating) ? '★' : '☆').join('');
                 const fmtRelative = (iso) => {
                     const diff = Date.now() - new Date(iso).getTime();
                     const days = Math.max(0, Math.floor(diff / 86400000));
@@ -2030,12 +2031,6 @@ const galleryImages = [
                     return `Il y a ${Math.floor(days / 30)} mois`;
                 };
 
-                const fallbackReviews = [
-                    { user_id: 'thomas', rating: 5, comment: "Qualite vraiment premium, ca change tout dans l'habitacle. Le toucher est parfait et le montage s'est fait en 5 minutes.", created_at: new Date(Date.now() - 14 * 86400000).toISOString() },
-                    { user_id: 'lucas', rating: 5, comment: "Rendu incroyable sur ma Golf 8. La finition aluminium mat est exactement comme sur les photos, voire mieux en vrai.", created_at: new Date(Date.now() - 30 * 86400000).toISOString() },
-                    { user_id: 'samir', rating: 4, comment: "Tres bonne prise en main, solide et bien fini. Livraison rapide. Une fois en place c'est nickel.", created_at: new Date(Date.now() - 21 * 86400000).toISOString() },
-                ];
-
                 const { data: reviews } = await supabase
                     .from('reviews')
                     .select('user_id, rating, comment, created_at')
@@ -2043,22 +2038,36 @@ const galleryImages = [
                     .order('created_at', { ascending: false })
                     .limit(3);
 
-                const data = (reviews && reviews.length > 0) ? reviews : fallbackReviews;
-                const avg = (data.reduce((a, r) => a + r.rating, 0) / data.length).toFixed(1);
-                const total = reviews?.length ?? 0;
+                const data = reviews ?? [];
+                const total = data.length;
+                const avg = total > 0
+                    ? (data.reduce((a, r) => a + Number(r.rating || 0), 0) / total).toFixed(1)
+                    : null;
 
                 const avgEl = document.getElementById('home-avg');
                 const countEl = document.getElementById('home-count');
-                if (avgEl) {
-                    avgEl.dataset.countTo = avg;
-                    avgEl.dataset.countDecimals = '1';
-                    avgEl.textContent = avg;
-                }
-                if (countEl) countEl.textContent = total > 0 ? `${total} avis verifies` : 'Avis clients';
+                const homeStarsEl = document.getElementById('home-stars');
+                const productCardRatingEl = document.getElementById('product-card-rating');
+                const productCardReviewCountEl = document.getElementById('product-card-review-count');
+                const productCardStarsEl = document.getElementById('product-card-stars');
+
+                if (avgEl) avgEl.textContent = avg ?? '—';
+                if (homeStarsEl) homeStarsEl.textContent = avg ? starsText(Number(avg)) : '☆☆☆☆☆';
+                if (countEl) countEl.textContent = total > 0 ? `${total} avis vérifié${total > 1 ? 's' : ''}` : 'Aucun avis pour le moment';
+                if (productCardRatingEl) productCardRatingEl.textContent = avg ?? '—';
+                if (productCardReviewCountEl) productCardReviewCountEl.textContent = String(total);
+                if (productCardStarsEl) productCardStarsEl.textContent = avg ? starsText(Number(avg)) : '☆☆☆☆☆';
 
                 const grid = document.getElementById('reviews-grid-home');
                 const skel = document.getElementById('reviews-skeleton-home');
                 if (!grid) return;
+
+                if (total === 0) {
+                    grid.innerHTML = '<p class="text-gray-500 text-sm italic">Aucun avis client pour le moment.</p>';
+                    if (skel) skel.style.display = 'none';
+                    grid.style.display = 'block';
+                    return;
+                }
 
                 grid.innerHTML = data.map((review) => {
                     const col = avatarColor(review.user_id);
