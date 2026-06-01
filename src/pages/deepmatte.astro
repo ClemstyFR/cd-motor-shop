@@ -453,6 +453,96 @@ const images = [
                 transform: rotate(180deg);
             }
 
+            .checkout-trust {
+                position: relative;
+                overflow: hidden;
+                border: 1px solid rgba(255,255,255,0.09);
+                border-radius: 1.25rem;
+                background:
+                    radial-gradient(circle at 8% 0%, rgba(34,197,94,0.12), transparent 12rem),
+                    linear-gradient(145deg, rgba(255,255,255,0.055), transparent 44%),
+                    rgba(24,24,27,0.74);
+                padding: 1rem;
+            }
+
+            .checkout-trust::before {
+                content: "";
+                position: absolute;
+                inset: 0;
+                pointer-events: none;
+                background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
+                opacity: 0.45;
+            }
+
+            .checkout-trust > * {
+                position: relative;
+                z-index: 1;
+            }
+
+            .payment-logos {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 0.45rem;
+                margin-top: 0.75rem;
+            }
+
+            .payment-logo {
+                min-width: 3.15rem;
+                height: 1.8rem;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                border: 1px solid rgba(255,255,255,0.12);
+                border-radius: 0.55rem;
+                background: rgba(0,0,0,0.28);
+                color: white;
+                font-size: 0.66rem;
+                font-weight: 950;
+                letter-spacing: 0.02em;
+                line-height: 1;
+            }
+
+            .payment-logo.stripe {
+                color: #a5b4fc;
+            }
+
+            .trust-points {
+                display: grid;
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+                gap: 0.55rem;
+                margin-top: 0.8rem;
+            }
+
+            .trust-point {
+                border: 1px solid rgba(255,255,255,0.08);
+                border-radius: 0.85rem;
+                background: rgba(0,0,0,0.18);
+                padding: 0.65rem;
+            }
+
+            .trust-point strong {
+                display: block;
+                color: white;
+                font-size: 0.62rem;
+                font-weight: 950;
+                letter-spacing: 0.08em;
+                text-transform: uppercase;
+            }
+
+            .trust-point span {
+                display: block;
+                margin-top: 0.25rem;
+                color: #6b7280;
+                font-size: 0.66rem;
+                line-height: 1.35;
+            }
+
+            @media (max-width: 640px) {
+                .trust-points {
+                    grid-template-columns: 1fr;
+                }
+            }
+
             #toast {
                 position: fixed;
                 bottom: 2rem; left: 50%;
@@ -806,6 +896,36 @@ const images = [
                                     class="motion-shine w-full bg-green-600 hover:bg-green-700 text-white font-black py-5 rounded-2xl transition-all active:scale-95 uppercase text-xl shadow-lg shadow-green-900/20">
                                     <span>Ajouter au panier</span>
                                 </button>
+
+                                <div class="checkout-trust" aria-label="Paiement et garanties">
+                                    <div style="display:flex;align-items:center;justify-content:space-between;gap:0.75rem;flex-wrap:wrap;">
+                                        <div>
+                                            <p style="font-size:0.68rem;font-weight:950;text-transform:uppercase;letter-spacing:0.12em;color:#22c55e;">Paiement sécurisé</p>
+                                            <p style="font-size:0.76rem;color:#9ca3af;margin-top:0.2rem;line-height:1.45;">Transaction chiffrée et traitée par Stripe.</p>
+                                        </div>
+                                        <span style="font-size:0.62rem;font-weight:950;text-transform:uppercase;letter-spacing:0.1em;color:#6b7280;">SSL / 3D Secure</span>
+                                    </div>
+                                    <div class="payment-logos" aria-label="Moyens de paiement acceptés">
+                                        <span class="payment-logo stripe">stripe</span>
+                                        <span class="payment-logo">VISA</span>
+                                        <span class="payment-logo">MC</span>
+                                        <span class="payment-logo">CB</span>
+                                    </div>
+                                    <div class="trust-points">
+                                        <div class="trust-point">
+                                            <strong>Livraison suivie</strong>
+                                            <span>12 à 18 jours ouvrés</span>
+                                        </div>
+                                        <div class="trust-point">
+                                            <strong>Retour 30 jours</strong>
+                                            <span>Support par email</span>
+                                        </div>
+                                        <div class="trust-point">
+                                            <strong>Produit vérifié</strong>
+                                            <span>Bagues M8/M10/M12 incluses</span>
+                                        </div>
+                                    </div>
+                                </div>
                             </>
                         ) : (
                             <button disabled class="w-full bg-zinc-800 text-zinc-500 cursor-not-allowed font-black py-5 rounded-2xl uppercase text-xl border border-white/5">
