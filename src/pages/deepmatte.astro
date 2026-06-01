@@ -106,8 +106,13 @@ const images = [
                 transform: translateY(0);
             }
 
+            .installation-section {
+                overflow-x: clip;
+                scroll-margin-top: 7rem;
+            }
+
             .install-steps {
-                overflow: hidden;
+                overflow: visible;
             }
 
             .install-connector {
@@ -125,11 +130,11 @@ const images = [
             }
 
             .install-step[data-direction="left"] {
-                transform: translate3d(-3.5rem, 1rem, 0) rotate(-1.5deg);
+                transform: translate3d(-42vw, 1rem, 0) rotate(-1.5deg);
             }
 
             .install-step[data-direction="right"] {
-                transform: translate3d(3.5rem, 1rem, 0) rotate(1.5deg);
+                transform: translate3d(42vw, 1rem, 0) rotate(1.5deg);
             }
 
             .install-step[data-direction="top"] {
@@ -149,6 +154,7 @@ const images = [
             .install-result.is-visible {
                 opacity: 1;
                 transform: translate3d(0, 0, 0) rotate(0deg) scale(1);
+                will-change: auto;
             }
 
             .install-steps.is-visible .install-step:nth-of-type(2) {
@@ -164,8 +170,13 @@ const images = [
             }
 
             @media (max-width: 767px) {
-                .install-step[data-direction] {
-                    transform: translate3d(-2rem, 1.25rem, 0);
+                .install-step[data-direction="left"],
+                .install-step[data-direction="top"] {
+                    transform: translate3d(-70vw, 1.25rem, 0);
+                }
+
+                .install-step[data-direction="right"] {
+                    transform: translate3d(70vw, 1.25rem, 0);
                 }
 
                 .install-steps.is-visible .install-step:nth-of-type(2) { transition-delay: 80ms; }
@@ -909,7 +920,7 @@ const images = [
         </section>
 
         <!-- ── TUTO MONTAGE ──────────────────────────────────────────────────── -->
-        <section class="py-24 bg-black border-t border-white/5">
+        <section class="installation-section py-24 bg-black border-t border-white/5">
             <div class="max-w-6xl mx-auto px-5 md:px-10">
 
                 <!-- Titre -->
