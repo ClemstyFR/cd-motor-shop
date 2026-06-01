@@ -38,6 +38,9 @@ export function initCart(product) {
         return Number.isFinite(n) ? n : fallback;
     };
 
+    const defaultOrigin = product.provenance || product.origin || 'Fournisseur partenaire';
+    const defaultDeliveryDelay = product.delaiLivraison || product.deliveryDelay || '12 à 18 jours ouvrés';
+
     // ─── TOAST ──────────────────────────────────────────────────────────────────
     let toastTimer = null;
     const showToast = (msg) => {
@@ -79,12 +82,18 @@ export function initCart(product) {
                 const img = escapeHtml(item.img);
                 const qty = Math.max(1, safeNumber(item.qty, 1));
                 const price = safeNumber(item.price);
+                const origin = escapeHtml(item.provenance || item.origin || defaultOrigin);
+                const deliveryDelay = escapeHtml(item.delaiLivraison || item.deliveryDelay || defaultDeliveryDelay);
                 return `
-                <div class="flex items-center justify-between group bg-black/20 p-2 rounded-lg">
-                    <div class="flex items-center gap-3">
+                <div class="flex items-start justify-between gap-3 group bg-black/20 p-2 rounded-lg">
+                    <div class="flex items-start gap-3 min-w-0">
                         <img src="${img}" class="h-10 w-10 object-cover rounded-md border border-white/10" alt="${name}" />
-                        <div>
+                        <div class="min-w-0">
                             <p class="text-[10px] font-black uppercase">${name}</p>
+                            <div class="mt-1 space-y-0.5 text-[9px] font-bold uppercase tracking-wide text-gray-500 leading-snug">
+                                <p>Provenance : <span class="text-gray-300">${origin}</span></p>
+                                <p>Livraison : <span class="text-green-500">${deliveryDelay}</span></p>
+                            </div>
                             <div class="flex items-center gap-2 mt-1">
                                 <button data-action="decrease" data-index="${idx}" aria-label="Diminuer" class="text-green-500 hover:text-white px-1 leading-none">−</button>
                                 <span class="text-xs">${qty}</span>
@@ -165,7 +174,11 @@ export function initCart(product) {
     addButtons.forEach((addBtn) => addBtn.addEventListener('click', () => {
         const selectedQty = typeof product.getQty === 'function' ? product.getQty() : (parseInt(document.getElementById('qty-value')?.textContent, 10) || 1);
         const existing = cart.find(i => i.id === product.id);
-        if (existing) { existing.qty += selectedQty; }
+        if (existing) {
+            existing.qty += selectedQty;
+            existing.provenance = existing.provenance || defaultOrigin;
+            existing.delaiLivraison = existing.delaiLivraison || defaultDeliveryDelay;
+        }
         else {
             cart.push({
                 id:    product.id,
@@ -173,6 +186,8 @@ export function initCart(product) {
                 price: product.prix,
                 qty:   selectedQty,
                 img:   document.getElementById('prod-img')?.src || '',
+                provenance: defaultOrigin,
+                delaiLivraison: defaultDeliveryDelay,
             });
         }
         saveCart();
