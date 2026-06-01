@@ -118,6 +118,8 @@ const galleryImages = [
                 top: 0;
                 left: 0;
                 right: 0;
+                width: 100%;
+                box-sizing: border-box;
                 z-index: 50;
                 display: grid;
                 grid-template-columns: auto 1fr auto;
@@ -181,6 +183,7 @@ const galleryImages = [
                 align-items: center;
                 justify-content: flex-end;
                 gap: 0.5rem;
+                min-width: 0;
             }
 
             .nav-icon-btn {
@@ -723,6 +726,13 @@ const galleryImages = [
                 position: absolute;
                 top: 1.15rem;
                 left: 1.15rem;
+                z-index: 4;
+                max-width: calc(100% - 2.3rem);
+                padding: 0.45rem 0.7rem;
+                border: 1px solid rgba(255,255,255,0.1);
+                border-radius: 999px;
+                background: rgba(5, 7, 8, 0.62);
+                backdrop-filter: blur(14px);
                 color: rgba(255,255,255,0.42);
                 font-size: 0.64rem;
                 font-weight: 950;
@@ -1468,6 +1478,15 @@ const galleryImages = [
                 .site-nav { padding: 0.8rem 0.85rem; }
                 .nav-logo { font-size: 0.72rem; }
                 .nav-logo span { width: 2rem; height: 2rem; }
+                .nav-actions { gap: 0.2rem; }
+                .site-nav #account-btn,
+                .site-nav #cart-toggle {
+                    padding: 0.35rem;
+                }
+                .site-nav #cart-count {
+                    top: -0.15rem;
+                    right: -0.15rem;
+                }
 
                 .hero { padding-left: 0.85rem; padding-right: 0.85rem; }
                 .hero-lead { font-size: 0.96rem; }
@@ -1519,6 +1538,12 @@ const galleryImages = [
 
                 .product-visual { aspect-ratio: 1; }
                 .product-visual .gallery-main-image { width: 70%; }
+                .product-visual::after {
+                    top: 0.8rem;
+                    left: 0.8rem;
+                    font-size: 0.56rem;
+                    letter-spacing: 0.1em;
+                }
 
                 .price-block {
                     align-items: flex-start;
@@ -1851,7 +1876,7 @@ const galleryImages = [
                     if (!entry?.isIntersecting) return;
                     grid.classList.add('in-view');
                     observer.disconnect();
-                }, { threshold: 0.48 });
+                }, { threshold: 0.12, rootMargin: '0px 0px -12% 0px' });
 
                 observer.observe(grid);
             });

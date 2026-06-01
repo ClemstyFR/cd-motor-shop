@@ -504,6 +504,37 @@ const images = [
             .gallery-arrow.prev { left: 0.6rem; }
             .gallery-arrow.next { right: 0.6rem; }
 
+            @media (max-width: 640px) {
+                nav.fixed {
+                    padding: 0.85rem 1rem !important;
+                    gap: 0.5rem;
+                }
+
+                nav.fixed > a {
+                    max-width: calc(100vw - 8.5rem);
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                    font-size: 1rem;
+                }
+
+                nav.fixed #account-btn,
+                nav.fixed #cart-toggle {
+                    padding: 0.35rem;
+                }
+
+                nav.fixed #cart-count {
+                    top: -0.15rem;
+                    right: -0.15rem;
+                }
+
+                .cart-dropdown,
+                .account-dropdown {
+                    right: 0;
+                    max-width: calc(100vw - 2rem);
+                }
+            }
+
             .home-footer {
                 position: relative;
                 overflow: hidden;
@@ -679,7 +710,7 @@ const images = [
                 </div>
 
                 <!-- INFOS PRODUIT -->
-                <div class="deep-reveal w-full md:w-1/2">
+                <div class="product-detail-info w-full md:w-1/2">
                     <span class="text-green-500 font-bold tracking-widest uppercase text-xs">Fiche Produit</span>
                     <h1 class="text-5xl font-black uppercase italic mt-2">{product.nom}</h1>
                     
