@@ -106,6 +106,83 @@ const images = [
                 transform: translateY(0);
             }
 
+            .install-steps {
+                overflow: hidden;
+            }
+
+            .install-connector {
+                transform: scaleX(0);
+                transform-origin: left;
+                transition: transform 900ms var(--ease), opacity 700ms var(--ease);
+                opacity: 0;
+            }
+
+            .install-step,
+            .install-result {
+                opacity: 0;
+                transition: opacity 780ms var(--ease), transform 900ms var(--ease), border-color 420ms var(--ease), box-shadow 420ms var(--ease);
+                will-change: transform, opacity;
+            }
+
+            .install-step[data-direction="left"] {
+                transform: translate3d(-3.5rem, 1rem, 0) rotate(-1.5deg);
+            }
+
+            .install-step[data-direction="right"] {
+                transform: translate3d(3.5rem, 1rem, 0) rotate(1.5deg);
+            }
+
+            .install-step[data-direction="top"] {
+                transform: translate3d(0, -2.5rem, 0) scale(0.98);
+            }
+
+            .install-result {
+                transform: translateY(2rem);
+            }
+
+            .install-steps.is-visible .install-connector {
+                opacity: 1;
+                transform: scaleX(1);
+            }
+
+            .install-steps.is-visible .install-step,
+            .install-result.is-visible {
+                opacity: 1;
+                transform: translate3d(0, 0, 0) rotate(0deg) scale(1);
+            }
+
+            .install-steps.is-visible .install-step:nth-of-type(2) {
+                transition-delay: 120ms;
+            }
+
+            .install-steps.is-visible .install-step:nth-of-type(3) {
+                transition-delay: 240ms;
+            }
+
+            .install-steps.is-visible .install-step:nth-of-type(4) {
+                transition-delay: 360ms;
+            }
+
+            @media (max-width: 767px) {
+                .install-step[data-direction] {
+                    transform: translate3d(-2rem, 1.25rem, 0);
+                }
+
+                .install-steps.is-visible .install-step:nth-of-type(2) { transition-delay: 80ms; }
+                .install-steps.is-visible .install-step:nth-of-type(3) { transition-delay: 180ms; }
+                .install-steps.is-visible .install-step:nth-of-type(4) { transition-delay: 280ms; }
+            }
+
+            @media (prefers-reduced-motion: reduce) {
+                .install-step,
+                .install-result,
+                .install-connector {
+                    opacity: 1;
+                    transform: none;
+                    transition: none;
+                }
+            }
+
             #rating-card {
                 position: relative;
                 border: none !important;
@@ -843,13 +920,13 @@ const images = [
                 </div>
 
                 <!-- Étapes -->
-                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:2rem;position:relative;">
+                <div class="install-steps" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:2rem;position:relative;">
 
                     <!-- Ligne de connexion (desktop) -->
-                    <div style="position:absolute;top:2rem;left:calc(16.66% + 1rem);right:calc(16.66% + 1rem);height:1px;background:linear-gradient(to right,rgba(34,197,94,0.6),rgba(34,197,94,0.2));display:none;" class="md-connector"></div>
+                    <div style="position:absolute;top:2rem;left:calc(16.66% + 1rem);right:calc(16.66% + 1rem);height:1px;background:linear-gradient(to right,rgba(34,197,94,0.6),rgba(34,197,94,0.2));display:none;" class="md-connector install-connector"></div>
 
                     <!-- Étape 1 -->
-                    <div style="display:flex;flex-direction:column;gap:1.25rem;">
+                    <div class="install-step" data-direction="left" style="display:flex;flex-direction:column;gap:1.25rem;">
                         <div style="position:relative;">
                             <div style="width:4rem;height:4rem;border-radius:50%;background:rgba(34,197,94,0.12);border:1px solid rgba(34,197,94,0.3);display:flex;align-items:center;justify-content:center;">
                                 <svg xmlns="http://www.w3.org/2000/svg" style="height:1.75rem;width:1.75rem;color:#22c55e;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -869,7 +946,7 @@ const images = [
                     </div>
 
                     <!-- Étape 2 -->
-                    <div style="display:flex;flex-direction:column;gap:1.25rem;">
+                    <div class="install-step" data-direction="top" style="display:flex;flex-direction:column;gap:1.25rem;">
                         <div style="position:relative;">
                             <div style="width:4rem;height:4rem;border-radius:50%;background:rgba(34,197,94,0.12);border:1px solid rgba(34,197,94,0.3);display:flex;align-items:center;justify-content:center;">
                                 <svg xmlns="http://www.w3.org/2000/svg" style="height:1.75rem;width:1.75rem;color:#22c55e;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -889,7 +966,7 @@ const images = [
                     </div>
 
                     <!-- Étape 3 -->
-                    <div style="display:flex;flex-direction:column;gap:1.25rem;">
+                    <div class="install-step" data-direction="right" style="display:flex;flex-direction:column;gap:1.25rem;">
                         <div style="position:relative;">
                             <div style="width:4rem;height:4rem;border-radius:50%;background:rgba(34,197,94,0.12);border:1px solid rgba(34,197,94,0.3);display:flex;align-items:center;justify-content:center;">
                                 <svg xmlns="http://www.w3.org/2000/svg" style="height:1.75rem;width:1.75rem;color:#22c55e;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -911,7 +988,7 @@ const images = [
                 </div>
 
                 <!-- Badge résultat -->
-                <div style="margin-top:3rem;padding:1.25rem 1.75rem;background:linear-gradient(135deg,rgba(34,197,94,0.08),rgba(34,197,94,0.03));border:1px solid rgba(34,197,94,0.2);border-radius:1.25rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
+                <div class="install-result" style="margin-top:3rem;padding:1.25rem 1.75rem;background:linear-gradient(135deg,rgba(34,197,94,0.08),rgba(34,197,94,0.03));border:1px solid rgba(34,197,94,0.2);border-radius:1.25rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
                     <div style="height:2.5rem;width:2.5rem;border-radius:50%;background:rgba(34,197,94,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
                         <svg xmlns="http://www.w3.org/2000/svg" style="height:1.2rem;width:1.2rem;color:#22c55e;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
@@ -1498,7 +1575,7 @@ const images = [
             document.addEventListener('astro:page-load', () => {
                 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-                const revealItems = Array.from(document.querySelectorAll('.deep-reveal, .tilt-card, #rating-card, .review-card, .home-footer'));
+                const revealItems = Array.from(document.querySelectorAll('.deep-reveal, .tilt-card, #rating-card, .review-card, .install-steps, .install-result, .home-footer'));
                 revealItems.forEach((item, index) => {
                     item.style.transitionDelay = `${Math.min(index * 55, 220)}ms`;
                     if (reduceMotion) item.classList.add('is-visible');
