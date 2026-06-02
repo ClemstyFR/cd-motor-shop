@@ -20,6 +20,64 @@ const images = [
     imageBlackMatte3.src,
     imageBlackMatte4.src,
 ];
+
+const siteUrl = 'https://cd-motor-shop.vercel.app';
+const productUrl = `${siteUrl}/deepmatte`;
+const productOgImage = `${siteUrl}${imageBlackMatte1.src}`;
+const productSeoDescription = 'Deep Matte est un pommeau de levier de vitesse en aluminium noir mat, compatible M8, M10 et M12, avec livraison gratuite et retour 30 jours.';
+const faqItems = [
+    {
+        question: 'Le Deep Matte est-il compatible avec ma voiture ?',
+        answer: 'Le Deep Matte est livré avec trois bagues adaptatrices M8, M10 et M12 pour couvrir la majorité des leviers filetés. Avant commande, vérifie simplement que ton pommeau actuel se dévisse ou qu’il accepte ce type de fixation.',
+    },
+    {
+        question: 'Quel est le délai de livraison ?',
+        answer: 'La livraison est gratuite en France métropolitaine. Le délai estimé actuel est de 12 à 18 jours ouvrés, avec un suivi disponible depuis ton espace commande.',
+    },
+    {
+        question: 'Est-ce compliqué à installer ?',
+        answer: 'Non. L’installation prend généralement environ 5 minutes : tu retires l’ancien pommeau, tu choisis la bague adaptée, puis tu visses le Deep Matte à la main.',
+    },
+    {
+        question: 'Puis-je retourner le produit ?',
+        answer: 'Oui. Tu disposes de 30 jours pour demander un retour si le produit est complet, non endommagé et dans un état permettant sa remise en vente.',
+    },
+    {
+        question: 'Le paiement est-il sécurisé ?',
+        answer: 'Oui. Le paiement est traité via Stripe. CD Motor Shop ne conserve pas tes données complètes de carte bancaire.',
+    },
+];
+const productSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: product.nom,
+    description: productSeoDescription,
+    image: images.map((src) => `${siteUrl}${src}`),
+    brand: {
+        '@type': 'Brand',
+        name: 'CD Motor Shop',
+    },
+    offers: {
+        '@type': 'Offer',
+        url: productUrl,
+        priceCurrency: 'EUR',
+        price: product.prix.toFixed(2),
+        availability: product.enStock ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+        itemCondition: 'https://schema.org/NewCondition',
+    },
+};
+const faqSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqItems.map((item) => ({
+        '@type': 'Question',
+        name: item.question,
+        acceptedAnswer: {
+            '@type': 'Answer',
+            text: item.answer,
+        },
+    })),
+};
 ---
 
 <html lang="fr">
@@ -27,14 +85,26 @@ const images = [
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" type="image/png" href="/logo.png" />
-        <title>{product.nom} | Pommeau de levier premium — CD Motor Shop</title>
-        <meta name="description" content="Deep Matte — Pommeau de levier de vitesse en aluminium premium. Compatibilité universelle M8/M10/M12, livraison gratuite, retour 30 jours." />
+        <title>Deep Matte | Pommeau de levier universel M8 M10 M12</title>
+        <meta name="description" content={productSeoDescription} />
+        <meta name="keywords" content="pommeau de levier, pommeau voiture, pommeau universel M8 M10 M12, pommeau aluminium noir mat, Deep Matte, accessoire auto" />
+        <meta name="robots" content="index, follow" />
+        <meta name="theme-color" content="#050607" />
+        <link rel="canonical" href={productUrl} />
         <meta property="og:title" content="Deep Matte | Pommeau aluminium premium — CD Motor Shop" />
-        <meta property="og:description" content="Finition aluminium mat premium, prise en main parfaite. Bagues M8/M10/M12 incluses. Livraison gratuite." />
-        <meta property="og:image" content="https://cd-motor-shop.vercel.app/logo.png" />
-        <meta property="og:url" content="https://cd-motor-shop.vercel.app/deepmatte" />
+        <meta property="og:description" content={productSeoDescription} />
+        <meta property="og:image" content={productOgImage} />
+        <meta property="og:url" content={productUrl} />
         <meta property="og:type" content="product" />
+        <meta property="og:site_name" content="CD Motor Shop" />
+        <meta property="product:price:amount" content={product.prix.toFixed(2)} />
+        <meta property="product:price:currency" content="EUR" />
         <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Deep Matte | Pommeau universel M8 M10 M12" />
+        <meta name="twitter:description" content={productSeoDescription} />
+        <meta name="twitter:image" content={productOgImage} />
+        <script type="application/ld+json" set:html={JSON.stringify(productSchema)} />
+        <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
         <style>
             html { scroll-behavior: smooth; }
 
@@ -393,6 +463,31 @@ const images = [
 
             .compat-model-card:hover::before {
                 opacity: 1;
+            }
+
+            .faq-card {
+                border: 1px solid rgba(255,255,255,0.09);
+                border-radius: 1.25rem;
+                background:
+                    linear-gradient(145deg, rgba(255,255,255,0.055), transparent 46%),
+                    rgba(24,24,27,0.72);
+                padding: 1.25rem;
+            }
+
+            .faq-card h3 {
+                color: white;
+                font-size: 0.9rem;
+                font-weight: 950;
+                line-height: 1.35;
+                text-transform: uppercase;
+                letter-spacing: 0.04em;
+            }
+
+            .faq-card p {
+                color: #9ca3af;
+                font-size: 0.84rem;
+                line-height: 1.7;
+                margin-top: 0.7rem;
             }
 
             .thread-badge {
@@ -1145,6 +1240,29 @@ const images = [
                         onmouseout="this.style.background='#22c55e';this.style.color='black'">
                         Commander maintenant
                     </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- ── FAQ ──────────────────────────────────────────────────────────────── -->
+        <section id="faq" class="py-24 bg-zinc-950 border-t border-white/5">
+            <div class="max-w-6xl mx-auto px-5 md:px-10">
+                <div class="grid grid-cols-1 lg:grid-cols-[0.75fr_1.35fr] gap-12 items-start">
+                    <div>
+                        <span class="text-green-500 font-bold tracking-widest uppercase text-xs">Questions rapides</span>
+                        <h2 class="text-4xl md:text-5xl font-black uppercase italic mt-2">Avant de commander</h2>
+                        <p class="text-gray-500 text-sm leading-relaxed mt-5 max-w-sm">
+                            Les points qui comptent le plus avant d'ajouter le Deep Matte à ton habitacle.
+                        </p>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {faqItems.map((item) => (
+                            <article class="faq-card">
+                                <h3>{item.question}</h3>
+                                <p>{item.answer}</p>
+                            </article>
+                        ))}
+                    </div>
                 </div>
             </div>
         </section>

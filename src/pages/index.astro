@@ -19,6 +19,10 @@ const galleryImages = [
     imageBlackMatte2.src,
     imageBlackMatte3.src,
 ];
+
+const siteUrl = 'https://cd-motor-shop.vercel.app';
+const homeDescription = "CD Motor Shop selectionne des accessoires auto premium pour moderniser l'habitacle : pommeaux, finitions cabine et pieces sobres pensees pour le quotidien.";
+const homeOgImage = `${siteUrl}${imageBlackMatte1.src}`;
 ---
 
 <html lang="fr">
@@ -26,14 +30,22 @@ const galleryImages = [
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" type="image/png" href="/logo.png" />
-        <title>CD Motor Shop | Accessoires auto modernes et premium</title>
-        <meta name="description" content="CD Motor Shop selectionne des accessoires auto sobres, modernes et precis pour personnaliser l'habitacle sans compromis." />
+        <title>CD Motor Shop | Accessoires auto premium pour habitacle moderne</title>
+        <meta name="description" content={homeDescription} />
+        <meta name="keywords" content="accessoires auto premium, accessoires voiture, pommeau de levier, pommeau aluminium, habitacle voiture, CD Motor Shop" />
+        <meta name="robots" content="index, follow" />
+        <meta name="theme-color" content="#050607" />
+        <link rel="canonical" href={siteUrl} />
         <meta property="og:title" content="CD Motor Shop | Accessoires auto modernes et premium" />
-        <meta property="og:description" content="Une boutique d'accessoires auto premium. Pieces de cabine, finitions sobres, details utiles et montage simple." />
-        <meta property="og:image" content="https://cd-motor-shop.vercel.app/logo.png" />
-        <meta property="og:url" content="https://cd-motor-shop.vercel.app" />
+        <meta property="og:description" content={homeDescription} />
+        <meta property="og:image" content={homeOgImage} />
+        <meta property="og:url" content={siteUrl} />
         <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="CD Motor Shop" />
         <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="CD Motor Shop | Accessoires auto premium" />
+        <meta name="twitter:description" content={homeDescription} />
+        <meta name="twitter:image" content={homeOgImage} />
 
         <style>
             *, *::before, *::after { box-sizing: border-box; }
